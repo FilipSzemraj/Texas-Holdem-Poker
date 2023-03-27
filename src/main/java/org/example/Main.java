@@ -19,6 +19,8 @@ public class Main extends Application {
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             primaryStage.setScene(scene);
+            primaryStage.setMaximized(true);
+            primaryStage.setFullScreen(true);
             primaryStage.show();
         } catch(Exception e)
         {
