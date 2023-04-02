@@ -1,29 +1,24 @@
 package org.main;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.control.TextField;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
 
-public class SceneController{
+import javafx.scene.control.Button;
 
-    //@FXML
-    //private TextField TextLoginField;
+
+public class LoginController {
+
+    @FXML
+    private Button loginButton;
 
     public void Login(ActionEvent event) throws IOException {
 
@@ -41,5 +36,4 @@ public class SceneController{
         primaryStage.show();
         ((Node)(event.getSource())).getScene().getWindow().hide();
     }
-
 }
