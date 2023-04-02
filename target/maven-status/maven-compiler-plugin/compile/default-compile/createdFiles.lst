@@ -1,2 +1,5 @@
 org\main\Main.class
+net\GameServer.class
+net\GameClient.class
 org\main\SceneController.class
+org\main\LoginController.class
