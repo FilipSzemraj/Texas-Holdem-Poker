@@ -1,4 +1,4 @@
-package org.example;
+package org.main;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,16 +11,18 @@ import java.net.URL;
 
 public class Main extends Application {
 
+    //private static Stage stage;
+
     @Override
     public void start(Stage primaryStage) {
         try{
-            URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
+            //stage=primaryStage;
+            URL url_fxml = new File("src/main/resources/fxml/LoginWindow.fxml").toURI().toURL();
             Parent root = FXMLLoader.load(url_fxml);
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/LoginPage.css").toExternalForm());
+            primaryStage.setTitle("Texas holdem logowanie");
             primaryStage.setScene(scene);
-            primaryStage.setMaximized(true);
-            primaryStage.setFullScreen(true);
             primaryStage.show();
         } catch(Exception e)
         {
@@ -29,7 +31,19 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+
         launch(args);
     }
+
+    //public static void setStageOption(String newTitle)
+    //{
+        //stage.setTitle(newTitle);
+        //stage.setMaximized(true);
+        //stage.setFullScreen(true);
+        //Image icon = new Image("icon.png") Zmiana ikony okna.
+        //primaryStage.getIcons().add(icon);
+    //}
+
+
 
 }
