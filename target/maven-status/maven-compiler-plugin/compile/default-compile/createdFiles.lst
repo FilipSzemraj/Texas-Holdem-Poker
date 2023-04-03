@@ -2,4 +2,5 @@ org\main\Main.class
 net\GameServer.class
 net\GameClient.class
 org\main\SceneController.class
+sql\DatabaseConnection.class
 org\main\LoginController.class
