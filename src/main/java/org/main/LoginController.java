@@ -6,19 +6,25 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import javafx.scene.control.Button;
+import java.util.ResourceBundle;
 
 
 public class LoginController {
 
     @FXML
     private Button loginButton, cancelButton;
+    @FXML
+    Label messageLabel;
+    @FXML
+    TextField loginTextField, passwordTextField;
     //private Stage primaryStage;
 
     public void Login(ActionEvent event) throws IOException {
@@ -36,6 +42,17 @@ public class LoginController {
         primaryStage.setFullScreen(true);
         primaryStage.show();
         ((Node)(event.getSource())).getScene().getWindow().hide();
+    }
+
+
+
+    public void loginButtonOnAction()
+    {
+        if(loginTextField.getText().isBlank() == false && passwordTextField.getText().isBlank() == false)
+        {
+            messageLabel.setText("Próba logowania");
+        } else
+        messageLabel.setText("Oba pola muszą być uzupełnione");
     }
 
     public void cancelButtonOnAction(ActionEvent event){
