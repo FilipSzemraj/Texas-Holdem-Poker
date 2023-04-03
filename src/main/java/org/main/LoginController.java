@@ -18,7 +18,8 @@ import javafx.scene.control.Button;
 public class LoginController {
 
     @FXML
-    private Button loginButton;
+    private Button loginButton, cancelButton;
+    //private Stage primaryStage;
 
     public void Login(ActionEvent event) throws IOException {
 
@@ -35,5 +36,10 @@ public class LoginController {
         primaryStage.setFullScreen(true);
         primaryStage.show();
         ((Node)(event.getSource())).getScene().getWindow().hide();
+    }
+
+    public void cancelButtonOnAction(ActionEvent event){
+        Stage stage = (Stage) cancelButton.getScene().getWindow();
+        stage.close();
     }
 }

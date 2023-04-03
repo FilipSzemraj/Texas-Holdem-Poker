@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import net.GameClient;
 import net.GameServer;
 
@@ -20,6 +21,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try{
             //stage=primaryStage;
+            primaryStage.initStyle(StageStyle.UNDECORATED);
             URL url_fxml = new File("src/main/resources/fxml/LoginWindow.fxml").toURI().toURL();
             Parent root = FXMLLoader.load(url_fxml);
             Scene scene = new Scene(root, 520, 400);
