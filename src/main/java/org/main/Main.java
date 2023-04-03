@@ -6,11 +6,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.GameClient;
-import net.GameServer;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class Main extends Application {
 
@@ -39,6 +44,7 @@ public class Main extends Application {
 
         launch(args);
     }
+
 
     //public static void setStageOption(String newTitle)
     //{
