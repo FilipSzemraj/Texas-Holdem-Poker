@@ -1,5 +1,6 @@
 package org.main;
 
+import Sql.DatabaseConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,9 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ResourceBundle;
 
 
@@ -27,7 +31,7 @@ public class LoginController {
     TextField loginTextField, passwordTextField;
     //private Stage primaryStage;
 
-    public void Login(ActionEvent event) throws IOException {
+    public void logged() throws IOException {
 
         System.out.println("Jakis tekst");
 
@@ -41,7 +45,7 @@ public class LoginController {
         primaryStage.setMaximized(true);
         primaryStage.setFullScreen(true);
         primaryStage.show();
-        ((Node)(event.getSource())).getScene().getWindow().hide();
+        loginButton.getScene().getWindow().hide();
     }
 
 
@@ -50,7 +54,7 @@ public class LoginController {
     {
         if(loginTextField.getText().isBlank() == false && passwordTextField.getText().isBlank() == false)
         {
-            messageLabel.setText("Próba logowania");
+            validateLogin();
         } else
         messageLabel.setText("Oba pola muszą być uzupełnione");
     }
@@ -58,5 +62,34 @@ public class LoginController {
     public void cancelButtonOnAction(ActionEvent event){
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
+    }
+
+    public void validateLogin()
+    {
+        DatabaseConnection connectNow = new DatabaseConnection();
+        Connection connectDB = connectNow.getConnection();
+
+        String verifyLogin="SELECT Count(1) FROM user_account WHERE login = '"+loginTextField.getText()+"' AND password = '"+passwordTextField.getText()+"';";
+
+        try{
+            Statement statement = connectDB.createStatement();
+            ResultSet queryResult = statement.executeQuery(verifyLogin);
+
+            while(queryResult.next())
+            {
+                if(queryResult.getInt(1) == 1)
+                {
+                    messageLabel.setText("Gratulacje! Zalogowano pomyślnie.");
+                    logged();
+                }else {
+                    messageLabel.setText("Niepoprawne dane, spróbuj ponownie...");
+                }
+            }
+
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+            e.getCause();
+        }
     }
 }
