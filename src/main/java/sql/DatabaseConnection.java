@@ -24,7 +24,7 @@ public class DatabaseConnection {
             databaseLink = DriverManager.getConnection(dbPrefix + databaseLocation);
         }catch(SQLException exception)
         {
-            Logger.getAnonymousLogger().log(Level.SEVERE, LocalDateTime.now() + ": Nie udalo sie polaczyc z SQLite DB w " + location);
+            Logger.getAnonymousLogger().log(Level.SEVERE, LocalDateTime.now() + ": Nie udalo sie polaczyc z SQLite DB w " + databaseLocation);
             return null;
         }
 
