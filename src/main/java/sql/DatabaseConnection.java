@@ -2,6 +2,7 @@ package sql;
 
 import org.main.Main;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,11 +17,11 @@ public class DatabaseConnection {
         String databaseName = "db_poker";
         String databaseUser = "Filip";
         String databasePassword = "1234";
-        String location = ("C:/Projekty_JAVA/Texas_holdem/Texas_holdem/src/main/resources/DB_POKER.db");
+        URL databaseLocation = getClass().getResource("/database/DB_POKER.db");
         String dbPrefix = "jdbc:sqlite:";
 
         try{
-            databaseLink = DriverManager.getConnection(dbPrefix + location);
+            databaseLink = DriverManager.getConnection(dbPrefix + databaseLocation);
         }catch(SQLException exception)
         {
             Logger.getAnonymousLogger().log(Level.SEVERE, LocalDateTime.now() + ": Nie udalo sie polaczyc z SQLite DB w " + location);
