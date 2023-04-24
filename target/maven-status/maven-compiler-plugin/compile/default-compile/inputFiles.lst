@@ -1,6 +1,8 @@
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\sql\DatabaseConnection.java
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\org\main\Main.java
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\net\GameClient.java
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\net\GameServer.java
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\org\main\LoginController.java
-C:\Projekty_JAVA\Texas_holdem\Texas_holdem\src\main\java\org\main\SceneController.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\LoginController.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\sql\DatabaseConnection.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\Game\Croupier.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\net\GameClient.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\SceneController.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\Game\CheckHand.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\net\GameServer.java
+C:\Users\Karolek\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\Main.java
