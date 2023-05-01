@@ -4,44 +4,37 @@ import Game.Croupier.*;
 import java.util.*;
 
 public class CheckHand {
-
     Card[] cardsOnTable;
     Card[] cardsInHand;
     Card[] allCards;
-
+    boolean isStraight = false;
+    boolean isFlush = false;
+    public static final int ROYAL_FLUSH=9;
+    public static final int STRAIGHT_FLUSH=8;
+    public static final int FOUR_OF_A_KIND=7;
+    public static final int FULL_HOUSE=6;
+    public static final int FLUSH=5;
+    public static final int STRAIGHT=4;
+    public static final int THREE_OF_A_KIND=3;
+    public static final int TWO_PAIR=2;
+    public static final int PAIR=1;
     public CheckHand()
     {
         cardsOnTable=new Card[5];
         cardsInHand=new Card[2];
         allCards=new Card[7];
     }
-
     public void getIdOfCardsOnTable(Map<Integer, Card> table)
     {
-        /*int i=0;
-        for(int key : table.keySet())
-        {
-            this.table[i][0]=(key+4-1)/4; // 1-dwojki, ..., 13-asy
-            this.table[i][1]=key%4; //0-Karo, 1-Pik, 2-Kier, 3-Trefl
-            i++;
-        }*/
         int i=0;
         for(int key : table.keySet())
         {
             cardsOnTable[i]=table.get(key);
             i++;
         }
-
     }
     public void getIdOfCardsFromHand(Map<Integer, Card> hand)
     {
-        /*int i=0;
-        for(int key : hand.keySet())
-        {
-            this.hand[i][0]=(key+4-1)/4; // 1-dwojki, ..., 13-asy
-            this.hand[i][1]=key%4; //0-Karo, 1-Pik, 2-Kier, 3-Trefl
-            i++;
-        }*/
         int i=0;
         for(int key : hand.keySet())
         {
@@ -55,30 +48,34 @@ public class CheckHand {
         System.arraycopy(cardsInHand, 0, allCards, cardsOnTable.length, cardsInHand.length);
 
         Arrays.sort(allCards);
-        checkAll();
-        //for(Card obj : allCards)
-        //{
-        //   System.out.println(obj);
-        //}
-
     }
-    private void checkAll()
+    public int checkAll()
     {
-        if(checkForRoyalFlush() || checkForStraightFlush() || checkForFourOfAKind()
-                || checkForFullHouse() || checkForFlush() || checkForStraightFlush() || checkForThreeOfAKind()
-                || checkForTwoPair() || checkForPair())
-        {
-            System.out.println("\n");
+        int result=0;
+        if (checkForRoyalFlush()) {
+            result = ROYAL_FLUSH;
+        } else if (checkForStraightFlush()) {
+            result = STRAIGHT_FLUSH;
+        } else if (checkForFourOfAKind()) {
+            result = FOUR_OF_A_KIND;
+        } else if (checkForFullHouse()) {
+            result = FULL_HOUSE;
+        } else if (checkIsFlush()) {
+            result = FLUSH;
+        } else if (checkIsStraight()) {
+            result = STRAIGHT;
+        } else if (checkForThreeOfAKind()) {
+            result = THREE_OF_A_KIND;
+        } else if (checkForTwoPair()) {
+            result = TWO_PAIR;
+        } else if (checkForPair()) {
+            result = PAIR;
         }
-        else {
-            checkForHighestCard();
-        }
+        return result;
     }
-
-
     private boolean checkForRoyalFlush()
     {
-        if(checkForStraightFlush() && (allCards[4].idOfFigure == 12
+        if(checkForStraight() && checkForFlush() && (allCards[4].idOfFigure == 12
                 || allCards[5].idOfFigure == 12 ||
                 allCards[6].idOfFigure == 12))
         {
@@ -88,7 +85,7 @@ public class CheckHand {
     }
     private boolean checkForStraightFlush()
     {
-        if(checkForStraight()&&checkForFlush()) {
+        if(isStraight && isFlush) {
             System.out.println("Straight flush!\n");
             return true;
         }
@@ -160,23 +157,27 @@ public class CheckHand {
             if(idOfColorCount[i]==5)
             {
                 System.out.println("Kolor - "+Croupier.colors[i]);
+                isFlush=true;
                 return true;
             }
         }
+        isFlush=false;
         return false;
     }
     private boolean checkForStraight()
     {
+        //System.out.println("strit\n");
         int n = allCards.length;
         int check=0;
 
-        for (int i = 0; i < n; i++) { // iterujemy po wszystkich elementach tablicy
+        for (int i = n-1; i >= 0; i--) { // iterujemy po wszystkich elementach tablicy
             boolean isStraight = true;
             for (int j = 1; j <= 4; j++) { // sprawdzamy 4 kolejne elementy
-                int currIndex = (i+j) % n; // indeks kolejnego elementu, uwzględniając cykliczność tablicy
-                int prevIndex = (i+j-1) % n; // indeks poprzedniego elementu, uwzględniając cykliczność tablicy
-                if (allCards[currIndex].idOfFigure != allCards[prevIndex].idOfFigure + 1) { // sprawdzamy, czy wartość pola idOfFigure jest o 1 większa od poprzednika
+                int currIndex = (i-j+n) % n; // indeks kolejnego elementu, uwzględniając cykliczność tablicy
+                int prevIndex = (i-j-1+n) % n; // indeks poprzedniego elementu, uwzględniając cykliczność tablicy
+                if (allCards[currIndex].idOfFigure - 1 != allCards[prevIndex].idOfFigure) { // sprawdzamy, czy wartość pola idOfFigure jest o 1 większa od poprzednika
                     isStraight = false;
+                    //System.out.println("strit\n");
                     break; // przerywamy pętlę, jeśli sekwencja nie jest już poprawna
                 }
             }
@@ -188,10 +189,21 @@ public class CheckHand {
                 break; // przerywamy pętlę, jeśli znaleziono sekwencję
             }
         }
-        if(check==1)
+        if(check==1 ) {
+            isStraight=true;
             return true;
+        }
+        isStraight=false;
         return false;
 
+    }
+    private boolean checkIsStraight()
+    {
+        return isStraight;
+    }
+    private boolean checkIsFlush()
+    {
+        return isFlush;
     }
     private boolean checkForThreeOfAKind()
     {
@@ -258,9 +270,4 @@ public class CheckHand {
         }
         return false;
     }
-    private void checkForHighestCard()
-    {
-        System.out.println(allCards[6].toString());
-    }
-
 }
