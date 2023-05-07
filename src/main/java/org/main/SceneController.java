@@ -42,4 +42,38 @@ public class SceneController{
         ((Node)(event.getSource())).getScene().getWindow().hide();
     }
 
+    @FXML
+    void btnAllIN2OnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnAllINOnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnBetOnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnCheckOnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnFold2OnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnFoldOnClick(ActionEvent event) {
+
+    }
+
+    @FXML
+    void btnRaiseOnClick(ActionEvent event) {
+
+    }
 }
