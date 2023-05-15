@@ -1,4 +1,5 @@
 package Game;
+
 import java.util.*;
 import java.util.stream.Collectors;
 class GenerateRandom{
@@ -10,34 +11,7 @@ class GenerateRandom{
         return random_int;
     }
 }
-class Card implements Comparable<Card>{
-    private final String nameOfFigure;
-    final String colorName;
-    int idOfFigure;
-    int idOfColor;
-    Card(String x, String y, int k, int l)
-    {
-        nameOfFigure=x;
-        colorName=y;
-        idOfFigure=k;
-        idOfColor=l;
-    }
-    @Override
-    public String toString()
-    {
-        return nameOfFigure+" "+colorName;
-    }
-    @Override
-    public int compareTo(Card x)
-    {
-        if (this.idOfFigure == (x.idOfFigure))
-            return 0;
-        else if ((this.idOfFigure) > (x.idOfFigure))
-            return 1;
-        else
-            return -1;
-    }
-}
+
 public class Croupier{
     int numberOfPlayers;
     static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
@@ -60,6 +34,7 @@ public class Croupier{
     {
         numberOfPlayers = x;
         makeDeck();
+        showDeck();//wyj
         makeHands();
         game();
     }
@@ -68,39 +43,52 @@ public class Croupier{
     //###########################################################################################################
     public void game()
     {
-        int whichState=0;
-        isPlayerPlayable();
-        cleanTable();
-        dealCards();
-        showHands();
-        preFlop();
-        do{
-            dealCommunityCardsAndInitiateBetting(); //flop, turn, river
-            //showCardsOnTable();
-            whichState++;
-        }while(currentPlayingPlayers>1 && whichState < 3);
-        if(currentPlayingPlayers>1)
-        {
-            checkForAllHands();
-            extractTheWinner();
+        do {
+            //jak ktos wejdzie all in niech go nie sprawdza
+            int whichState = 0;
+            isPlayerPlayable();
+            cleanTable();
+            dealCards();
+            showHands();
+            preFlop();
+            do {
+                dealCommunityCardsAndInitiateBetting(); //flop, turn, river
+                //showCardsOnTable();
+                whichState++;
+            } while (currentPlayingPlayers > 1 && whichState < 3);
+            if(currentPlayingPlayers>1) {
+                checkForAllHands();
+                extractTheWinner(numberOfPlayers, playersHand);
+            }
+            prepareForNextRound();
+        }while(numberOfPlayers>1);
+    }
+
+    private void checkIfFirstPlayerInCycleHasChanged()
+    {
+        if(!playersHand[firstPlayerInCycle].isInCurrentRound) {
+            do {
+                firstPlayerInCycle=firstPlayerInCycle+1%numberOfPlayers;
+            } while (!playersHand[firstPlayerInCycle].isInCurrentRound);
         }
     }
-    private void dealCommunityCardsAndInitiateBetting ()
+    private void dealCommunityCardsAndInitiateBetting()
     {
         int tempPosition=checkCurrentPlayingPlayers();
         if(currentPlayingPlayers>1) {
             dealCardsToTable();
             showCardsOnTable();
-            //activePlayer=firstPlayerInCycle;
+            checkIfFirstPlayerInCycleHasChanged();
+            activePlayer=firstPlayerInCycle;
             do {
                 int tempMaxBet=maxBet;
-                int tempPot = pot;
+                int tempPot=pot;
                 playerAction();
                 if((tempPot+maxBet)>(pot+tempMaxBet)) {
                     firstPlayerInCycle = activePlayer;
                 }
                 activePlayer=(activePlayer+1)%numberOfPlayers;
-            } while (activePlayer != (firstPlayerInCycle+1)%numberOfPlayers);
+            } while (activePlayer != firstPlayerInCycle);
         }
         else {
             distributePot(tempPosition);
@@ -160,18 +148,19 @@ public class Croupier{
     private void preFlop()
     {
         firstPlayerInCycle=bigBlindPosition;
+        int firstPlayerInCycleNamedPreFlop=firstPlayerInCycle;
         getBlinds();
         do
         {
             int tempMaxBet=maxBet;
             int tempPot=pot;
             playerAction();
-            if((tempPot+maxBet)>(pot+tempMaxBet))
+            if((pot)>(tempPot+tempMaxBet))
             {
-                firstPlayerInCycle=activePlayer;
+                firstPlayerInCycleNamedPreFlop=activePlayer;
             }
             activePlayer=(activePlayer+1)%numberOfPlayers;
-        }while(activePlayer!=(firstPlayerInCycle+1)%numberOfPlayers);
+        }while(activePlayer!=firstPlayerInCycleNamedPreFlop);
     }
     private void playerAction()
     {
@@ -182,14 +171,25 @@ public class Croupier{
             }
             else
             {
-                int x;
+                int x=0;
                 boolean goodChoice = false;
+                int diff = maxBet - playersHand[activePlayer].actualBet;
+                boolean validInt=false;
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
-                    int diff = maxBet - playersHand[activePlayer].actualBet;
-                    System.out.println("Gracz o id " +playersHand[activePlayer].playerId);
-                    System.out.println("Masz do wplacenia zaklad o wysokosci: " + diff + "\nTwoje pozostale pieniadze: " + playersHand[activePlayer].amountOfMoney);
-                    x = sc.nextInt();
+                    while(!validInt) {
+                        System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
+                        System.out.println("Masz do wplacenia zaklad o wysokosci: " + diff + "\nTwoje pozostale pieniadze: " + playersHand[activePlayer].amountOfMoney);
+                        if(sc.hasNextInt()) {
+                            x = sc.nextInt();
+                            validInt=true;
+                        }
+                        else {
+                            System.out.println("Wprowadz liczbe od 1 do 5...\n");
+                            sc.next();
+                        }
+                    }
+                    validInt=false;
                     if (playersHand[activePlayer].amountOfMoney < diff) {
                         switch (x) {
                             case 1:
@@ -197,7 +197,7 @@ public class Croupier{
                                 goodChoice=true;
                                 break;
                             case 4:
-                                allIn();
+                                allIn(diff);
                                 goodChoice=true;
                                 break;
                             default:
@@ -215,11 +215,11 @@ public class Croupier{
                                 goodChoice=true;
                                 break;
                             case 3:
-                                raise();
+                                raise(diff);
                                 goodChoice=true;
                                 break;
                             case 4:
-                                allIn();
+                                allIn(diff);
                                 goodChoice=true;
                                 break;
                             case 5:
@@ -249,33 +249,44 @@ public class Croupier{
         playersHand[activePlayer].actualBet+=diff;
         playersHand[activePlayer].amountOfMoney-=diff;
         pot+=diff;
+        if(playersHand[activePlayer].amountOfMoney<=0)
+        {
+            playersHand[activePlayer].isAllIn=true;
+        }
     }
     private void fold()
     {
         playersHand[activePlayer].isInCurrentRound=false;
     }
-    private void raise()
+    private void raise(int diff)
     {
         int raiseAmount;
         do {
             System.out.println("Podaj kwote, jaka chcesz przebic zaklad: \n");
             raiseAmount=sc.nextInt();
-        }while(raiseAmount>playersHand[activePlayer].amountOfMoney && raiseAmount>maxBet);
+        }while(raiseAmount>playersHand[activePlayer].amountOfMoney || raiseAmount<diff);
         playersHand[activePlayer].amountOfMoney-=raiseAmount;
         pot+=raiseAmount;
-        maxBet=raiseAmount;
+        maxBet+=(raiseAmount-diff);
+        playersHand[activePlayer].actualBet+=raiseAmount;
+        if(playersHand[activePlayer].amountOfMoney<=0)
+        {
+            playersHand[activePlayer].isAllIn=true;
+        }
     }
-    private void allIn()
+    private void allIn(int diff)
     {
         if(playersHand[activePlayer].amountOfMoney<maxBet)
         {
             pot+=playersHand[activePlayer].amountOfMoney;
+            playersHand[activePlayer].actualBet+=playersHand[activePlayer].amountOfMoney;
             playersHand[activePlayer].amountOfMoney=0;
         }
         else
         {
             pot+=playersHand[activePlayer].amountOfMoney;
-            maxBet+=playersHand[activePlayer].amountOfMoney;
+            playersHand[activePlayer].actualBet+=playersHand[activePlayer].amountOfMoney;
+            maxBet=(maxBet-diff)+playersHand[activePlayer].amountOfMoney;
             playersHand[activePlayer].amountOfMoney=0;
         }
         playersHand[activePlayer].isAllIn=true;
@@ -303,7 +314,7 @@ public class Croupier{
     {
         checker.getIdOfCardsOnTable(table);
         for (int i = 0; i < numberOfPlayers; i++) {
-            if(playersHand[i].isInCurrentRound) {
+            if (playersHand[i].isInCurrentRound) {
                 System.out.println("REKA GRACZA " + (i + 1));
                 checker.getIdOfCardsFromHand(playersHand[i].hand);
                 checker.combineAndSort();
@@ -312,32 +323,130 @@ public class Croupier{
         }
         Arrays.sort(playersHand);
     }
-    private void extractTheWinner() //moze inna nazwa
+    private int countTheWinners(int numberOfPlayers, Hand[] playersHand)
     {
-        int winnersCount=1;
-        for (int i = numberOfPlayers-1; i >= 1; i--) {
-            if(playersHand[i].compareTo(playersHand[i-1])==0 && playersHand[i].isInCurrentRound && playersHand[i-1].isInCurrentRound)
-            {
+        int winnersCount = 1;
+        for (int i = numberOfPlayers - 1; i >= 1; i--) {
+            if (playersHand[i].compareTo(playersHand[i - 1]) == 0 && playersHand[i].isInCurrentRound && playersHand[i - 1].isInCurrentRound) {
                 winnersCount++;
-            }
-            else {
+            } else {
                 break;
             }
         }
-        System.out.println("Wygralo: "+winnersCount+" graczy");
-        for (int i = numberOfPlayers-1; i >= numberOfPlayers-winnersCount; i--) {
-            System.out.println("Wygrala reka "+playersHand[i].playerId+" z reka: "+playersHand[i].toString()+playersHand[i].rankOfHand);
+        return winnersCount;
+    }
+    private void showTheWinners(int numberOfPlayers, Hand[] playersHand, int winnersCount)
+    {
+        System.out.println("Wygralo: " + winnersCount + " graczy");
+        for (int i = numberOfPlayers - 1; i >= numberOfPlayers - winnersCount; i--) {
+            System.out.println("Wygrala reka " + playersHand[i].playerId + " z reka: " + playersHand[i].toString() + playersHand[i].rankOfHand);
         }
-        if(winnersCount==1)
+    }
+    private void extractTheWinner(int numberOfPlayers, Hand[] playersHand) //moze inna nazwa
+    {
+        //if(pot>0)
+        //{
+        int winnersCount=countTheWinners(numberOfPlayers, playersHand);
+        showTheWinners(numberOfPlayers, playersHand, winnersCount);
+
+        if (winnersCount <= 1) //jesli jest 1 wygrany
         {
-            distributePot(numberOfPlayers-1);
-        }
-        else {
-            int tempAward=pot/winnersCount;
-            for (int i = 0; i < winnersCount-1; i++) {
-                playersHand[numberOfPlayers-i-1].amountOfMoney+=tempAward;
+            if(playersHand[numberOfPlayers-1].actualBet == maxBet)
+            {
+                distributePot(numberOfPlayers-1);
             }
-            pot=0;
+            else if(currentPlayingPlayers>2) //jesli wygrany nie wyrownal do najwyzszego zakladu
+            {
+                int tempAward = playersHand[numberOfPlayers - 1].actualBet;
+                for (int i = 0; i < numberOfPlayers - 2; i++)
+                {
+                    if (playersHand[numberOfPlayers - 1].actualBet >= playersHand[i].actualBet) {
+                        tempAward += playersHand[i].actualBet;
+                        playersHand[i].actualBet=0;
+                    } else {
+                        tempAward += playersHand[numberOfPlayers - 1].actualBet;
+                        playersHand[i].actualBet-=playersHand[numberOfPlayers-1].actualBet;
+                    }
+                }
+                pot -= tempAward;
+                playersHand[numberOfPlayers - 1].amountOfMoney += tempAward;
+                playersHand[numberOfPlayers-1].isInCurrentRound=false;
+                Hand[] tempHands = Arrays.copyOfRange(playersHand, currentPlayingPlayers - 1, numberOfPlayers - 2);
+                Arrays.sort(tempHands);
+                checkCurrentPlayingPlayers();
+                extractTheWinner(tempHands.length, tempHands);
+            }
+            else //jesli wygrany nie wyrownal do max zakladu, a graczy w partii jest dwoch.
+            {
+                int tempMoney=playersHand[numberOfPlayers-2].actualBet;
+                tempMoney-=playersHand[numberOfPlayers-1].actualBet;
+                playersHand[numberOfPlayers-2].amountOfMoney+=tempMoney;
+                pot-=tempMoney;
+                playersHand[numberOfPlayers-1].amountOfMoney+=pot;
+                pot=0;
+            }
+        }
+        else //jesli remis
+        {
+            boolean checkIfWinnersMaxBet=true;
+            int nom=0; //mianownik
+            for (int i = numberOfPlayers-1; i > numberOfPlayers-1-winnersCount; i--)
+            {
+                nom+=playersHand[i].actualBet;
+                if(playersHand[i].actualBet<maxBet){
+                    checkIfWinnersMaxBet=false;
+                }
+            }
+            if(checkIfWinnersMaxBet) {
+                int tempSplitAward = pot / winnersCount;
+                for (int i = 0; i <= winnersCount - 1; i++) {
+                    playersHand[numberOfPlayers - i - 1].amountOfMoney += tempSplitAward;
+                }
+                pot = 0;
+            }
+            else
+            {
+                int wholeAward=0;
+                for (int i = 0; i < numberOfPlayers-1-winnersCount; i++) {
+                    if(playersHand[i].actualBet>=nom)
+                    {
+                        for (int j = numberOfPlayers-1; j > numberOfPlayers-1-winnersCount; j--) {
+                            playersHand[j].amountOfMoney+=playersHand[j].actualBet;
+                            wholeAward+=playersHand[j].actualBet;
+                            playersHand[i].actualBet-=playersHand[j].actualBet;
+                        }
+                    }
+                    else
+                    {
+                        for (int j = numberOfPlayers-1; j > numberOfPlayers-1-winnersCount; j--) {
+                            playersHand[j].amountOfMoney+=playersHand[i].actualBet*(playersHand[j].actualBet/nom);
+                        }
+                        wholeAward+=playersHand[i].actualBet;
+                        playersHand[i].actualBet=0;
+                        playersHand[i].isInCurrentRound=false;
+                    }
+                }
+                for (int i = numberOfPlayers-1; i>numberOfPlayers-1-winnersCount ; i--) {
+                    playersHand[i].amountOfMoney+=playersHand[i].actualBet;
+                    playersHand[i].actualBet=0;
+                    playersHand[i].isInCurrentRound=false;
+                }
+                pot-=wholeAward;
+                Hand[] tempHands = Arrays.copyOfRange(playersHand, currentPlayingPlayers - 1, numberOfPlayers-1-winnersCount);
+                Arrays.sort(tempHands);
+                checkCurrentPlayingPlayers();
+                extractTheWinner(tempHands.length, tempHands);
+            }
+        }
+        //}
+    }
+    private void prepareForNextRound()
+    {
+        for (int i = 0; i <= numberOfPlayers-1; i++) {
+            playersHand[i].isInCurrentRound=true;
+            playersHand[i].actualBet=0;
+            playersHand[i].isAllIn=false;
+            playersHand[i].rankOfHand=0;
         }
     }
     private void makeDeck()
@@ -516,12 +625,13 @@ public class Croupier{
                 return 1;
             if (this.rankOfHand == (x.rankOfHand)) {
                 int key = Collections.max(this.hand.keySet());
-                int idOfFigure=this.hand.get(key).idOfFigure;
+                //int idOfFigure=this.hand.get(key).idOfFigure;
                 int keySecond = Collections.max(x.hand.keySet());
-                int idOfFigureSecond=x.hand.get(keySecond).idOfFigure;
-                if(idOfFigure == idOfFigureSecond)
+                //int idOfFigureSecond=x.hand.get(keySecond).idOfFigure;
+                int resultOfCompare=this.hand.get(key).compareTo(x.hand.get(keySecond));
+                if(resultOfCompare==0)
                     return 0;
-                else if(idOfFigure > idOfFigureSecond)
+                else if(resultOfCompare>0)
                     return 1;
                 else
                     return -1;

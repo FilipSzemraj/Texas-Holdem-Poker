@@ -54,5 +54,20 @@
             </VBox>
          </children>
       </AnchorPane>
+      <AnchorPane fx:id="Five_choices" layoutX="815.0" layoutY="525.0" prefHeight="309.0" prefWidth="300.0">
+         <children>
+            <Button layoutY="278.0" mnemonicParsing="false" onAction="#btnAllIN2OnClick" prefHeight="34.0" prefWidth="300.0" text="All In!" />
+            <Button layoutY="244.0" mnemonicParsing="false" onAction="#btnCheckOnClick" prefHeight="34.0" prefWidth="70.0" text="Check" AnchorPane.topAnchor="244.0" />
+            <Button layoutX="70.0" layoutY="244.0" mnemonicParsing="false" onAction="#btnFold2OnClick" prefHeight="34.0" prefWidth="83.0" text="Fold" AnchorPane.topAnchor="244.0" />
+            <Button layoutX="153.0" layoutY="244.0" mnemonicParsing="false" onAction="#btnRaiseOnClick" prefHeight="34.0" prefWidth="77.0" text="Raise" AnchorPane.topAnchor="244.0" />
+            <Button layoutX="230.0" layoutY="244.0" mnemonicParsing="false" onAction="#btnBetOnClick" prefHeight="34.0" prefWidth="70.0" text="Bet" AnchorPane.topAnchor="244.0" />
+            <AnchorPane fx:id="Two_choices" layoutY="2.0" prefHeight="309.0" prefWidth="300.0" visible="false">
+               <children>
+                  <Button layoutX="14.0" layoutY="261.0" mnemonicParsing="false" onAction="#btnFoldOnClick" prefHeight="34.0" prefWidth="125.0" text="Fold" />
+                  <Button layoutX="158.0" layoutY="261.0" mnemonicParsing="false" onAction="#btnAllINOnClick" prefHeight="34.0" prefWidth="125.0" text="All In!" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>
