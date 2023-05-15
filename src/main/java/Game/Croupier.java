@@ -13,12 +13,12 @@ class GenerateRandom{
 }
 
 public class Croupier{
-    int numberOfPlayers;
-    static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
+    public int numberOfPlayers;
+    public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
             , "Jupki", "Damy", "Krole", "Asy"};
-    static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
+    public static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
     Map<Integer, Card> deck = new TreeMap<Integer, Card>();
-    Map<Integer, Card> table = new LinkedHashMap<>();
+    public Map<Integer, Card> table = new LinkedHashMap<>();
     public int bigBlind=50;
     public int smallBlind=25;
     public int bigBlindPosition=0;
@@ -27,16 +27,16 @@ public class Croupier{
     public int firstPlayerInCycle;
     public int currentPlayingPlayers=numberOfPlayers;
     public int pot=0;
-    Hand[] playersHand;
+    private Hand[] playersHand;
     CheckHand checker = new CheckHand();
     Scanner sc = new Scanner(System.in);
     public Croupier(int x)
     {
         numberOfPlayers = x;
         makeDeck();
-        showDeck();//wyj
+        //showDeck();//wyj
         makeHands();
-        game();
+        //game();
     }
     //###########################################################################################################
     //METODY GŁÓWNE KRUPIERA
@@ -358,7 +358,7 @@ public class Croupier{
             else if(currentPlayingPlayers>2) //jesli wygrany nie wyrownal do najwyzszego zakladu
             {
                 int tempAward = playersHand[numberOfPlayers - 1].actualBet;
-                for (int i = 0; i < numberOfPlayers - 2; i++)
+                for (int i = 0; i < numberOfPlayers - 1; i++)
                 {
                     if (playersHand[numberOfPlayers - 1].actualBet >= playersHand[i].actualBet) {
                         tempAward += playersHand[i].actualBet;
@@ -371,7 +371,8 @@ public class Croupier{
                 pot -= tempAward;
                 playersHand[numberOfPlayers - 1].amountOfMoney += tempAward;
                 playersHand[numberOfPlayers-1].isInCurrentRound=false;
-                Hand[] tempHands = Arrays.copyOfRange(playersHand, currentPlayingPlayers - 1, numberOfPlayers - 2);
+                maxBet-=playersHand[numberOfPlayers-1].actualBet;
+                Hand[] tempHands = Arrays.copyOfRange(playersHand, numberOfPlayers - currentPlayingPlayers, numberOfPlayers - 1);
                 Arrays.sort(tempHands);
                 checkCurrentPlayingPlayers();
                 extractTheWinner(tempHands.length, tempHands);
@@ -591,8 +592,8 @@ public class Croupier{
     //###########################################################################################################
     //PODKLASY, ORAZ FUNKCJE NADPISANE
     //###########################################################################################################
-    class Hand implements Comparable<Hand>{
-        Map<Integer, Card> hand = new LinkedHashMap<Integer, Card>();
+    public class Hand implements Comparable<Hand>{
+        public Map<Integer, Card> hand = new LinkedHashMap<Integer, Card>();
         int playerId;
         int rankOfHand;
         int amountOfMoney=500; //pula pieniedzy gracza
@@ -603,6 +604,7 @@ public class Croupier{
         {
             playerId=i;
             rankOfHand=0;
+            isInCurrentRound=true;
         }
 
         @Override
@@ -649,4 +651,95 @@ public class Croupier{
         return mapAsString;
     }
 
+    //###########################################################################################################
+    //KONIEC PODKLAS, ORAZ FUNKCJI NADPISANYCH
+    //###########################################################################################################
+
+    //###########################################################################################################
+    //FUNKCJE ZWIAZANE Z TESTOWANIEM
+    //###########################################################################################################
+
+    public void showCardsOnTable_makePublic()
+    {
+        showCardsOnTable();
+    }
+
+    public void showHands_makePublic()
+    {
+        showHands();
+    }
+
+    public void dealCardsWithAssumptions_checkWhenWinningCardsOnTableAndMattersTheHighestCard()
+    {
+        int k=1;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            for (int j = 0; j < 2; j++) {
+                Card temporary = new Card(Croupier.figures[i], Croupier.colors[j], i, j);
+                playersHand[i].hand.put(((i*4)+j+1), temporary);
+            }
+        }
+        int figure=11;
+        int color=0;
+        for (int i = 45; i <= 49; i++) {
+            Card temporary = new Card(Croupier.figures[figure], Croupier.colors[color], figure, color);
+            table.put(i, temporary);
+            if(i==48)
+                figure++;
+            color=(color+1)%3;
+        }
+        showHands_makePublic();
+        showCardsOnTable_makePublic();
+
+    }
+
+    public void checkForAllHands_makePublic()
+    {
+        checkForAllHands();
+    }
+
+    public int extractTheWinner_makePublic()
+    {
+        extractTheWinner(numberOfPlayers, playersHand);
+        for (int i = 0; i < numberOfPlayers; i++) {
+            System.out.println("Gracz nr "+i+", posiada: "+playersHand[i].amountOfMoney);
+        }
+        return playersHand[numberOfPlayers-1].amountOfMoney;
+    }
+    public void setIsInCurrentRoundForAllPlayers()
+    {
+        for (int i = 0; i < numberOfPlayers; i++) {
+            playersHand[i].isInCurrentRound=true;
+        }
+    }
+    public void addMoneyToThePot_ForOneWinner()
+    {
+        pot=500;
+        maxBet=100;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            playersHand[i].actualBet=100;
+            playersHand[i].amountOfMoney-=100;
+        }
+    }
+    public void addMoneyToThePot_ForTwoWinners()
+    {
+        pot=450;
+        maxBet=100;
+        for (int i = 0; i < numberOfPlayers-1; i++) {
+            playersHand[i].actualBet=100;
+            playersHand[i].amountOfMoney-=100;
+        }
+        playersHand[numberOfPlayers-1].actualBet=50;
+        playersHand[numberOfPlayers-1].amountOfMoney-=50;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            System.out.println("Gracz nr "+ i + ", wplacil: "+playersHand[i].actualBet);
+        }
+    }
+
+    public void checkCurrentPlayingPlayers_makePublic()
+    {
+        checkCurrentPlayingPlayers();
+    }
+    //###########################################################################################################
+    //KONIEC FUNKCJI ZWIAZANYCH Z TESTOWANIEM
+    //###########################################################################################################
 }
