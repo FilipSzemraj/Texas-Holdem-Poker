@@ -1,5 +1,4 @@
 package Game;
-import Game.Croupier.*;
 
 import java.util.*;
 
@@ -9,6 +8,7 @@ public class CheckHand {
     Card[] allCards;
     boolean isStraight = false;
     boolean isFlush = false;
+    boolean isStraightFlush = false;
     public static final int ROYAL_FLUSH=9;
     public static final int STRAIGHT_FLUSH=8;
     public static final int FOUR_OF_A_KIND=7;
@@ -18,6 +18,13 @@ public class CheckHand {
     public static final int THREE_OF_A_KIND=3;
     public static final int TWO_PAIR=2;
     public static final int PAIR=1;
+    public void showCards() // dla testow
+    {
+        for (int i = 0; i < allCards.length; i++) {
+            System.out.println(allCards[i].toString());
+        }
+        System.out.println("\n");
+    }
     public CheckHand()
     {
         cardsOnTable=new Card[5];
@@ -54,7 +61,7 @@ public class CheckHand {
         int result=0;
         if (checkForRoyalFlush()) {
             result = ROYAL_FLUSH;
-        } else if (checkForStraightFlush()) {
+        } else if (checkIsStraightFlush()) {
             result = STRAIGHT_FLUSH;
         } else if (checkForFourOfAKind()) {
             result = FOUR_OF_A_KIND;
@@ -71,25 +78,80 @@ public class CheckHand {
         } else if (checkForPair()) {
             result = PAIR;
         }
+        else {
+            System.out.println("Najwyzsza karta\n");
+        }
         return result;
     }
     private boolean checkForRoyalFlush()
     {
-        if(checkForStraight() && checkForFlush() && (allCards[4].idOfFigure == 12
+        if(checkForStraightFlush() && (allCards[4].idOfFigure == 12
                 || allCards[5].idOfFigure == 12 ||
                 allCards[6].idOfFigure == 12))
         {
+            System.out.println("POKER!\n");
             return true;
         }
         return false;
     }
     private boolean checkForStraightFlush()
     {
-        if(isStraight && isFlush) {
-            System.out.println("Straight flush!\n");
+        int n = allCards.length;
+        int check=0;
+        int[] idOfColorCount={0,0,0,0};
+        isStraight=false;
+
+        for (int i = n-1; i >= 0; i--) {// iterujemy po wszystkich elementach tablicy
+            int temp = allCards[i].idOfColor;
+            idOfColorCount[temp]++;
+            boolean isStraightFlush = true;
+            boolean isStraightInFunction = true;
+            for (int j = 1; j <= 4; j++) { // sprawdzamy 4 kolejne elementy
+                int currIndex = (i-j+n) % n; // indeks kolejnego elementu, uwzględniając cykliczność tablicy
+                int prevIndex = (i-j-1+n) % n; // indeks poprzedniego elementu, uwzględniając cykliczność tablicy
+
+                if(allCards[currIndex].idOfFigure - 1 != allCards[prevIndex].idOfFigure)
+                {
+                    isStraightInFunction=false;
+                    isStraightFlush=false;
+                    break;
+                }
+
+                if (allCards[i].idOfColor != allCards[prevIndex].idOfColor) {
+                    isStraightFlush = false;
+                }
+
+            }
+            if (isStraightInFunction) {
+                isStraight=true;
+            }
+            if (isStraightFlush) {
+                // znaleziono sekwencję pięciu kolejnych elementów z wartościami pola idOfFigure zwiększonymi o 1
+                System.out.println("Straight flush!: " + allCards[i] + ", " + allCards[(i-1+n) % n] + ", " + allCards[(i-2+n) % n]
+                        + ", " + allCards[(i-3+n) % n] + ", " + allCards[(i-4+n) % n]);
+                check=1;
+                break;
+                // przerywamy pętlę, jeśli znaleziono sekwencję
+            }
+
+        }
+        if(check==1) {
+            isStraightFlush=true;
+            isFlush=true;
             return true;
         }
-        return false;
+        else {
+            isFlush=false;
+            for(int i=0;i<4;i++)
+            {
+                if(idOfColorCount[i]==5)
+                {
+                    isFlush=true;
+                }
+            }
+            isStraightFlush=false;
+            return false;
+        }
     }
     private boolean checkForFourOfAKind()
     {
@@ -104,7 +166,7 @@ public class CheckHand {
             }
         }
         if(check==1) {
-            System.out.println("Czworka - " + allCards[position - 3].toString() +" "+ allCards[position - 2].toString()
+            System.out.println("Four of kind! - " + allCards[position - 3].toString() +" "+ allCards[position - 2].toString()
                     +" "+ allCards[position-1].toString() +" "+ allCards[position]);
             return true;
         }
@@ -144,66 +206,21 @@ public class CheckHand {
         }
         return false;
     }
-    private boolean checkForFlush()
+    private boolean checkIsStraightFlush()
     {
-        int[] idOfColorCount= {0,0,0,0};
-        for(Card card: allCards)
-        {
-            int temp=card.idOfColor;
-            idOfColorCount[temp]++;
-        }
-        for(int i=0;i<4;i++)
-        {
-            if(idOfColorCount[i]==5)
-            {
-                System.out.println("Kolor - "+Croupier.colors[i]);
-                isFlush=true;
-                return true;
-            }
-        }
-        isFlush=false;
-        return false;
-    }
-    private boolean checkForStraight()
-    {
-        //System.out.println("strit\n");
-        int n = allCards.length;
-        int check=0;
-
-        for (int i = n-1; i >= 0; i--) { // iterujemy po wszystkich elementach tablicy
-            boolean isStraight = true;
-            for (int j = 1; j <= 4; j++) { // sprawdzamy 4 kolejne elementy
-                int currIndex = (i-j+n) % n; // indeks kolejnego elementu, uwzględniając cykliczność tablicy
-                int prevIndex = (i-j-1+n) % n; // indeks poprzedniego elementu, uwzględniając cykliczność tablicy
-                if (allCards[currIndex].idOfFigure - 1 != allCards[prevIndex].idOfFigure) { // sprawdzamy, czy wartość pola idOfFigure jest o 1 większa od poprzednika
-                    isStraight = false;
-                    //System.out.println("strit\n");
-                    break; // przerywamy pętlę, jeśli sekwencja nie jest już poprawna
-                }
-            }
-            if (isStraight) {
-                // znaleziono sekwencję pięciu kolejnych elementów z wartościami pola idOfFigure zwiększonymi o 1
-                System.out.println("Znaleziono sekwencję pięciu kolejnych kart: " + allCards[i] + ", " + allCards[(i+1) % n] + ", " + allCards[(i+2) % n]
-                        + ", " + allCards[(i+3) % n] + ", " + allCards[(i+4) % n]);
-                check=1;
-                break; // przerywamy pętlę, jeśli znaleziono sekwencję
-            }
-        }
-        if(check==1 ) {
-            isStraight=true;
-            return true;
-        }
-        isStraight=false;
-        return false;
-
-    }
-    private boolean checkIsStraight()
-    {
-        return isStraight;
+        return isStraightFlush;
     }
     private boolean checkIsFlush()
     {
+        if(isFlush)
+            System.out.println("Color\n");
         return isFlush;
+    }
+    private boolean checkIsStraight()
+    {
+        if(isStraight)
+            System.out.println("Straight!\n");
+        return isStraight;
     }
     private boolean checkForThreeOfAKind()
     {
