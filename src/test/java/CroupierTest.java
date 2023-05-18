@@ -67,10 +67,10 @@ public class CroupierTest {
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
 
         //then
-        assertEquals(150, winnersAmountOfMoney);
+        assertEquals(125, winnersAmountOfMoney);
     }
     @Test
-    public void checkForAllHands_DrawTwoWinnersOneWithoutMaxBetWithOnePlayerAllIn_true()
+    public void checkForAllHandsAndTestIsPlayerPlayable_DrawTwoWinnersOneWithoutMaxBetWithOnePlayerAllIn_true()
     {
         //given
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
@@ -82,8 +82,13 @@ public class CroupierTest {
         krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
+        krupier.isPlayerPlayable_makePublic();
+        int length=krupier.numberOfPlayers;
+        boolean check=false;
+        if(length==4 && winnersAmountOfMoney==125)
+            check=true;
 
         //then
-        assertEquals(150, winnersAmountOfMoney);
+        assertTrue(check);
     }
 }
