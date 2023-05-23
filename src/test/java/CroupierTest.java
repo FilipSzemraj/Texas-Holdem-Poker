@@ -3,7 +3,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CroupierTest {
-    Croupier krupier = new Croupier(5);
+    Croupier krupier;
+    {
+        krupier = Croupier.getInstance();
+        krupier.firstStepInCroupier(5);
+    }
     @Test
     public void checkForAllHands_oneWinnerWithMaxBet_true()
     {
@@ -11,9 +15,7 @@ public class CroupierTest {
         krupier.dealCardsWithAssumptions_checkWhenWinningCardsOnTableAndMattersTheHighestCard();
 
         //when
-        krupier.setIsInCurrentRoundForAllPlayers();
         krupier.addMoneyToThePot_ForEverybodyWithMaxBet();
-        krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
 
@@ -27,9 +29,7 @@ public class CroupierTest {
         krupier.dealCardsWithAssumptions_checkWhenWinningCardsOnTableAndMattersTheHighestCard();
 
         //when
-        krupier.setIsInCurrentRoundForAllPlayers();
         krupier.addMoneyToThePot_ForLastPlayerWithoutMaxBet();
-        krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
 
@@ -44,9 +44,7 @@ public class CroupierTest {
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
 
         //when
-        krupier.setIsInCurrentRoundForAllPlayers();
         krupier.addMoneyToThePot_ForEverybodyWithMaxBet();
-        krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
 
@@ -60,9 +58,7 @@ public class CroupierTest {
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
 
         //when
-        krupier.setIsInCurrentRoundForAllPlayers();
         krupier.addMoneyToThePot_ForLastPlayerWithoutMaxBet();
-        krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
 
@@ -76,16 +72,54 @@ public class CroupierTest {
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
 
         //when
-        krupier.setIsInCurrentRoundForAllPlayers();
         krupier.addMoneyToThePot_ForLastPlayerWithoutMaxBet();
         krupier.addMoneyToThePot_changeFirstPlayerToAllIn();
-        krupier.checkCurrentPlayingPlayers_makePublic();
         krupier.checkForAllHands_makePublic();
         int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
         krupier.isPlayerPlayable_makePublic();
         int length=krupier.numberOfPlayers;
         boolean check=false;
         if(length==4 && winnersAmountOfMoney==125)
+            check=true;
+
+        //then
+        assertTrue(check);
+    }
+    @Test
+    public void checkForAllHands_OnlyOneCurrentPlayerPlayingRestFolds_true()
+    {
+        //given
+        krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
+
+        //when
+        krupier.addMoneyToThePot_ForEverybodyWithMaxBet();
+        krupier.addMoneyToThePot_changeLastPlayerToAllInAndRestPlayersFold();
+        krupier.checkForAllHands_makePublic();
+        int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
+        krupier.isPlayerPlayable_makePublic();
+        int length=krupier.numberOfPlayers;
+        boolean check=false;
+        if(length==5 && winnersAmountOfMoney==900)
+            check=true;
+
+        //then
+        assertTrue(check);
+    }
+    @Test
+    public void checkForAllHands_OnlyTwoCurrentPlayingPlayersButWinnerDoesntHaveMaxBet_true()
+    {
+        //given
+        krupier.dealCardsWithAssumptions_checkWhenWinningCardsOnTableAndMattersTheHighestCard();
+
+        //when
+        krupier.addMoneyToThePot_ForLastPlayerWithoutMaxBet();
+        krupier.addMoneyToThePot_changeLastPlayerToSmallerBetAndFoldEveryoneElseBesidesOfPlayerFour();
+        krupier.checkForAllHands_makePublic();
+        int winnersAmountOfMoney=krupier.extractTheWinner_makePublic();
+        krupier.isPlayerPlayable_makePublic();
+        int length=krupier.numberOfPlayers;
+        boolean check=false;
+        if(length==5 && winnersAmountOfMoney==250)
             check=true;
 
         //then

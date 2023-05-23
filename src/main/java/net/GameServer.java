@@ -1,16 +1,16 @@
 package net;
 
-import org.main.Main;
+import Game.*;
 
 import java.io.IOException;
 import java.net.*;
 
-public class GameServer {
+public class GameServer extends Thread{
 
     private DatagramSocket socket;
-    private Main game;
+    private Croupier game;
 
-    public GameServer(Main game)
+    public GameServer(Croupier game)
     {
         this.game = game;
         try {
@@ -33,8 +33,8 @@ public class GameServer {
                 throw new RuntimeException(e);
             }
             String message = new String(packet.getData());
-            System.out.println("Client > " + message);
-            if(message.equalsIgnoreCase("ping")) {
+            System.out.println("Client ["+packet.getAddress().getHostAddress()+":"+packet.getPort()+"]> " + message);
+            if(message.trim().equalsIgnoreCase("ping")) {
                 sendData("pong".getBytes(), packet.getAddress(), packet.getPort());
                     }
         }
@@ -42,9 +42,9 @@ public class GameServer {
 
     public void sendData(byte[] data, InetAddress ipAddress, int port)
     {
-        DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1331);
+        DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
         try {
-            socket.send(packet);
+            this.socket.send(packet);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
