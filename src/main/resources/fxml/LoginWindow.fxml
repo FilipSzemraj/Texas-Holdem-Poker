@@ -17,7 +17,7 @@
          <children>
             <ImageView fitHeight="400.0" fitWidth="297.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../image/logo2.png" />
+                  <Image url="@../image/spongebob_483x800.png" />
                </image>
             </ImageView>
          </children>

@@ -1,17 +1,17 @@
 package net;
 
-import org.main.Main;
+import Game.*;
 
 import java.io.IOException;
 import java.net.*;
 
-public class GameClient extends  Thread{
+public class GameClient extends Thread{
 
     private InetAddress ipAddress;
     private DatagramSocket socket;
-    private Main game;
+    private Croupier game;
 
-    public GameClient(Main game, String ipAddress)
+    public GameClient(Croupier game, String ipAddress)
     {
         this.game = game;
         try {
@@ -34,7 +34,8 @@ public class GameClient extends  Thread{
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("Server > "+new String(packet.getData()));
+            String message = new String(packet.getData());
+            System.out.println("Server > "+message);
         }
     }
 

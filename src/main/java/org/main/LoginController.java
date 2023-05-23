@@ -1,5 +1,6 @@
 package org.main;
 
+import Game.Croupier;
 import sql.DatabaseConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,23 +28,41 @@ public class LoginController {
     Label messageLabel;
     @FXML
     TextField loginTextField, passwordTextField;
+    DatabaseConnection connectNow;
+    Connection connectDB;
+
     //private Stage primaryStage;
+    public LoginController(){
+
+    try {
+        connectNow = new DatabaseConnection();
+        connectDB = connectNow.getConnection();
+    }catch(Exception e)
+    {
+        e.printStackTrace();
+        messageLabel.setText("Bład połączenia z baza danych!");
+    }
+    Croupier krupier = Croupier.getInstance();
+    }
 
     public void logged() throws IOException {
 
         System.out.println("Jakis tekst");
 
         URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
-        Parent root = FXMLLoader.load(url_fxml);
-        Scene scene = new Scene(root);
+        FXMLLoader loader = new FXMLLoader(url_fxml);
+        Parent root = loader.load();
+        SceneController controller = loader.getController();
+        controller.setInformations(loginTextField.getText());
+        Scene scene = new Scene(root, 714, 441);
         scene.getStylesheets().add(getClass().getResource("/css/MainPage.css").toExternalForm());
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Texas holdem");
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.setFullScreen(true);
+        //primaryStage.setMaximized(true);
+        //primaryStage.setFullScreen(true);
         primaryStage.show();
-        loginButton.getScene().getWindow().hide();
+        //loginButton.getScene().getWindow().hide();
     }
 
 
@@ -64,8 +83,7 @@ public class LoginController {
 
     public void validateLogin()
     {
-        DatabaseConnection connectNow = new DatabaseConnection();
-        Connection connectDB = connectNow.getConnection();
+
 
         String verifyLogin="SELECT Count(1) FROM user_account WHERE login = '"+loginTextField.getText()+"' AND password = '"+passwordTextField.getText()+"';";
 

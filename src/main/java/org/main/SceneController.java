@@ -1,11 +1,14 @@
 package org.main;
 
+import Game.Croupier;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -21,13 +24,21 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class SceneController{
+    public Label PlayerName_label;
+    public Button ProfileIcon_button;
+    public Label AmmountOfMoney_label;
+    public void setInformations(String name)
+    {
+        PlayerName_label.setText(name);
+    }
 
     //@FXML
     //private TextField TextLoginField;
 
-    public void Login(ActionEvent event) throws IOException {
+    /*public void Login(ActionEvent event) throws IOException {
 
-        System.out.println("Jakis tekst");
+
+
 
         URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
         Parent root = FXMLLoader.load(url_fxml);
@@ -40,38 +51,27 @@ public class SceneController{
         primaryStage.setFullScreen(true);
         primaryStage.show();
         ((Node)(event.getSource())).getScene().getWindow().hide();
-    }
-
+        //System.out.println("Jakis tekst");
+        Croupier krupier;
+        krupier = Croupier.getInstance();
+        krupier.firstStepInCroupier(5);
+    }*/
     @FXML
-    void btnAllIN2OnClick(ActionEvent event) {
+    void btnAllInOnClick(ActionEvent event) {
 
     }
-
-    @FXML
-    void btnAllINOnClick(ActionEvent event) {
-
-    }
-
     @FXML
     void btnBetOnClick(ActionEvent event) {
 
     }
-
     @FXML
     void btnCheckOnClick(ActionEvent event) {
 
     }
-
-    @FXML
-    void btnFold2OnClick(ActionEvent event) {
-
-    }
-
     @FXML
     void btnFoldOnClick(ActionEvent event) {
 
     }
-
     @FXML
     void btnRaiseOnClick(ActionEvent event) {
 
