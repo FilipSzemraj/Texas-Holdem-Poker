@@ -1,6 +1,8 @@
 package org.main;
 
 import Game.Croupier;
+import net.GameClient;
+import net.GameServer;
 import sql.DatabaseConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,6 +32,9 @@ public class LoginController {
     TextField loginTextField, passwordTextField;
     DatabaseConnection connectNow;
     Connection connectDB;
+    GameServer gameServer;
+    Thread serverThread;
+    private volatile boolean serverRunning = true;
 
     //private Stage primaryStage;
     public LoginController(){
@@ -42,14 +47,23 @@ public class LoginController {
         e.printStackTrace();
         messageLabel.setText("Bład połączenia z baza danych!");
     }
-    Croupier krupier = Croupier.getInstance();
+        gameServer = new GameServer();
+        serverThread = new Thread(gameServer);
+        serverThread.start();
     }
 
     public void logged() throws IOException {
 
-        System.out.println("Jakis tekst");
+        String serverIp = "127.0.0.1"; // Adres IP serwera
+        GameClient gameClient = new GameClient(serverIp);
+        Thread clientThread = new Thread(gameClient);
+        clientThread.start();
+        gameClient.sendData("ping".getBytes());
+        //gameClient.sendData("esa".getBytes());
+        gameClient.initializeWindow(loginTextField.getText());
 
-        URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
+
+        /*URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
         FXMLLoader loader = new FXMLLoader(url_fxml);
         Parent root = loader.load();
         SceneController controller = loader.getController();
@@ -62,7 +76,7 @@ public class LoginController {
         //primaryStage.setMaximized(true);
         //primaryStage.setFullScreen(true);
         primaryStage.show();
-        //loginButton.getScene().getWindow().hide();
+        //loginButton.getScene().getWindow().hide();*/
     }
 
 
@@ -77,6 +91,7 @@ public class LoginController {
     }
 
     public void cancelButtonOnAction(ActionEvent event){
+        serverThread.interrupt();
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }

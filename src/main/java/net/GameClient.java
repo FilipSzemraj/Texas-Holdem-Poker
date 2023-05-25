@@ -1,7 +1,13 @@
 package net;
 
 import Game.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import org.main.SceneController;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.*;
 
@@ -9,11 +15,11 @@ public class GameClient extends Thread{
 
     private InetAddress ipAddress;
     private DatagramSocket socket;
-    private Croupier game;
+    //private Croupier game;
 
-    public GameClient(Croupier game, String ipAddress)
+    public GameClient(String ipAddress)
     {
-        this.game = game;
+        //this.game = game;
         try {
             this.socket = new DatagramSocket();
             this.ipAddress = InetAddress.getByName(ipAddress);
@@ -47,5 +53,21 @@ public class GameClient extends Thread{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    public void initializeWindow(String name) throws IOException {
+        URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
+        FXMLLoader loader = new FXMLLoader(url_fxml);
+        Parent root = loader.load();
+        SceneController controller = loader.getController();
+        controller.setInformations(name);
+        Scene scene = new Scene(root, 714, 441);
+        scene.getStylesheets().add(getClass().getResource("/css/MainPage.css").toExternalForm());
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Texas holdem");
+        primaryStage.setScene(scene);
+        //primaryStage.setMaximized(true);
+        //primaryStage.setFullScreen(true);
+        primaryStage.show();
+        //loginButton.getScene().getWindow().hide();
     }
 }
