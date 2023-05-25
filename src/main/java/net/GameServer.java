@@ -9,10 +9,11 @@ public class GameServer extends Thread{
 
     private DatagramSocket socket;
     private Croupier game;
+    public static boolean runningFlag=false;
 
-    public GameServer(Croupier game)
+    public GameServer()
     {
-        this.game = game;
+        this.game = Croupier.getInstance();
         try {
             this.socket = new DatagramSocket(1331);
         } catch (SocketException e) {
@@ -23,21 +24,22 @@ public class GameServer extends Thread{
 
     public void run()
     {
-        while(true)
-        {
-            byte[] data = new byte[1024];
-            DatagramPacket packet = new DatagramPacket(data, data.length);
-            try {
-                socket.receive(packet);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            while (!Thread.currentThread().isInterrupted()) {
+                byte[] data = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(data, data.length);
+                try {
+                    socket.receive(packet);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String message = new String(packet.getData());
+                System.out.println("Client [" + packet.getAddress().getHostAddress() + ":" + packet.getPort() + "]> " + message);
+                if (message.trim().equalsIgnoreCase("ping")) {
+                    sendData("pong".getBytes(), packet.getAddress(), packet.getPort());
+                }
+                if(Thread.currentThread().isInterrupted())
+                    break;
             }
-            String message = new String(packet.getData());
-            System.out.println("Client ["+packet.getAddress().getHostAddress()+":"+packet.getPort()+"]> " + message);
-            if(message.trim().equalsIgnoreCase("ping")) {
-                sendData("pong".getBytes(), packet.getAddress(), packet.getPort());
-                    }
-        }
     }
 
     public void sendData(byte[] data, InetAddress ipAddress, int port)

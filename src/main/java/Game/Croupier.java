@@ -36,6 +36,7 @@ public class Croupier{
     public int pot=0;
     private Hand[] playersHand;
     private Hand[] waitingPlayers;
+    boolean checkIfQueueOfWaitingPlayersIsFull=false;
     CheckHand checker = new CheckHand();
     Scanner sc = new Scanner(System.in);
     /*public Croupier(int x)
@@ -49,21 +50,6 @@ public class Croupier{
     private Croupier()
     {
     }
-    public void firstStepInCroupier(int x)
-    {
-        numberOfPlayers = x;
-        makeDeck();
-        //showDeck();//wyj
-        makeHands();
-        //if(JOptionPane.showConfirmDialog(, "Do you want to run the server?") == 0)
-        //{
-            socketServer = new GameServer(Croupier.getInstance());
-            socketServer.start();
-       // }
-        socketClient = new GameClient(this, "localhost");
-        socketClient.start();
-        //game();
-    }
     public static Croupier getInstance()
     {
         if(instance == null)
@@ -73,8 +59,72 @@ public class Croupier{
         return instance;
     }
     //###########################################################################################################
+    //METODY DO KOMUNIKACJI Z SERWEREM
+    //###########################################################################################################
+
+    public void waitForAtLeast2Players() {
+        while(playersHand.length<2)
+        {
+            addWaitingPlayersToGame();
+        }
+    }
+    public void addWaitingPlayersToGame()
+    {
+        int numberOfWaitingPlayers=waitingPlayers.length;
+        if(numberOfWaitingPlayers>0)
+        {
+            int numberOfCurrentPlayers=playersHand.length;
+            if(numberOfCurrentPlayers<5) {
+                Hand[] temporary;
+                int temporaryLength=5-numberOfCurrentPlayers;
+                if(numberOfCurrentPlayers+numberOfWaitingPlayers<5) {
+                    temporary = new Hand[numberOfCurrentPlayers + numberOfWaitingPlayers];
+                }
+                else {
+                    temporary = new Hand[5];
+                }
+                System.arraycopy(playersHand, 0, temporary, 0, numberOfCurrentPlayers);
+                System.arraycopy(waitingPlayers, 0, temporary, numberOfCurrentPlayers, temporaryLength);
+                System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers-temporaryLength);
+
+                /*int j=0;
+                for (int i = playersHand.length; i < 5; i++) {
+
+                    playersHand[i]=waitingPlayers[j];
+                    j++;
+                    if(j>=numberOfWaitingPlayers)
+                    {
+                        break;
+                    }
+                }
+                waitingPlayers = Arrays.copyOfRange(waitingPlayers, j, numberOfWaitingPlayers);*/
+            }
+        }
+    }
+
+    //###########################################################################################################
+    //KONIEC METOD DO KOMUNIKACJI Z SERWEREM
+    //###########################################################################################################
+
+
+    //###########################################################################################################
     //METODY GŁÓWNE KRUPIERA
     //###########################################################################################################
+    public void firstStepInCroupier(int x)
+    {
+        waitForAtLeast2Players();
+        makeDeck();
+        //showDeck();//wyj
+        makeHands();
+        //if(JOptionPane.showConfirmDialog(, "Do you want to run the server?") == 0)
+        //{
+        //socketServer = new GameServer(Croupier.getInstance());
+        //socketServer.start();
+        // }
+        //socketClient = new GameClient(this, "localhost");
+        //socketClient.start();
+        //game();
+    }
     public void game()
     {
         do {
@@ -657,9 +707,10 @@ public class Croupier{
     //###########################################################################################################
     //PODKLASY, ORAZ FUNKCJE NADPISANE
     //###########################################################################################################
-    public class Hand implements Comparable<Hand>, Runnable{
+    public class Hand implements Comparable<Hand>{
         public Map<Integer, Card> hand = new LinkedHashMap<Integer, Card>();
         int playerId;
+        String playerName;
         int rankOfHand;
         int amountOfMoney=500; //pula pieniedzy gracza
         int actualBet=0;
