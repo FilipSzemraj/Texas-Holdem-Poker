@@ -3,50 +3,192 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="441.0" prefWidth="714.0" styleClass="bodybg" stylesheets="@../css/MainPage.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.main.SceneController">
+<AnchorPane fx:id="wholeScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="441.0" prefWidth="714.0" styleClass="bodybg" stylesheets="@../css/MainPage.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.main.SceneController">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
    <children>
-      <AnchorPane layoutX="252.0" layoutY="325.0" prefHeight="90.0" prefWidth="210.0">
+      <AnchorPane fx:id="interfaceOne" layoutX="259.0" layoutY="318.0" prefHeight="90.0" prefWidth="210.0">
          <children>
-            <HBox prefHeight="90.0" prefWidth="210.0" spacing="24.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="TOP_CENTER" layoutY="-17.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="128.0" prefWidth="210.0">
                <children>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
+                  <HBox alignment="TOP_CENTER" prefHeight="44.0" prefWidth="210.0">
                      <children>
-                        <Label fx:id="PlayerName_label" text="Nazwa" />
-                        <Button fx:id="ProfileIcon_button" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
-                        <Label fx:id="AmmountOfMoney_label" text="Pieniadze" />
+                        <Label fx:id="actualBet_Player1" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
+                        <Circle fx:id="player1Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <ImageView fx:id="firstCardInHand1" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="secondCardInHand1" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="90.0" prefWidth="210.0" spacing="24.0">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label fx:id="playerName_Player1" text="Nazwa" />
+                              <Button fx:id="ProfileIcon_Player1" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                              <Label fx:id="AmmountOfMoney_Player1" text="Pieniadze" />
+                           </children>
+                        </VBox>
+                        <GridPane prefHeight="90.0" prefWidth="136.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Button fx:id="AllIn_button" mnemonicParsing="false" onAction="#btnAllInOnClick" prefWidth="54.0" text="All In!" GridPane.columnIndex="1" />
+                              <Button fx:id="Check_button" mnemonicParsing="false" onAction="#btnCheckOnClick" prefWidth="54.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Button fx:id="Fold_button" mnemonicParsing="false" onAction="#btnFoldOnClick" prefWidth="54.0" text="Fold" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Button fx:id="Raise_button" mnemonicParsing="false" onAction="#btnRaiseOnClick" prefWidth="54.0" text="Raise" GridPane.rowIndex="1" />
+                              <Button fx:id="Bet_button" mnemonicParsing="false" onAction="#btnBetOnClick" prefHeight="25.0" prefWidth="54.0" text="Bet" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="InterfaceTwo" layoutX="21.0" layoutY="176.0" prefHeight="90.0" prefWidth="167.0">
+         <children>
+            <HBox prefHeight="90.0" prefWidth="156.0" spacing="24.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <VBox prefHeight="79.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="playerName_Player2" text="Nazwa" />
+                        <Button fx:id="profileIcon_Player2" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                        <Label fx:id="AmmountOfMoney_Player2" text="Pieniadze" />
                      </children>
                   </VBox>
-                  <GridPane prefHeight="90.0" prefWidth="136.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
+                  <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="90.0" prefWidth="108.0">
                      <children>
-                        <Button fx:id="AllIn_button" mnemonicParsing="false" onAction="#btnAllInOnClick" text="All In!" GridPane.columnIndex="1" />
-                        <Button fx:id="Check_button" mnemonicParsing="false" onAction="#btnCheckOnClick" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button fx:id="Fold_button" mnemonicParsing="false" onAction="#btnFoldOnClick" text="Fold" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button fx:id="Raise_button" mnemonicParsing="false" onAction="#btnRaiseOnClick" text="Raise" GridPane.rowIndex="1" />
-                        <Button fx:id="Bet_button" mnemonicParsing="false" onAction="#btnBetOnClick" text="Bet" />
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <ImageView fx:id="secondCardInHand2" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fx:id="firstCardInHand2" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="actualBet_Player2" prefHeight="17.0" prefWidth="70.0" text="actualBet" />
+                        <Circle fx:id="player2Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Label fx:id="player2Action" prefHeight="23.0" prefWidth="70.0" text="Akcja gracza" />
                      </children>
-                  </GridPane>
+                  </VBox>
                </children>
             </HBox>
          </children>
       </AnchorPane>
+      <AnchorPane fx:id="InterfaceThree" layoutX="532.0" layoutY="176.0" prefHeight="90.0" prefWidth="168.0">
+         <children>
+            <HBox prefHeight="90.0" prefWidth="210.0" spacing="24.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="90.0" prefWidth="108.0">
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <ImageView fx:id="secondCardInHand3" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fx:id="firstCardInHand3" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="actualBet_Player3" prefHeight="17.0" prefWidth="70.0" text="actualBet" />
+                        <Circle fx:id="player3Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Label fx:id="player3Action" prefHeight="23.0" prefWidth="70.0" text="Akcja gracza" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="79.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="playerName_Player3" text="Nazwa" />
+                        <Button fx:id="profileIcon_Player3" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                        <Label fx:id="AmmountOfMoney_Player3" text="Pieniadze" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="InterfaceFour" layoutX="105.0" layoutY="14.0" prefHeight="129.0" prefWidth="82.0">
+         <children>
+            <VBox prefHeight="129.0" prefWidth="102.0">
+               <children>
+                  <Label fx:id="playerName_Player4" text="Nazwa" />
+                  <Button fx:id="profileIcon_Player4" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                  <Label fx:id="AmmountOfMoney_Player4" prefHeight="17.0" prefWidth="51.0" text="Pieniadze" />
+                  <HBox prefHeight="35.0" prefWidth="82.0">
+                     <children>
+                        <Label fx:id="player4Action" prefHeight="32.0" prefWidth="71.0" text="Akcja gracza" />
+                        <ImageView fx:id="firstCardInHand4" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="secondCardInHand4" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </HBox>
+                  <Circle fx:id="player4Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets left="64.0" />
+                     </VBox.margin>
+                  </Circle>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="InterfaceFive" layoutX="517.0" layoutY="11.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="113.0">
+         <children>
+            <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="102.0">
+               <children>
+                  <Label fx:id="playerName_Player5" text="Nazwa" />
+                  <Button fx:id="profileIcon_Player5" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                  <Label fx:id="AmmountOfMoney_Player5" prefHeight="17.0" prefWidth="51.0" text="Pieniadze" />
+                  <HBox prefHeight="41.0" prefWidth="95.0">
+                     <children>
+                        <Label fx:id="player5Action" prefHeight="32.0" prefWidth="71.0" text="Akcja gracza" />
+                        <ImageView fx:id="firstCardInHand5" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="secondCardInHand5" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </HBox>
+                  <Circle fx:id="player5Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets left="80.0" />
+                     </VBox.margin>
+                  </Circle>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+      <VBox fx:id="interfaceCroupier" alignment="CENTER" layoutX="333.0" layoutY="22.0" prefHeight="91.0" prefWidth="48.0">
+         <children>
+            <Circle fx:id="croupierIcon" accessibleRole="IMAGE_VIEW" fill="DODGERBLUE" radius="24.0" stroke="BLACK" strokeType="INSIDE" />
+            <Label fx:id="messageToTable" alignment="BASELINE_CENTER" prefHeight="44.0" prefWidth="51.0" text="Label" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
+         </children>
+      </VBox>
+      <Label fx:id="messageToPlayer" layoutX="16.0" layoutY="401.0" prefHeight="17.0" prefWidth="123.0" text="Label" />
+      <VBox fx:id="centerOfTable" layoutX="297.0" layoutY="182.0" prefHeight="72.0" prefWidth="130.0">
+         <children>
+            <HBox prefHeight="52.0" prefWidth="130.0">
+               <children>
+                  <ImageView fx:id="firstCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="secondCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="ThirdCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="fourthCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="fifthCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </HBox>
+            <HBox alignment="TOP_RIGHT" prefHeight="21.0" prefWidth="130.0">
+               <children>
+                  <Label fx:id="pot" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="112.0" text="Label" />
+                  <Circle fx:id="potIcon" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>
