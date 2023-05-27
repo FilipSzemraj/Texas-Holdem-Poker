@@ -86,19 +86,28 @@ public class Croupier{
                 System.arraycopy(playersHand, 0, temporary, 0, numberOfCurrentPlayers);
                 System.arraycopy(waitingPlayers, 0, temporary, numberOfCurrentPlayers, temporaryLength);
                 System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers-temporaryLength);
-
-                /*int j=0;
-                for (int i = playersHand.length; i < 5; i++) {
-
-                    playersHand[i]=waitingPlayers[j];
-                    j++;
-                    if(j>=numberOfWaitingPlayers)
-                    {
-                        break;
-                    }
-                }
-                waitingPlayers = Arrays.copyOfRange(waitingPlayers, j, numberOfWaitingPlayers);*/
             }
+        }
+    }
+    public void addPlayerToQueue(int Id, String nick, int amountOfMoney)
+    {
+        if(waitingPlayers == null)
+        {
+            waitingPlayers=new Hand[1];
+            waitingPlayers[1].playerId=Id;
+            waitingPlayers[1].playerName=nick;
+            waitingPlayers[1].amountOfMoney=amountOfMoney;
+        }
+        else if(waitingPlayers.length<5){
+            int numberOfWaitingPlayers=waitingPlayers.length;
+            Hand[] temporary = new Hand[numberOfWaitingPlayers+1];
+            System.arraycopy(waitingPlayers, 0, temporary, 0, numberOfWaitingPlayers);
+            temporary[numberOfWaitingPlayers]=new Hand(Id);
+            temporary[numberOfWaitingPlayers].amountOfMoney=amountOfMoney;
+            temporary[numberOfWaitingPlayers].playerName=nick;
+        }
+        else {
+
         }
     }
 
@@ -124,6 +133,10 @@ public class Croupier{
         //socketClient = new GameClient(this, "localhost");
         //socketClient.start();
         //game();
+    }
+    public void initializeCroupier()
+    {
+        //waitingPlayers=new Hand[5];
     }
     public void game()
     {
@@ -716,11 +729,6 @@ public class Croupier{
         int actualBet=0;
         boolean isAllIn=false;
         boolean isInCurrentRound;
-
-        public void run()
-        {
-            System.out.println("Napis z innego wątku!");
-        }
         public void setIsInCurrentRound(boolean value)
         {
             if(isInCurrentRound==value)

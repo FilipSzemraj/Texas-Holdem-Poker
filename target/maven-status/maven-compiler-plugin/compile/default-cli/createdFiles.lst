@@ -1,11 +1,11 @@
 Game\Croupier.class
+net\GameClient.class
+Game\GenerateRandom.class
+Game\Croupier$Hand.class
+Game\CheckHand.class
 org\main\Main.class
 net\GameServer.class
 Game\Card.class
-net\GameClient.class
-Game\GenerateRandom.class
 org\main\SceneController.class
-Game\Croupier$Hand.class
 sql\DatabaseConnection.class
-Game\CheckHand.class
 org\main\LoginController.class

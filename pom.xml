@@ -50,6 +50,7 @@
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
                     <mainClass>org.main.Main</mainClass>
+                    <executable>java</executable>
                 </configuration>
             </plugin>
         </plugins>
