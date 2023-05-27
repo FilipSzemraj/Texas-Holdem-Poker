@@ -29,7 +29,7 @@ public class Croupier{
     public int bigBlind=50;
     public int smallBlind=25;
     public int bigBlindPosition=0;
-    public int activePlayer=0;
+    public volatile int activePlayer=0;
     public int maxBet=bigBlind;
     public int firstPlayerInCycle;
     public int currentPlayingPlayers=numberOfPlayers;
@@ -94,9 +94,9 @@ public class Croupier{
         if(waitingPlayers == null)
         {
             waitingPlayers=new Hand[1];
-            waitingPlayers[1].playerId=Id;
-            waitingPlayers[1].playerName=nick;
-            waitingPlayers[1].amountOfMoney=amountOfMoney;
+            waitingPlayers[0]=new Hand(Id);
+            waitingPlayers[0].playerName=nick;
+            waitingPlayers[0].amountOfMoney=amountOfMoney;
         }
         else if(waitingPlayers.length<5){
             int numberOfWaitingPlayers=waitingPlayers.length;
@@ -263,7 +263,7 @@ public class Croupier{
     private void playerAction()
     {
         if(playersHand[activePlayer].isInCurrentRound) {
-            socketClient.sendData("ping".getBytes());
+            //socketClient.sendData("ping".getBytes());
             if(playersHand[activePlayer].isAllIn)
             {
                 //Gracz wszedl all in, nic nie może zrobic.
@@ -274,6 +274,7 @@ public class Croupier{
                 boolean goodChoice = false;
                 int diff = maxBet - playersHand[activePlayer].actualBet;
                 boolean validInt=false;
+                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("player-"+activePlayer+"-yourTurn-");
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
                     while(!validInt) {

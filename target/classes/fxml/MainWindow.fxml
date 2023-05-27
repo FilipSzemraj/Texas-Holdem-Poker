@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="wholeScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="441.0" prefWidth="714.0" styleClass="bodybg" stylesheets="@../css/MainPage.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.main.SceneController">
    <opaqueInsets>
@@ -54,6 +56,11 @@
                               <Button fx:id="Fold_button" mnemonicParsing="false" onAction="#btnFoldOnClick" prefWidth="54.0" text="Fold" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                               <Button fx:id="Raise_button" mnemonicParsing="false" onAction="#btnRaiseOnClick" prefWidth="54.0" text="Raise" GridPane.rowIndex="1" />
                               <Button fx:id="Bet_button" mnemonicParsing="false" onAction="#btnBetOnClick" prefHeight="25.0" prefWidth="54.0" text="Bet" />
+                              <TextField fx:id="raiseAmount" promptText="Kwota podbicia" GridPane.rowIndex="2">
+                                 <font>
+                                    <Font size="7.0" />
+                                 </font>
+                              </TextField>
                            </children>
                         </GridPane>
                      </children>
@@ -94,7 +101,7 @@
          <children>
             <HBox prefHeight="90.0" prefWidth="210.0" spacing="24.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="90.0" prefWidth="108.0">
+                  <VBox prefHeight="90.0" prefWidth="108.0">
                      <children>
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
@@ -102,8 +109,14 @@
                               <ImageView fx:id="firstCardInHand3" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
                            </children>
                         </HBox>
-                        <Label fx:id="actualBet_Player3" prefHeight="17.0" prefWidth="70.0" text="actualBet" />
-                        <Circle fx:id="player3Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Label fx:id="actualBet_Player3" prefHeight="17.0" prefWidth="70.0" text="actualBet">
+                           <VBox.margin>
+                              <Insets left="6.0" />
+                           </VBox.margin></Label>
+                        <Circle fx:id="player3Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE">
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin></Circle>
                         <Label fx:id="player3Action" prefHeight="23.0" prefWidth="70.0" text="Akcja gracza" />
                      </children>
                   </VBox>
@@ -132,18 +145,19 @@
                         <ImageView fx:id="secondCardInHand4" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </HBox>
-                  <Circle fx:id="player4Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" VBox.vgrow="ALWAYS">
-                     <VBox.margin>
-                        <Insets left="64.0" />
-                     </VBox.margin>
-                  </Circle>
+                  <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="actualBet_Player4" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
+                        <Circle fx:id="player4Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>
       </AnchorPane>
       <AnchorPane fx:id="InterfaceFive" layoutX="517.0" layoutY="11.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="113.0">
          <children>
-            <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="102.0">
+            <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="113.0">
                <children>
                   <Label fx:id="playerName_Player5" text="Nazwa" />
                   <Button fx:id="profileIcon_Player5" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
@@ -155,11 +169,12 @@
                         <ImageView fx:id="secondCardInHand5" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </HBox>
-                  <Circle fx:id="player5Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" VBox.vgrow="ALWAYS">
-                     <VBox.margin>
-                        <Insets left="80.0" />
-                     </VBox.margin>
-                  </Circle>
+                  <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="actualBet_Player5" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
+                        <Circle fx:id="player5Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>
