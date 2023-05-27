@@ -56,7 +56,7 @@
                               <Button fx:id="Fold_button" mnemonicParsing="false" onAction="#btnFoldOnClick" prefWidth="54.0" text="Fold" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                               <Button fx:id="Raise_button" mnemonicParsing="false" onAction="#btnRaiseOnClick" prefWidth="54.0" text="Raise" GridPane.rowIndex="1" />
                               <Button fx:id="Bet_button" mnemonicParsing="false" onAction="#btnBetOnClick" prefHeight="25.0" prefWidth="54.0" text="Bet" />
-                              <TextField fx:id="raiseAmount" text="Kwota podbicia" GridPane.rowIndex="2">
+                              <TextField fx:id="raiseAmount" promptText="Kwota podbicia" GridPane.rowIndex="2">
                                  <font>
                                     <Font size="7.0" />
                                  </font>

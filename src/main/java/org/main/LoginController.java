@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -52,11 +53,11 @@ public class LoginController {
         e.printStackTrace();
         messageLabel.setText("Bład połączenia z baza danych!");
     }
-        gameServer = new GameServer();
+        gameServer = GameServer.getInstance();
         serverThread = new Thread(gameServer);
         serverThread.start();
-        Players = new ArrayList<GameClient>();
-        ThreadsOfPlayers = new ArrayList<Thread>();
+        Players = new ArrayList<>();
+        ThreadsOfPlayers = new ArrayList<>();
     }
 
     public void logged() throws IOException, RuntimeException, SQLException {
@@ -65,7 +66,7 @@ public class LoginController {
         String serverIp = "127.0.0.1"; // Adres IP serwera
         Players.add(new GameClient(serverIp));
         ThreadsOfPlayers.add(new Thread(Players.get(Players.size()-1)));
-        ThreadsOfPlayers.get(Players.size()-1).start();
+
 
         String checkAmountOfMoney = "SELECT amountOfMoney FROM user_account WHERE login='"+loginTextField.getText()+"';";
         Statement statement = connectDB.createStatement();
@@ -77,12 +78,26 @@ public class LoginController {
         }
 
         Players.get(Players.size()-1).initializeWindow(loginTextField.getText(), Players.size()-1, amountOfMoney);
+        //ThreadsOfPlayers.get(Players.size()-1).start();
     }
     public static void closePlayerSocket(int id)
     {
         Players.get(id).closeTheSocket();
     }
+    public static void deletePlayer(int id)
+    {
+        Iterator<GameClient> iterator = Players.iterator();
+        while(iterator.hasNext())
+        {
+            GameClient player = iterator.next();
+            if(player.playerId == id)
+            {
+                iterator.remove();
+                break;
+            }
+        }
 
+    }
 
 
     public void loginButtonOnAction()

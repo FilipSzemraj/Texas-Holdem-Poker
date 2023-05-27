@@ -96,40 +96,54 @@ public class SceneController{
         login();
         Stage stage = (Stage) wholeScene.getScene().getWindow();
         stage.setOnCloseRequest((WindowEvent event) ->{
-            LoginController.Players.get(Id).closeRunningFlag();
-            LoginController.closePlayerSocket(Id);
+            LoginController.Players.get(playerId).closeRunningFlag();
+            LoginController.closePlayerSocket(playerId);
+            LoginController.deletePlayer(playerId);
             stage.close();
         });
     }
     private void login()
     {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+amountOfMoney).getBytes());
+        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+amountOfMoney+"-").getBytes());
     }
     @FXML
     void btnAllInOnClick(ActionEvent event) {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+"allIn").getBytes());
+        LoginController.Players.get(playerId).sendData(("playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
         System.out.println("allin");
     }
     @FXML
     void btnBetOnClick(ActionEvent event) {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+"bet").getBytes());
-        System.out.println("bet");
+        if(checkMaxBet()-Integer.valueOf(actualBet_Player1.getText())<amountOfMoney) {
+            LoginController.Players.get(playerId).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+            System.out.println("bet");
+        }
+        else {
+            messageToPlayer.setText("Możesz zagrać tylko 'All In'. Masz nie wystarczajaco srodkow na koncie.");
+        }
     }
     @FXML
     void btnCheckOnClick(ActionEvent event) {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+"check").getBytes());
-        System.out.println("check");
+        if(checkMaxBet()==Integer.valueOf(actualBet_Player1.getText())) {
+            LoginController.Players.get(playerId).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+            System.out.println("check");
+        }else{
+            messageToPlayer.setText("Nie mozesz czekac, poniewaz nie masz maksymalnego zakladu na stole.");
+        }
     }
     @FXML
     void btnFoldOnClick(ActionEvent event) {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+"fold").getBytes());
+        LoginController.Players.get(playerId).sendData(("playerAction-fold-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
         System.out.println("fold");
     }
     @FXML
     void btnRaiseOnClick(ActionEvent event) {
-        if(Integer.valueOf(raiseAmount.getText())>checkMaxBet()) {
-            LoginController.Players.get(playerId).sendData(("playerAction-login-" + playerId + "-" + playerName_Player1.getText() + "-" + "raise-" + raiseAmount.getText()).getBytes());
+        if(!raiseAmount.getText().isBlank() && Integer.valueOf(raiseAmount.getText())>checkMaxBet()) {
+            LoginController.Players.get(playerId).sendData(("playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-").getBytes());
             System.out.println("raise" + playerName_Player1.getText());
+        }
+        else
+        {
+            messageToPlayer.setText("Kwota do przebicia powinna byc wieksza od maksymalnego zakladu na stole.");
         }
 
     }
