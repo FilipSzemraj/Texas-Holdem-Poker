@@ -2,6 +2,7 @@ package net;
 
 import Game.*;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -75,7 +76,14 @@ public class GameServer extends Thread{
 
     public void run()
     {
-
+        Thread startGame = new Thread(() -> {
+            try {
+                game.initializeCroupier();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        startGame.start();
             while (runningFlag) {
                 byte[] data = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -124,25 +132,52 @@ public class GameServer extends Thread{
                             break;
                         case "call":
                             //"playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                Croupier.playerActionMessage="call";
+                                Croupier.getInstance().waitForMessage.notifyAll();
+                            }
                             //game.
                             break;
                         case "check":
                             //"playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                Croupier.playerActionMessage="check";
+                                Croupier.getInstance().waitForMessage.notifyAll();
+                            }
                             break;
                         case "raise":
                             //"playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                Croupier.playerActionMessage="raise";
+                                Croupier.getInstance().waitForMessage.notifyAll();
+                            }
                             break;
                         case "allIn":
                             //"playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                Croupier.playerActionMessage="allIn";
+                                Croupier.getInstance().waitForMessage.notifyAll();
+                            }
                             break;
                         case "fold":
                             //"playerAction-fold-"+playerId+"-"+playerName_Player1.getText()+"-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                Croupier.playerActionMessage="fold";
+                                Croupier.getInstance().waitForMessage.notifyAll();
+                            }
                             break;
                         case "logout":
                             //handleClientDisconnection();
-                            break;
-                        case "logoutFromWaiting":
-                            //handleClientDisconnection();
+                            try {
+                                handleClientDisconnection(InetAddress.getByName(partedMessage[6]), Integer.valueOf(partedMessage[8])); //niech wyszukuje port z ClientInfo
+                            } catch (UnknownHostException e) {
+                                throw new RuntimeException(e);
+                            }
                             break;
                         default:
                             System.out.println("Zly format wiadomosci.");
@@ -180,7 +215,7 @@ public void prepareAndSendDataFromCroupierToOnePlayer(String message)
     int port = 0;
     String[] partedMessage = message.split("-");
     for (ClientInfo client : connectedClients) {
-        if (client.getPlayerId()==Integer.valueOf(partedMessage[2])) {
+        if (client.getPlayerId()==Integer.valueOf(partedMessage[1])) {
             clientExists = true;
             ipAddress=client.getIpAddress();
             port=client.getPort();
@@ -192,7 +227,24 @@ public void prepareAndSendDataFromCroupierToOnePlayer(String message)
     {
         sendData(message.getBytes(), ipAddress, port);
     }
+    else {
+        System.out.println("Błąd! Klient którego jest kolej nigdy nie był w grze.");
+    }
 
+}
+public void prepareAndSendDataFromCroupierToAllPlayers(String message)
+{
+    byte[] data = message.getBytes();
+    for (ClientInfo client : connectedClients) {
+        InetAddress ipAddress=client.getIpAddress();
+        int port=client.getPort();
+        DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
+        try {
+            socket.send(packet);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
     public void sendData(byte[] data, InetAddress ipAddress, int port)
     {
