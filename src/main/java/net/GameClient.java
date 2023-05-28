@@ -34,6 +34,7 @@ public class GameClient extends Thread{
 
     public void run()
     {
+        System.out.println("RUN GAMECLIENT:"+Thread.currentThread().getName());
         while(runningFlag)
         {
             byte[] data = new byte[1024];
@@ -44,46 +45,43 @@ public class GameClient extends Thread{
                 //e.printStackTrace();
                 //throw new RuntimeException(e);
             }
-            String message = new String(packet.getData());
+            String message = new String(packet.getData()).trim();
             System.out.println("Server > "+message);
             String[] partedMessage = message.split("-");
             switch(partedMessage[0])
             {
                 case "playerAction":
+                    if(Integer.valueOf(partedMessage[1])==playerId)
+                    {
+                        controller.enableButtonEventHandling();
+                        Runnable disableButtonsTask = () -> {
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                try {
+                                    Croupier.getInstance().waitForMessage.wait(30000);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            controller.disableButtonEventHandling();
+                        };
+                        Thread disableButtonsThread = new Thread(disableButtonsTask);
+                        disableButtonsThread.start();
+                    }
                     break;
                 case "croupierInformations":
                     break;
                 case "initializeInformations":
                     //"initializeInformations-numberOfPlayers-"+numberOfPlayers"-playerId-"+playersHand[i].playerId+"-playerName-"+playersHand[i].playerName+"-amountOfMoney-"+playersHand[i].amountOfMoney+"-"
-                    controller.setOtherPlayersInterfaces(Integer.valueOf(partedMessage[2]));
-                    for (int i = 6; i+2 < partedMessage.length-1; i=+6) {
-                        controller.setPlayerInformations(Integer.valueOf(partedMessage[i-2]), partedMessage[i], partedMessage[i+2]);
-                    }
+                    controller.setOtherPlayersInterfaces(Integer.valueOf(partedMessage[3]));
+                    controller.setPlayerInformations(Integer.valueOf(partedMessage[3]), partedMessage);
                     break;
                 case "playerInformations":
                     break;
                 case "newPlayer":
                     break;
             }
-            if(partedMessage[2].equals("yourTurn"))
-            {
-                controller.enableButtonEventHandling();
-                Runnable disableButtonsTask = () -> {
-                    synchronized (Croupier.getInstance().waitForMessage)
-                    {
-                        try {
-                            Croupier.getInstance().waitForMessage.wait(30000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    controller.disableButtonEventHandling();
-                };
-                Thread disableButtonsThread = new Thread(disableButtonsTask);
-                disableButtonsThread.start();
-            }
         }
-        sendData(("logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress+"-port-1331-").getBytes());
     }
     public void sendData(byte[] data)
     {
@@ -96,6 +94,7 @@ public class GameClient extends Thread{
     }
     public void closeRunningFlag()
     {
+        sendData(("playerAction-logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress.getHostAddress()+"-port-1331-").getBytes());
         runningFlag=false;
     }
     public void closeTheSocket()
@@ -104,6 +103,7 @@ public class GameClient extends Thread{
     }
 
     public void initializeWindow(String name, int Id, int amountOfMoney) throws IOException {
+        System.out.println("initialize window, dla:"+name+" "+Thread.currentThread().getName());
         playerId=Id;
         playerNick=name;
         URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
@@ -118,8 +118,8 @@ public class GameClient extends Thread{
         primaryStage.show();
         controller.initialize(loader.getLocation(), loader.getResources(), name, Id, amountOfMoney);
     }
-    private void sendLastMessage()
+    public int getPlayerId()
     {
-
+        return playerId;
     }
 }

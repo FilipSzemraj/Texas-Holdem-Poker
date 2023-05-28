@@ -1,5 +1,6 @@
 package org.main;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,12 +14,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import net.GameClient;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 
 public class SceneController{
-    private int numberOfPlayers=1;
+    private int numberOfPlayers=0;
     public Label[] actualBet;
     public TextField raiseAmount;
     public Label actualBet_Player4;
@@ -97,9 +100,21 @@ public class SceneController{
         login();
         Stage stage = (Stage) wholeScene.getScene().getWindow();
         stage.setOnCloseRequest((WindowEvent event) ->{
-            LoginController.Players.get(playerId).closeRunningFlag();
+            Iterator<GameClient> iterator = LoginController.Players.iterator();
+            while(iterator.hasNext()) {
+            GameClient player = iterator.next();
+                if(player.getPlayerId() == playerId)
+                {
+                    player.closeRunningFlag();
+                    player.closeTheSocket();
+                    //LoginController.closePlayerSocket(player.getPlayerId());
+                    iterator.remove();
+                    break;
+                }
+            }
+            /*LoginController.Players.get(playerId).closeRunningFlag();
             LoginController.closePlayerSocket(playerId);
-            LoginController.deletePlayer(playerId);
+            LoginController.deletePlayer(playerId);*/
             stage.close();
         });
     }
@@ -114,21 +129,36 @@ public class SceneController{
     }
     @FXML
     void btnBetOnClick(ActionEvent event) {
-        if(checkMaxBet()-Integer.valueOf(actualBet_Player1.getText())<amountOfMoney) {
-            LoginController.Players.get(playerId).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
-            System.out.println("bet");
-        }
-        else {
-            messageToPlayer.setText("Możesz zagrać tylko 'All In'. Masz nie wystarczajaco srodkow na koncie.");
+        String actualBetText = actualBet_Player1.getText();
+
+        if (!actualBetText.isEmpty() && actualBetText.matches("\\d+")) {
+            int actualBetValue = Integer.parseInt(actualBetText);
+
+            if (checkMaxBet() - actualBetValue < amountOfMoney) {
+                LoginController.Players.get(playerId).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+                System.out.println("bet");
+            } else {
+                messageToPlayer.setText("Możesz zagrać tylko 'All In'. Masz nie wystarczajaco srodkow na koncie.");
+            }
+        } else {
+            messageToPlayer.setText("Niepoprawna wartość 'actualBet'.");
         }
     }
     @FXML
     void btnCheckOnClick(ActionEvent event) {
-        if(checkMaxBet()==Integer.valueOf(actualBet_Player1.getText())) {
-            LoginController.Players.get(playerId).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
-            System.out.println("check");
-        }else{
-            messageToPlayer.setText("Nie mozesz czekac, poniewaz nie masz maksymalnego zakladu na stole.");
+        String actualBetText = actualBet_Player1.getText();
+
+        if (!actualBetText.isEmpty() && actualBetText.matches("\\d+")) {
+            int actualBetValue = Integer.parseInt(actualBetText);
+
+            if (checkMaxBet() == actualBetValue) {
+                LoginController.Players.get(playerId).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+                System.out.println("check");
+            } else {
+                messageToPlayer.setText("Nie mozesz czekac, poniewaz nie masz maksymalnego zakladu na stole.");
+            }
+        }else {
+            messageToPlayer.setText("Niepoprawna wartość 'actualBet'.");
         }
     }
     @FXML
@@ -151,8 +181,8 @@ public class SceneController{
     private int checkMaxBet()
     {
         int maxBet=0;
-        for (int i = 0; i < 5; i++) {
-            int tempBet = Integer.valueOf((actualBet[i].getText()));
+        for (int i = 0; i < numberOfPlayers; i++) {
+            int tempBet = Integer.valueOf(actualBet[i].getText());
             if(maxBet<tempBet)
                 maxBet=tempBet;
         }
@@ -220,29 +250,50 @@ public class SceneController{
                 break;
         }
     }
-    public void setPlayerInformations(int id, String nick, String amountOfMoney)
+    public void setPlayerInformations(int numberOfPlayers, String[] partedMessage)
     {
+        //"initializeInformations-"+playersHand[i].playerId+"-numberOfPlayers-"+numberOfPlayers+"-playerId-"+playersHand[y].playerId+"-playerName-"+playersHand[y].playerName+"-amountOfMoney-"+
+        //                        playersHand[y].amountOfMoney
         switch(numberOfPlayers) {
-            case 1:
-                playerName_Player2.setText(nick);
-                AmountOfMoney_Player2.setText(amountOfMoney);
-                numberOfPlayers++;
-                break;
             case 2:
-                playerName_Player3.setText(nick);
-                AmountOfMoney_Player3.setText(amountOfMoney);
-                numberOfPlayers++;
+                Platform.runLater(() -> {
+                    playerName_Player2.setText(partedMessage[7]);
+                    AmountOfMoney_Player2.setText(partedMessage[9]);
+                });
+                numberOfPlayers=2;
                 break;
             case 3:
-                playerName_Player4.setText(nick);
-                AmountOfMoney_Player4.setText(amountOfMoney);
-                numberOfPlayers++;
+                Platform.runLater(() -> {
+                    playerName_Player2.setText(partedMessage[7]);
+                    AmountOfMoney_Player2.setText(partedMessage[9]);
+                    playerName_Player3.setText(partedMessage[13]);
+                    AmountOfMoney_Player3.setText(partedMessage[15]);
+                });
+                numberOfPlayers=3;
                 break;
             case 4:
-                playerName_Player5.setText(nick);
-                AmountOfMoney_Player5.setText(amountOfMoney);
-                numberOfPlayers++;
+                Platform.runLater(() -> {
+                    playerName_Player2.setText(partedMessage[7]);
+                    AmountOfMoney_Player2.setText(partedMessage[9]);
+                    playerName_Player3.setText(partedMessage[13]);
+                    AmountOfMoney_Player3.setText(partedMessage[15]);
+                    playerName_Player4.setText(partedMessage[19]);
+                    AmountOfMoney_Player4.setText(partedMessage[21]);
+                });
+                numberOfPlayers=4;
                 break;
+            case 5:
+                Platform.runLater(() -> {
+                    playerName_Player2.setText(partedMessage[7]);
+                    AmountOfMoney_Player2.setText(partedMessage[9]);
+                    playerName_Player3.setText(partedMessage[13]);
+                    AmountOfMoney_Player3.setText(partedMessage[15]);
+                    playerName_Player4.setText(partedMessage[19]);
+                    AmountOfMoney_Player4.setText(partedMessage[21]);
+                    playerName_Player5.setText(partedMessage[27]);
+                    AmountOfMoney_Player5.setText(partedMessage[29]);
+                });
+                numberOfPlayers=5;
             default:
                 System.out.println("Za duza ilosc graczy.");
                 break;

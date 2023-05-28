@@ -158,12 +158,21 @@ public class Croupier{
         waitingForPlayers.join();
         makeDeck();
         numberOfPlayers=playersHand.length;
-        StringBuffer sb = new StringBuffer("initializeInformations-numberOfPlayers-"+numberOfPlayers);
         for (int i = 0; i < numberOfPlayers; i++) {
-            sb.append("-playerId-"+playersHand[i].playerId+"-playerName-"+playersHand[i].playerName+"-amountOfMoney-"+
-                    playersHand[i].amountOfMoney+"-");
+            StringBuffer sb = new StringBuffer("initializeInformations-"+playersHand[i].playerId+"-numberOfPlayers-"+numberOfPlayers);
+            int y=(i+1)%numberOfPlayers;
+            int z=0;
+            do{
+                sb.append("-playerId-"+playersHand[y].playerId+"-playerName-"+playersHand[y].playerName+"-amountOfMoney-"+
+                        playersHand[y].amountOfMoney);
+                y=(y+1)%numberOfPlayers;
+                z++;
+            }while(z<numberOfPlayers-1);
+            sb.append("-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer(sb.toString());
         }
-        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        game();
+
     }
     public void game()
     {
@@ -300,7 +309,7 @@ public class Croupier{
                 boolean goodChoice = false;
                 int diff = maxBet - playersHand[activePlayer].actualBet;
                 playerActionMessage="fold";
-                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("player-"+activePlayer+"-yourTurn-");
+                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("playerAction-"+activePlayer+"-");
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
                     System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
@@ -385,7 +394,7 @@ public class Croupier{
                 boolean goodChoice = false;
                 int diff = maxBet - playersHand[activePlayer].actualBet;
                 boolean validInt=false;
-                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("player-"+activePlayer+"-yourTurn-");
+                //GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("player-"+activePlayer+"-yourTurn-");
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
                     while(!validInt) {
