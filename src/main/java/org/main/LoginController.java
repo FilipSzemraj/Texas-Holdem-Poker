@@ -77,8 +77,9 @@ public class LoginController {
             System.out.println(amountOfMoney);
         }
 
+        System.out.println("LOGGED DLA:"+Players.get(Players.size()-1)+Thread.currentThread().getName());
         Players.get(Players.size()-1).initializeWindow(loginTextField.getText(), Players.size()-1, amountOfMoney);
-        //ThreadsOfPlayers.get(Players.size()-1).start();
+        ThreadsOfPlayers.get(Players.size()-1).start();
     }
     public static void closePlayerSocket(int id)
     {

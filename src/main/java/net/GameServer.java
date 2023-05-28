@@ -59,7 +59,7 @@ public class GameServer extends Thread{
         return instance;
     }
     public void handleClientDisconnection(InetAddress ipAddress, int port) {
-        connectedClients.removeIf(client -> client.getIpAddress().equals(ipAddress) && client.getPort() == port);
+        connectedClients.removeIf(client -> client.getIpAddress().equals(ipAddress));
     }
     public void closeRunningFlag()
     {
@@ -76,6 +76,7 @@ public class GameServer extends Thread{
 
     public void run()
     {
+        System.out.println("RUN GAMESERVER:"+Thread.currentThread().getName());
         Thread startGame = new Thread(() -> {
             try {
                 game.initializeCroupier();
@@ -87,14 +88,14 @@ public class GameServer extends Thread{
             while (runningFlag) {
                 byte[] data = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(data, data.length);
-                String message;
+                String message="";
                 String[] partedMessage = {"pusty-pusty"};
                 boolean clientExists = false;
                 InetAddress clientIP = null;
                 int clientPort = 0;
                 try {
                     socket.receive(packet);
-                    message = new String(packet.getData());
+                    message = new String(packet.getData()).trim();
                     partedMessage = message.split("-");
                     System.out.println(message);
                     //throw new IOException("Błąd wejścia-wyjścia");
@@ -125,8 +126,7 @@ public class GameServer extends Thread{
                         case "login":
                             game.addPlayerToQueue(Integer.parseInt(partedMessage[2]), partedMessage[3], Integer.parseInt(partedMessage[4]));
                             if (!clientExists) {
-                                ClientInfo client = new ClientInfo(clientIP, clientPort, Integer.parseInt(partedMessage[2]));
-                                connectedClients.add(client);
+                                connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2])));
                             }
                             System.out.println("logowanie");
                             break;
@@ -174,12 +174,16 @@ public class GameServer extends Thread{
                         case "logout":
                             //handleClientDisconnection();
                             try {
-                                handleClientDisconnection(InetAddress.getByName(partedMessage[6]), Integer.valueOf(partedMessage[8])); //niech wyszukuje port z ClientInfo
+                                clientIP = InetAddress.getByName(partedMessage[7]);
+                                clientPort = Integer.valueOf(partedMessage[9]);
+                                handleClientDisconnection(clientIP, clientPort);
+                                //handleClientDisconnection(InetAddress.getByName(partedMessage[7]), Integer.valueOf(partedMessage[9])); //niech wyszukuje port z ClientInfo
                             } catch (UnknownHostException e) {
                                 throw new RuntimeException(e);
                             }
                             break;
                         default:
+                            System.out.println(message);
                             System.out.println("Zly format wiadomosci.");
                             break;
                     }
@@ -193,11 +197,13 @@ public class GameServer extends Thread{
                             case "getCroupierInformation":
                                 break;
                             default:
+                                System.out.println(message);
                                 System.out.println("Zly format wiadomosci.");
                                 break;
                         }
                         break;
                     default:
+                        System.out.println(message);
                         System.out.println("Zly format wiadomosci.");
                         break;
                 }
