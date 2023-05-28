@@ -17,26 +17,29 @@ class GenerateRandom{
 }
 
 public class Croupier{
+    public static volatile String playerActionMessage="fold";
+    public static volatile boolean isRunning=false;
+    public final Object waitFor2Players = new Object();
+    public final Object waitForMessage = new Object();
     private GameClient socketClient;
     private GameServer socketServer;
     private static Croupier instance;
-    public int numberOfPlayers;
+    public volatile int numberOfPlayers;
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
             , "Jupki", "Damy", "Krole", "Asy"};
     public static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
     Map<Integer, Card> deck = new TreeMap<Integer, Card>();
     public Map<Integer, Card> table = new LinkedHashMap<>();
-    public int bigBlind=50;
-    public int smallBlind=25;
-    public int bigBlindPosition=0;
+    public volatile int bigBlind=50;
+    public volatile int smallBlind=25;
+    public volatile int bigBlindPosition=0;
     public volatile int activePlayer=0;
-    public int maxBet=bigBlind;
-    public int firstPlayerInCycle;
-    public int currentPlayingPlayers=numberOfPlayers;
-    public int pot=0;
-    private Hand[] playersHand;
-    private Hand[] waitingPlayers;
-    boolean checkIfQueueOfWaitingPlayersIsFull=false;
+    public volatile int maxBet=bigBlind;
+    public volatile int firstPlayerInCycle;
+    public volatile int currentPlayingPlayers=numberOfPlayers;
+    public volatile int pot=0;
+    private volatile Hand[] playersHand;
+    private volatile Hand[] waitingPlayers;
     CheckHand checker = new CheckHand();
     Scanner sc = new Scanner(System.in);
     /*public Croupier(int x)
@@ -62,19 +65,29 @@ public class Croupier{
     //METODY DO KOMUNIKACJI Z SERWEREM
     //###########################################################################################################
 
-    public void waitForAtLeast2Players() {
-        while(playersHand.length<2)
+    public void waitForAtLeast2Players() throws InterruptedException {
+        while(playersHand == null )
         {
+            synchronized (waitFor2Players) {
+                waitFor2Players.wait();
+            }
             addWaitingPlayersToGame();
         }
+        isRunning=true;
     }
     public void addWaitingPlayersToGame()
     {
         int numberOfWaitingPlayers=waitingPlayers.length;
         if(numberOfWaitingPlayers>0)
         {
-            int numberOfCurrentPlayers=playersHand.length;
-            if(numberOfCurrentPlayers<5) {
+            if(playersHand == null)
+            {
+                playersHand = new Hand[numberOfWaitingPlayers];
+                playersHand = waitingPlayers;
+                waitingPlayers = null;
+            }
+            else if(playersHand.length<5) {
+                int numberOfCurrentPlayers=playersHand.length;
                 Hand[] temporary;
                 int temporaryLength=5-numberOfCurrentPlayers;
                 if(numberOfCurrentPlayers+numberOfWaitingPlayers<5) {
@@ -105,9 +118,17 @@ public class Croupier{
             temporary[numberOfWaitingPlayers]=new Hand(Id);
             temporary[numberOfWaitingPlayers].amountOfMoney=amountOfMoney;
             temporary[numberOfWaitingPlayers].playerName=nick;
+            waitingPlayers=temporary;
+            if(waitingPlayers.length==2)
+            {
+                synchronized (waitFor2Players)
+                {
+                    waitFor2Players.notifyAll();
+                }
+            }
         }
         else {
-
+            System.out.println("Za duzo graczy w kolejce");
         }
     }
 
@@ -119,24 +140,30 @@ public class Croupier{
     //###########################################################################################################
     //METODY GŁÓWNE KRUPIERA
     //###########################################################################################################
-    public void firstStepInCroupier(int x)
-    {
-        waitForAtLeast2Players();
+    public void firstStepInCroupier(int x){
+        numberOfPlayers=x;
         makeDeck();
-        //showDeck();//wyj
         makeHands();
-        //if(JOptionPane.showConfirmDialog(, "Do you want to run the server?") == 0)
-        //{
-        //socketServer = new GameServer(Croupier.getInstance());
-        //socketServer.start();
-        // }
-        //socketClient = new GameClient(this, "localhost");
-        //socketClient.start();
-        //game();
     }
-    public void initializeCroupier()
-    {
-        //waitingPlayers=new Hand[5];
+    public void initializeCroupier() throws InterruptedException {
+
+        Thread waitingForPlayers = new Thread(() -> {
+           try {
+               waitForAtLeast2Players();
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+        });
+        waitingForPlayers.start();
+        waitingForPlayers.join();
+        makeDeck();
+        numberOfPlayers=playersHand.length;
+        StringBuffer sb = new StringBuffer("initializeInformations-numberOfPlayers-"+numberOfPlayers);
+        for (int i = 0; i < numberOfPlayers; i++) {
+            sb.append("-playerId-"+playersHand[i].playerId+"-playerName-"+playersHand[i].playerName+"-amountOfMoney-"+
+                    playersHand[i].amountOfMoney+"-");
+        }
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
     public void game()
     {
@@ -179,7 +206,7 @@ public class Croupier{
             do {
                 int tempMaxBet=maxBet;
                 int tempPot=pot;
-                playerAction();
+                playerActionMultiplayer();
                 if((tempPot+maxBet)>(pot+tempMaxBet)) {
                     firstPlayerInCycle = activePlayer;
                 }
@@ -252,13 +279,97 @@ public class Croupier{
         {
             int tempMaxBet=maxBet;
             int tempPot=pot;
-            playerAction();
+            playerActionMultiplayer();
             if((pot)>(tempPot+tempMaxBet))
             {
                 firstPlayerInCycleNamedPreFlop=activePlayer;
             }
             activePlayer=(activePlayer+1)%numberOfPlayers;
         }while(activePlayer!=firstPlayerInCycleNamedPreFlop);
+    }
+    private void playerActionMultiplayer()
+    {
+        if(playersHand[activePlayer].isInCurrentRound) {
+            if(playersHand[activePlayer].isAllIn)
+            {
+                //Gracz wszedl all in, nic nie może zrobic.
+            }
+            else
+            {
+                int x=0;
+                boolean goodChoice = false;
+                int diff = maxBet - playersHand[activePlayer].actualBet;
+                playerActionMessage="fold";
+                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("player-"+activePlayer+"-yourTurn-");
+                do {
+                    System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
+                    System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
+                    System.out.println("Masz do wplacenia zaklad o wysokosci: " + diff + "\nTwoje pozostale pieniadze: " + playersHand[activePlayer].amountOfMoney);
+
+                    synchronized (waitForMessage)
+                    {
+
+                        try {
+                            waitForMessage.wait(30000);
+                        }catch(InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if(playersHand[activePlayer].actualBet==maxBet)
+                    {
+                        playerActionMessage="check";
+                    }
+
+                    if (playersHand[activePlayer].amountOfMoney < diff) {
+                        switch (playerActionMessage) {
+                            case "fold":
+                                fold();
+                                goodChoice=true;
+                                break;
+                            case "allIn":
+                                allIn(diff);
+                                goodChoice=true;
+                                break;
+                            default:
+                                System.out.println("Dokonaj poprawnego wyboru!");
+                                break;
+                        }
+                    } else {
+                        switch (playerActionMessage) {
+                            case "fold":
+                                fold();
+                                goodChoice=true;
+                                break;
+                            case "bet":
+                                bet(diff);
+                                goodChoice=true;
+                                break;
+                            case "raise":
+                                raise(diff);
+                                goodChoice=true;
+                                break;
+                            case "allIn":
+                                allIn(diff);
+                                goodChoice=true;
+                                break;
+                            case "check":
+                                if(diff==0) {
+                                    check();
+                                    goodChoice = true;
+                                }else {
+                                    System.out.println("Nie możesz czekac, poniewaz nie wyrownales do najwyzszego zakladu.\n");
+                                }
+                                break;
+                            default:
+                                System.out.println("Dokonaj poprawnego wyboru!");
+                                break;
+                        }
+                    }
+                } while (goodChoice == false);
+            }
+        }
     }
     private void playerAction()
     {

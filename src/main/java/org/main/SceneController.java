@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class SceneController{
+    private int numberOfPlayers=1;
     public Label[] actualBet;
     public TextField raiseAmount;
     public Label actualBet_Player4;
@@ -25,14 +26,14 @@ public class SceneController{
     private int playerId;
     private int amountOfMoney;
     public AnchorPane wholeScene;
-    public AnchorPane interfaceOne;
+    public AnchorPane InterfaceOne;
     public Label actualBet_Player1;
     public Circle player1Blind;
     public ImageView firstCardInHand1;
     public ImageView secondCardInHand1;
     public Label playerName_Player1;
     public Button ProfileIcon_Player1;
-    public Label AmmountOfMoney_Player1;
+    public Label AmountOfMoney_Player1;
     public Button AllIn_button;
     public Button Check_button;
     public Button Fold_button;
@@ -41,7 +42,7 @@ public class SceneController{
     public AnchorPane InterfaceTwo;
     public Label playerName_Player2;
     public Button profileIcon_Player2;
-    public Label AmmountOfMoney_Player2;
+    public Label AmountOfMoney_Player2;
     public ImageView secondCardInHand2;
     public ImageView firstCardInHand2;
     public Label actualBet_Player2;
@@ -55,11 +56,11 @@ public class SceneController{
     public Label player3Action;
     public Label playerName_Player3;
     public Button profileIcon_Player3;
-    public Label AmmountOfMoney_Player3;
+    public Label AmountOfMoney_Player3;
     public AnchorPane InterfaceFour;
     public Label playerName_Player4;
     public Button profileIcon_Player4;
-    public Label AmmountOfMoney_Player4;
+    public Label AmountOfMoney_Player4;
     public Label player4Action;
     public ImageView firstCardInHand4;
     public ImageView secondCardInHand4;
@@ -67,7 +68,7 @@ public class SceneController{
     public AnchorPane InterfaceFive;
     public Label playerName_Player5;
     public Button profileIcon_Player5;
-    public Label AmmountOfMoney_Player5;
+    public Label AmountOfMoney_Player5;
     public Label player5Action;
     public ImageView firstCardInHand5;
     public ImageView secondCardInHand5;
@@ -90,7 +91,7 @@ public class SceneController{
         playerName_Player1.setText(name);
         playerId=Id;
         this.amountOfMoney=amountOfMoney;
-        AmmountOfMoney_Player1.setText(String.valueOf(amountOfMoney));
+        AmountOfMoney_Player1.setText(String.valueOf(amountOfMoney));
         actualBet = new Label[]{actualBet_Player1, actualBet_Player2, actualBet_Player3, actualBet_Player4, actualBet_Player5};
 
         login();
@@ -156,6 +157,96 @@ public class SceneController{
                 maxBet=tempBet;
         }
         return maxBet;
+    }
+    public void disableButtonEventHandling()
+    {
+        AllIn_button.setDisable(true);
+        Check_button.setDisable(true);
+        Fold_button.setDisable(true);
+        Raise_button.setDisable(true);
+        Bet_button.setDisable(true);
+    }
+
+    public void enableButtonEventHandling()
+    {
+        AllIn_button.setDisable(false);
+        Check_button.setDisable(false);
+        Fold_button.setDisable(false);
+        Raise_button.setDisable(false);
+        Bet_button.setDisable(false);
+
+    }
+    public void setOtherPlayersInterfaces(int numberOfPlayers)
+    {
+        switch(numberOfPlayers)
+        {
+            case 1:
+                InterfaceOne.setVisible(true);
+                InterfaceTwo.setVisible(false);
+                InterfaceThree.setVisible(false);
+                InterfaceFour.setVisible(false);
+                InterfaceFive.setVisible(false);
+                break;
+            case 2:
+                InterfaceOne.setVisible(true);
+                InterfaceTwo.setVisible(true);
+                InterfaceThree.setVisible(false);
+                InterfaceFour.setVisible(false);
+                InterfaceFive.setVisible(false);
+                break;
+            case 3:
+                InterfaceOne.setVisible(true);
+                InterfaceTwo.setVisible(true);
+                InterfaceThree.setVisible(true);
+                InterfaceFour.setVisible(false);
+                InterfaceFive.setVisible(false);
+                break;
+            case 4:
+                InterfaceOne.setVisible(true);
+                InterfaceTwo.setVisible(true);
+                InterfaceThree.setVisible(true);
+                InterfaceFour.setVisible(true);
+                InterfaceFive.setVisible(false);
+                break;
+            case 5:
+                InterfaceOne.setVisible(true);
+                InterfaceTwo.setVisible(true);
+                InterfaceThree.setVisible(true);
+                InterfaceFour.setVisible(true);
+                InterfaceFive.setVisible(true);
+                break;
+            default:
+                System.out.println("Bledne dane przy zmianie widocznych interfejsow.");
+                break;
+        }
+    }
+    public void setPlayerInformations(int id, String nick, String amountOfMoney)
+    {
+        switch(numberOfPlayers) {
+            case 1:
+                playerName_Player2.setText(nick);
+                AmountOfMoney_Player2.setText(amountOfMoney);
+                numberOfPlayers++;
+                break;
+            case 2:
+                playerName_Player3.setText(nick);
+                AmountOfMoney_Player3.setText(amountOfMoney);
+                numberOfPlayers++;
+                break;
+            case 3:
+                playerName_Player4.setText(nick);
+                AmountOfMoney_Player4.setText(amountOfMoney);
+                numberOfPlayers++;
+                break;
+            case 4:
+                playerName_Player5.setText(nick);
+                AmountOfMoney_Player5.setText(amountOfMoney);
+                numberOfPlayers++;
+                break;
+            default:
+                System.out.println("Za duza ilosc graczy.");
+                break;
+        }
     }
 
 }

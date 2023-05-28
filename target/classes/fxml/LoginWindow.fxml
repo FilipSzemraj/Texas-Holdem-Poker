@@ -36,7 +36,7 @@
                   <Font size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="loginTextField" layoutX="101.0" layoutY="122.0" promptText="Nazwa">
+            <TextField fx:id="loginTextField" layoutX="101.0" layoutY="122.0" promptText="Nazwa" text="Pippo">
                <effect>
                   <DropShadow height="7.0" radius="3.0" width="7.0" />
                </effect>
@@ -46,7 +46,7 @@
                   <Font size="18.0" />
                </font>
             </Label>
-            <PasswordField fx:id="passwordTextField" layoutX="101.0" layoutY="158.0" promptText="Hasło">
+            <PasswordField fx:id="passwordTextField" layoutX="101.0" layoutY="158.0" promptText="Hasło" text="1234">
                <effect>
                   <DropShadow height="7.0" radius="3.0" width="7.0" />
                </effect>
@@ -59,9 +59,9 @@
                   <DropShadow height="7.0" radius="3.0" width="7.0" />
                </effect>
             </Button>
-            <Label fx:id="messageLabel" layoutX="36.0" layoutY="346.0" prefHeight="17.0" prefWidth="208.0" style="-fx-background-color: #ECECE7;">
+            <Label fx:id="messageLabel" layoutX="36.0" layoutY="325.0" prefHeight="76.0" prefWidth="208.0" style="-fx-background-color: #ECECE7;" wrapText="true">
                <font>
-                  <Font size="14.0" />
+                  <Font size="13.0" />
                </font>
             </Label>
             <Button fx:id="cancelButton" graphicTextGap="2.0" layoutX="82.0" layoutY="277.0" mnemonicParsing="false" onAction="#cancelButtonOnAction" prefHeight="30.0" prefWidth="216.0" style="-fx-background-color: #ECECE9;" text="Anuluj" AnchorPane.leftAnchor="31.0">
