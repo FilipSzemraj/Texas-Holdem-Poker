@@ -97,7 +97,7 @@ public class GameServer extends Thread{
                     socket.receive(packet);
                     message = new String(packet.getData()).trim();
                     partedMessage = message.split("-");
-                    System.out.println(message);
+                    System.out.println("Wiadomosc odebrana przez serwer > "+message);
                     //throw new IOException("Błąd wejścia-wyjścia");
 
                     clientIP = packet.getAddress();
@@ -124,7 +124,11 @@ public class GameServer extends Thread{
                     case "playerAction":
                     switch(partedMessage[1]) {
                         case "login":
-                            game.addPlayerToQueue(Integer.parseInt(partedMessage[2]), partedMessage[3], Integer.parseInt(partedMessage[4]));
+                            try {
+                                game.addPlayerToQueue(Integer.parseInt(partedMessage[2]), partedMessage[3], Integer.parseInt(partedMessage[4]));
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                             if (!clientExists) {
                                 connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2])));
                             }
@@ -173,7 +177,11 @@ public class GameServer extends Thread{
                             break;
                         case "logout":
                             //handleClientDisconnection();
-                            game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
+                            try {
+                                game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                             try {
                                 //clientIP = InetAddress.getByName(partedMessage[7]);
                                 clientIP = InetAddress.getByName(partedMessage[7]);
@@ -263,6 +271,7 @@ public void prepareAndSendDataFromCroupierToAllPlayers(String message)
     {
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
         try {
+            System.out.println(data.toString());
             this.socket.send(packet);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -46,7 +46,7 @@ public class GameClient extends Thread{
                 //throw new RuntimeException(e);
             }
             String message = new String(packet.getData()).trim();
-            System.out.println("Server > "+message);
+            System.out.println("Wiadomosc odebrana przez klienta > "+message);
             String[] partedMessage = message.split("-");
             switch(partedMessage[0])
             {
@@ -85,6 +85,7 @@ public class GameClient extends Thread{
     }
     public void sendData(byte[] data)
     {
+        System.out.println(data.toString());
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1331);
         try {
             socket.send(packet);
