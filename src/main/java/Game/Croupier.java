@@ -182,7 +182,7 @@ public class Croupier{
             cleanTable();
             dealCards();
             showHands();
-            preFlop();
+            preFlop(); //dodac usuwanie w odpowiednim miejscu
             do {
                 dealCommunityCardsAndInitiateBetting(); //flop, turn, river
                 //showCardsOnTable();
@@ -517,7 +517,7 @@ public class Croupier{
             return;
         int countNonPlayablePlayers=0;
         for (int i = 0; i < numberOfPlayers; i++) {
-            if(playersHand[i].amountOfMoney<=0)
+            if(playersHand[i].amountOfMoney<=0 || playersHand[i].isInCurrentGame==false)
             {
                 countNonPlayablePlayers++;
                 playersHand[i].rankOfHand=-1;
@@ -841,6 +841,18 @@ public class Croupier{
     //###########################################################################################################
     //PODKLASY, ORAZ FUNKCJE NADPISANE
     //###########################################################################################################
+    public void removePlayerFromGame(int id)
+    {
+        for(Hand player: playersHand)
+        {
+            if(player.playerId==id)
+            {
+                player.exitFromGame();
+                break;
+            }
+        }
+    }
+
     public class Hand implements Comparable<Hand>{
         public Map<Integer, Card> hand = new LinkedHashMap<Integer, Card>();
         int playerId;
@@ -850,6 +862,11 @@ public class Croupier{
         int actualBet=0;
         boolean isAllIn=false;
         boolean isInCurrentRound;
+        boolean isInCurrentGame=true;
+        public void exitFromGame()
+        {
+            isInCurrentGame=false;
+        }
         public void setIsInCurrentRound(boolean value)
         {
             if(isInCurrentRound==value)
