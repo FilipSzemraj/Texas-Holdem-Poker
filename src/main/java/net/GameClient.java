@@ -94,7 +94,7 @@ public class GameClient extends Thread{
     }
     public void closeRunningFlag()
     {
-        sendData(("playerAction-logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress.getHostAddress()+"-port-1331-").getBytes());
+        sendData(("playerAction-logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress.getHostAddress()+"-").getBytes());
         runningFlag=false;
     }
     public void closeTheSocket()

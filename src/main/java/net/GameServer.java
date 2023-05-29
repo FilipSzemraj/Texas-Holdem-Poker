@@ -59,7 +59,7 @@ public class GameServer extends Thread{
         return instance;
     }
     public void handleClientDisconnection(InetAddress ipAddress, int port) {
-        connectedClients.removeIf(client -> client.getIpAddress().equals(ipAddress));
+        connectedClients.removeIf(client -> client.getIpAddress().equals(ipAddress) && client.getPort()==port);
     }
     public void closeRunningFlag()
     {
@@ -173,9 +173,16 @@ public class GameServer extends Thread{
                             break;
                         case "logout":
                             //handleClientDisconnection();
+                            game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
                             try {
+                                //clientIP = InetAddress.getByName(partedMessage[7]);
                                 clientIP = InetAddress.getByName(partedMessage[7]);
-                                clientPort = Integer.valueOf(partedMessage[9]);
+                                for (ClientInfo client : connectedClients) {
+                                    if (client.getIpAddress().equals(clientIP) && Integer.valueOf(partedMessage[3]) == client.getPlayerId()) {
+                                        clientPort=client.getPort();
+                                        break;
+                                    }
+                                }
                                 handleClientDisconnection(clientIP, clientPort);
                                 //handleClientDisconnection(InetAddress.getByName(partedMessage[7]), Integer.valueOf(partedMessage[9])); //niech wyszukuje port z ClientInfo
                             } catch (UnknownHostException e) {
