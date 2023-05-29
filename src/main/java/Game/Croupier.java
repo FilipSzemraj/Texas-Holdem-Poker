@@ -1,10 +1,12 @@
 package Game;
 
+
 import net.GameClient;
 import net.GameServer;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 class GenerateRandom{
     static final int min=1;
@@ -21,6 +23,7 @@ public class Croupier{
     public static volatile boolean isRunning=false;
     public final Object waitFor2Players = new Object();
     public final Object waitForMessage = new Object();
+    private Semaphore waitForEndOfRound = new Semaphore(1);
     private GameClient socketClient;
     private GameServer socketServer;
     private static Croupier instance;
@@ -75,8 +78,8 @@ public class Croupier{
         }
         isRunning=true;
     }
-    public void addWaitingPlayersToGame()
-    {
+    public void addWaitingPlayersToGame() throws InterruptedException {
+        waitForEndOfRound.acquire();
         int numberOfWaitingPlayers=waitingPlayers.length;
         if(numberOfWaitingPlayers>0)
         {
@@ -101,9 +104,10 @@ public class Croupier{
                 System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers-temporaryLength);
             }
         }
+        waitForEndOfRound.release();
     }
-    public void addPlayerToQueue(int Id, String nick, int amountOfMoney)
-    {
+    public void addPlayerToQueue(int Id, String nick, int amountOfMoney) throws InterruptedException {
+        waitForEndOfRound.acquire();
         if(waitingPlayers == null)
         {
             waitingPlayers=new Hand[1];
@@ -130,6 +134,7 @@ public class Croupier{
         else {
             System.out.println("Za duzo graczy w kolejce");
         }
+        waitForEndOfRound.release();
     }
 
     //###########################################################################################################
@@ -174,11 +179,13 @@ public class Croupier{
         game();
 
     }
-    public void game()
-    {
+    public void game() throws InterruptedException {
         do {
             int whichState = 0;
+            waitForEndOfRound.acquire();
             isPlayerPlayable();
+            if(numberOfPlayers<2)
+                break;
             cleanTable();
             dealCards();
             showHands();
@@ -193,7 +200,10 @@ public class Croupier{
                 extractTheWinner();
             }
             prepareForNextRound();
+            waitForEndOfRound.release();
         }while(numberOfPlayers>1);
+        waitForEndOfRound.release();
+        System.out.println("KONIEC GRY!");
     }
 
     private void checkIfFirstPlayerInCycleHasChanged()
@@ -240,9 +250,8 @@ public class Croupier{
     }
     private void distributePot(int idOfPlayer)
     {
-        playersHand[idOfPlayer].amountOfMoney+=pot;
-        playersHand[idOfPlayer].actualBet=0;
-        //playersHand[idOfPlayer].setIsInCurrentRound(false);
+        playersHand[idOfPlayer].addMoney(pot);
+        playersHand[idOfPlayer].zeroOutActualBet();
         pot=0;
     }
     private void getBlinds()
@@ -250,31 +259,29 @@ public class Croupier{
         if(playersHand[bigBlindPosition].amountOfMoney<bigBlind)
         {
             pot+=playersHand[bigBlindPosition].amountOfMoney;
-            playersHand[bigBlindPosition].actualBet=playersHand[bigBlindPosition].amountOfMoney;
-            playersHand[bigBlindPosition].amountOfMoney=0;
-            playersHand[bigBlindPosition].setIsInCurrentRound(true);
+            playersHand[bigBlindPosition].addActualBet(playersHand[bigBlindPosition].amountOfMoney);
+            playersHand[bigBlindPosition].zeroOutMoney();
+            playersHand[bigBlindPosition].setIsAllIn(true);
         }
         else
         {
             pot+=bigBlind;
-            playersHand[bigBlindPosition].actualBet=bigBlind;
-            playersHand[bigBlindPosition].amountOfMoney-=bigBlind;
-            playersHand[bigBlindPosition].setIsInCurrentRound(true);
+            playersHand[bigBlindPosition].addActualBet(bigBlind);
+            playersHand[bigBlindPosition].subMoney(bigBlind);
         }
         int smallBlindPosition=(bigBlindPosition-1+numberOfPlayers)%numberOfPlayers;
         if(playersHand[smallBlindPosition].amountOfMoney<smallBlind)
         {
             pot+=playersHand[smallBlindPosition].amountOfMoney;
-            playersHand[smallBlindPosition].actualBet=playersHand[smallBlindPosition].amountOfMoney;
-            playersHand[smallBlindPosition].amountOfMoney=0;
-            playersHand[smallBlindPosition].setIsInCurrentRound(true);
+            playersHand[smallBlindPosition].addActualBet(playersHand[smallBlindPosition].amountOfMoney);
+            playersHand[smallBlindPosition].zeroOutMoney();
+            playersHand[smallBlindPosition].setIsAllIn(true);
         }
         else
         {
             pot+=smallBlind;
-            playersHand[smallBlindPosition].actualBet=smallBlind;
-            playersHand[smallBlindPosition].amountOfMoney-=smallBlind;
-            playersHand[smallBlindPosition].setIsInCurrentRound(true);
+            playersHand[smallBlindPosition].addActualBet(smallBlind);
+            playersHand[smallBlindPosition].subMoney(smallBlind);
         }
         bigBlindPosition=(bigBlindPosition+1)%numberOfPlayers;
         activePlayer=bigBlindPosition;
@@ -299,16 +306,23 @@ public class Croupier{
     private void playerActionMultiplayer()
     {
         if(playersHand[activePlayer].isInCurrentRound) {
+            playerActionMessage="fold";
             if(playersHand[activePlayer].isAllIn)
             {
-                //Gracz wszedl all in, nic nie może zrobic.
+                playerActionMessage="allIn";
+            }
+            else if(playersHand[activePlayer].isInCurrentGame==false)
+            {
+                playerActionMessage="fold";
             }
             else
             {
-                int x=0;
                 boolean goodChoice = false;
                 int diff = maxBet - playersHand[activePlayer].actualBet;
-                playerActionMessage="fold";
+                if(playersHand[activePlayer].actualBet==maxBet)
+                {
+                    playerActionMessage="check";
+                }
                 GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("playerAction-"+activePlayer+"-");
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
@@ -319,17 +333,14 @@ public class Croupier{
                     {
 
                         try {
-                            waitForMessage.wait(30000);
+                            waitForMessage.wait(15000);
                         }catch(InterruptedException e)
                         {
                             e.printStackTrace();
                         }
                     }
 
-                    if(playersHand[activePlayer].actualBet==maxBet)
-                    {
-                        playerActionMessage="check";
-                    }
+
 
                     if (playersHand[activePlayer].amountOfMoney < diff) {
                         switch (playerActionMessage) {
@@ -466,12 +477,12 @@ public class Croupier{
     }
     private void bet(int diff)
     {
-        playersHand[activePlayer].actualBet+=diff;
-        playersHand[activePlayer].amountOfMoney-=diff;
+        playersHand[activePlayer].addActualBet(diff);
+        playersHand[activePlayer].subMoney(diff);
         pot+=diff;
         if(playersHand[activePlayer].amountOfMoney<=0)
         {
-            playersHand[activePlayer].isAllIn=true;
+            playersHand[activePlayer].setIsAllIn(true);
         }
     }
     private void fold()
@@ -485,13 +496,13 @@ public class Croupier{
             System.out.println("Podaj kwote, jaka chcesz przebic zaklad: \n");
             raiseAmount=sc.nextInt();
         }while(raiseAmount>playersHand[activePlayer].amountOfMoney || raiseAmount<diff);
-        playersHand[activePlayer].amountOfMoney-=raiseAmount;
+        playersHand[activePlayer].subMoney(raiseAmount);
         pot+=raiseAmount;
         maxBet+=(raiseAmount-diff);
-        playersHand[activePlayer].actualBet+=raiseAmount;
+        playersHand[activePlayer].addActualBet(raiseAmount);
         if(playersHand[activePlayer].amountOfMoney<=0)
         {
-            playersHand[activePlayer].isAllIn=true;
+            playersHand[activePlayer].setIsAllIn(true);
         }
     }
     private void allIn(int diff)
@@ -499,17 +510,17 @@ public class Croupier{
         if(playersHand[activePlayer].amountOfMoney<maxBet)
         {
             pot+=playersHand[activePlayer].amountOfMoney;
-            playersHand[activePlayer].actualBet+=playersHand[activePlayer].amountOfMoney;
-            playersHand[activePlayer].amountOfMoney=0;
+            playersHand[activePlayer].addActualBet(playersHand[activePlayer].amountOfMoney);
+            playersHand[activePlayer].zeroOutMoney();
         }
         else
         {
             pot+=playersHand[activePlayer].amountOfMoney;
-            playersHand[activePlayer].actualBet+=playersHand[activePlayer].amountOfMoney;
+            playersHand[activePlayer].addActualBet(playersHand[activePlayer].amountOfMoney);
             maxBet=(maxBet-diff)+playersHand[activePlayer].amountOfMoney;
-            playersHand[activePlayer].amountOfMoney=0;
+            playersHand[activePlayer].zeroOutMoney();
         }
-        playersHand[activePlayer].isAllIn=true;
+        playersHand[activePlayer].setIsAllIn(true);
     }
     private void isPlayerPlayable()
     {
@@ -586,18 +597,18 @@ public class Croupier{
                         for (int i = 0; i < numberOfPlayers - 1; i++) {
                             if (playersHand[numberOfPlayers - 1].actualBet >= playersHand[i].actualBet) {
                                 tempAward += playersHand[i].actualBet;
-                                playersHand[i].actualBet = 0;
+                                playersHand[i].zeroOutActualBet();
                                 playersHand[i].setIsInCurrentRound(false);
                             } else {
                                 tempAward += playersHand[numberOfPlayers - 1].actualBet;
-                                playersHand[i].actualBet -= playersHand[numberOfPlayers - 1].actualBet;
+                                playersHand[i].subActualBet(playersHand[numberOfPlayers - 1].actualBet);
                             }
                         }
                         pot -= tempAward;
-                        playersHand[numberOfPlayers - 1].amountOfMoney += tempAward;
+                        playersHand[numberOfPlayers - 1].addMoney(tempAward);
                         playersHand[numberOfPlayers - 1].setIsInCurrentRound(false);
                         maxBet -= playersHand[numberOfPlayers - 1].actualBet;
-                        playersHand[numberOfPlayers - 1].actualBet=0;
+                        playersHand[numberOfPlayers - 1].zeroOutActualBet();
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
                         extractTheWinner();
@@ -609,20 +620,20 @@ public class Croupier{
                             if (playersHand[i].actualBet > playersHand[numberOfPlayers-1].actualBet)
                             {
                                 tempMoney += playersHand[numberOfPlayers-1].actualBet;
-                                playersHand[i].actualBet -= playersHand[numberOfPlayers-1].actualBet;
+                                playersHand[i].subActualBet(playersHand[numberOfPlayers-1].actualBet);
                             }
                             else
                             {
                                 tempMoney += playersHand[i].actualBet;
-                                playersHand[i].actualBet = 0;
+                                playersHand[i].zeroOutActualBet();
                                 playersHand[i].setIsInCurrentRound(false);
                             }
                         }
                         tempMoney+=playersHand[numberOfPlayers-1].actualBet;
-                        playersHand[numberOfPlayers-1].amountOfMoney+=tempMoney;
-                        playersHand[numberOfPlayers-1].actualBet=0;
+                        playersHand[numberOfPlayers-1].addMoney(tempMoney);
+                        playersHand[numberOfPlayers-1].zeroOutActualBet();
                         pot-=tempMoney;
-                        playersHand[numberOfPlayers-2].amountOfMoney+=pot;
+                        playersHand[numberOfPlayers-2].addMoney(pot);
                         pot=0;
                     }
                 }
@@ -644,7 +655,7 @@ public class Croupier{
                     {
                         tempSplitAward = pot / winnersCount;
                         for (int i = 0; i <= winnersCount - 1; i++) {
-                            playersHand[numberOfPlayers - i - 1].amountOfMoney += tempSplitAward;
+                            playersHand[numberOfPlayers - i - 1].addMoney(tempSplitAward);
                         }
                         pot = 0;
                     }
@@ -655,12 +666,12 @@ public class Croupier{
                             if (playersHand[i].actualBet > smallerBet)
                             {
                                 tempSplitAward += smallerBet;
-                                playersHand[i].actualBet -= smallerBet;
+                                playersHand[i].subActualBet(smallerBet);
                             }
                             else
                             {
                                 tempSplitAward += playersHand[i].actualBet;
-                                playersHand[i].actualBet = 0;
+                                playersHand[i].zeroOutActualBet();
                                 playersHand[i].setIsInCurrentRound(false);
                             }
                         }
@@ -668,16 +679,16 @@ public class Croupier{
                         tempSplitAward=tempSplitAward/winnersCount;
                         for (int j = numberOfPlayers-1; j > numberOfPlayers-1-winnersCount; j--) //rozdanie tymczasowej wygranej, oraz usuniecie graczy ktorzy mieli najmniejszy zaklad sposrod wygranych //x
                         {
-                            playersHand[j].amountOfMoney+=tempSplitAward;
+                            playersHand[j].addMoney(tempSplitAward);
                             if(playersHand[j].actualBet==smallerBet) {
-                                playersHand[j].amountOfMoney+=playersHand[j].actualBet;
-                                playersHand[j].actualBet=0;
+                                playersHand[j].addMoney(playersHand[j].actualBet);
+                                playersHand[j].zeroOutActualBet();
                                 playersHand[j].setIsInCurrentRound(false);
                             }
                             else
                             {
-                                playersHand[j].amountOfMoney+=smallerBet;
-                                playersHand[j].actualBet-=smallerBet;
+                                playersHand[j].addMoney(smallerBet);
+                                playersHand[j].subMoney(smallerBet);
                             }
                         }
                         maxBet-=smallerBet;
@@ -694,10 +705,11 @@ public class Croupier{
     {
         for (int i = 0; i <= numberOfPlayers-1; i++) {
             playersHand[i].setIsInCurrentRound(true);
-            playersHand[i].actualBet=0;
-            playersHand[i].isAllIn=false;
+            playersHand[i].zeroOutActualBet();
+            playersHand[i].setIsAllIn(false);;
             playersHand[i].rankOfHand=0;
         }
+
     }
     private void makeDeck()
     {
@@ -742,7 +754,7 @@ public class Croupier{
                         Card temporary = deck.get(random);
                         playersHand[j].hand.put(random, temporary);
                         deck.remove(random);
-                        playersHand[j].setIsInCurrentRound(true);
+                        //playersHand[j].setIsInCurrentRound(true);
                         check = false;
                     }
                 }
@@ -841,8 +853,8 @@ public class Croupier{
     //###########################################################################################################
     //PODKLASY, ORAZ FUNKCJE NADPISANE
     //###########################################################################################################
-    public void removePlayerFromGame(int id)
-    {
+    public void removePlayerFromGame(int id) throws InterruptedException {
+        waitForEndOfRound.acquire();
         for(Hand player: playersHand)
         {
             if(player.playerId==id)
@@ -851,6 +863,7 @@ public class Croupier{
                 break;
             }
         }
+        waitForEndOfRound.release();
     }
 
     public class Hand implements Comparable<Hand>{
@@ -863,9 +876,21 @@ public class Croupier{
         boolean isAllIn=false;
         boolean isInCurrentRound;
         boolean isInCurrentGame=true;
-        public void exitFromGame()
+        public void addActualBet(int x)
         {
-            isInCurrentGame=false;
+            actualBet+=x;
+        }
+        public void subActualBet(int x)
+        {
+            actualBet-=x;
+        }
+        public void zeroOutActualBet()
+        {
+            actualBet=0;
+        }
+        public void exitFromGame() throws InterruptedException {
+                isInCurrentGame = false;
+
         }
         public void setIsInCurrentRound(boolean value)
         {
@@ -885,6 +910,26 @@ public class Croupier{
                     //System.out.println("Aktualna liczba graczy: " + krupier.currentPlayingPlayers);
                 }
 
+        }
+        public void setIsAllIn(boolean value)
+        {
+            if(isAllIn==value)
+                return;
+            else{
+                isAllIn=value;
+            }
+        }
+        public void addMoney(int x)
+        {
+            amountOfMoney+=x;
+        }
+        public void subMoney(int x)
+        {
+            amountOfMoney-=x;
+        }
+        public void zeroOutMoney()
+        {
+            amountOfMoney=0;
         }
         Hand(int i)
         {
@@ -1045,7 +1090,7 @@ public class Croupier{
         }
         playersHand[numberOfPlayers-1].actualBet=50;
         playersHand[numberOfPlayers-1].amountOfMoney=0;
-        playersHand[numberOfPlayers-1].isAllIn=true;
+        playersHand[numberOfPlayers-1].setIsAllIn(true);
 
         for (int i = 0; i < numberOfPlayers; i++) {
             System.out.println("Gracz nr "+ playersHand[i].playerId + ", wplacil: "+playersHand[i].actualBet);
@@ -1055,14 +1100,14 @@ public class Croupier{
     {
         playersHand[0].amountOfMoney=0;
         playersHand[0].actualBet=100;
-        playersHand[0].isAllIn=true;
+        playersHand[0].setIsAllIn(true);
     }
     public void addMoneyToThePot_changeLastPlayerToAllInAndRestPlayersFold()
     {
 
         playersHand[numberOfPlayers-1].amountOfMoney=0;
         playersHand[numberOfPlayers-1].actualBet=500;
-        playersHand[numberOfPlayers-1].isAllIn=true;
+        playersHand[numberOfPlayers-1].setIsAllIn(true);
         maxBet=500;
         pot+=400;
         System.out.println("Na stole jest: "+pot);
@@ -1075,7 +1120,7 @@ public class Croupier{
     {
 
         playersHand[numberOfPlayers-1].amountOfMoney=0;
-        playersHand[numberOfPlayers-1].isAllIn=true;
+        playersHand[numberOfPlayers-1].setIsAllIn(true);
         System.out.println("Gracz: "+playersHand[numberOfPlayers-1].playerId+" wszedl allIn");
         maxBet=150;
         pot=550;
