@@ -80,6 +80,37 @@ public class GameClient extends Thread{
                     //"amountOfMoney-0-playerName-"+playerName+"-"
                     controller.changeAmountOfMoney(partedMessage[1], partedMessage[3]);
                     break;
+                case "allIn":
+                    //"allIn-playerName-"+playerName+"-"
+                    controller.changeIsAllIn(partedMessage[2]);
+                    break;
+                case "fold":
+                    //"fold-playerName-"+playersHand[activePlayer].playerName+"-"
+                    controller.changeIsFold(partedMessage[2]);
+                    break;
+                case "exitFromGame":
+                    //"exitFromGame-playerName-"+playersHand[i].playerName+"-"
+                    controller.playerExitFromGame(partedMessage[2]);
+                    break;
+                case "actualBet":
+                    //"actualBet-"+actualBet+"-playerName-"+playerName+"-"
+                    controller.changeActualBet(partedMessage[3], partedMessage[1]);
+                    break;
+                case "setActivePlayer":
+                        //"setActivePlayer-playerName-"+playersHand[x].playerName+"-"
+                    controller.setActivePlayer(partedMessage[2]);
+                    break;
+                case "setMaxBet":
+                    //"setMaxBet-"+x+"-playerName-"+playersHand[activePlayer].playerName+"-"
+                    controller.setMaxBet(partedMessage[1], partedMessage[3]);
+                case "changePot":
+                    //"changePot-"+pot+"-"
+                    controller.changePot(partedMessage[1]);
+                    break;
+                case "bigBlindPosition":
+                    //"bigBlindPosition-"+bigBlindPosition+"-bigBlind-"+bigBlind+"-smallBlindPosition-"+smallBlindPosition+"-"
+                    controller.setBlindPosition(Integer.valueOf(partedMessage[1]), partedMessage[3], Integer.valueOf(partedMessage[5]));
+                    break;
                 case "newPlayer":
                     break;
             }
