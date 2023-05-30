@@ -3,7 +3,9 @@ package org.main;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.GameClient;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -208,6 +211,7 @@ public class SceneController{
     }
     public void setOtherPlayersInterfaces(int numberOfPlayers)
     {
+        this.numberOfPlayers=numberOfPlayers;
         switch(numberOfPlayers)
         {
             case 1:
@@ -249,6 +253,95 @@ public class SceneController{
                 System.out.println("Bledne dane przy zmianie widocznych interfejsow.");
                 break;
         }
+    }
+    private Label getPlayerNameLabel(int playerNumber)
+    {
+        switch(playerNumber)
+        {
+            case 1:
+                return playerName_Player1;
+            case 2:
+                return playerName_Player2;
+            case 3:
+                return playerName_Player3;
+            case 4:
+                return playerName_Player4;
+            case 5:
+                return playerName_Player5;
+            default:
+                return null;
+        }
+    }
+    /*for (int x = 1; x <= numberOfPlayers; x++) {
+            Label playerNameLabel = getPlayerNameLabel(x);
+            String playerName = playerNameLabel.getText();
+            if(playerName.equals(name))
+            {
+                VBox temp = (VBox) playerNameLabel.getParent();
+
+            }
+            this.*/
+    public void changeAmountOfMoney(String amountOfMoney, String name) {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                AmountOfMoney_Player1.setText(amountOfMoney);
+            });
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                AmountOfMoney_Player2.setText(amountOfMoney);
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                AmountOfMoney_Player3.setText(amountOfMoney);
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                AmountOfMoney_Player4.setText(amountOfMoney);
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                AmountOfMoney_Player5.setText(amountOfMoney);
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+        /*for(Node node : wholeScene.getChildren()){
+            if(node instanceof AnchorPane){
+                boolean ifCorrectPlayer = false;
+                for(Node label : ((AnchorPane) node).getChildren()){
+                    if(label instanceof Label)
+                    {
+                        String playerName = ((Label) label).getText();
+                        if(playerName.equals(name))
+                        {
+                            ifCorrectPlayer=true;
+                        }
+                    }
+                }
+                if(ifCorrectPlayer)
+                {
+                    for(Node label : ((AnchorPane) node).getChildren())
+                    {
+                        if(label instanceof Label)
+                        {
+                            String temp = ((Label) label).getText();
+                            if(temp.matches("\\d+"))
+                            {
+                                ((Label) label).setText(amountOfMoney);
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }*/
+
+
     }
     public void setPlayerInformations(int numberOfPlayers, String[] partedMessage)
     {

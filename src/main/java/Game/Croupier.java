@@ -945,14 +945,20 @@ public class Croupier{
         public void addMoney(int x)
         {
             amountOfMoney+=x;
+            StringBuffer sb = new StringBuffer("amountOfMoney-"+amountOfMoney+"-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void subMoney(int x)
         {
             amountOfMoney-=x;
+            StringBuffer sb = new StringBuffer("amountOfMoney-"+amountOfMoney+"-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void zeroOutMoney()
         {
             amountOfMoney=0;
+            StringBuffer sb = new StringBuffer("amountOfMoney-0-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         Hand(int i)
         {

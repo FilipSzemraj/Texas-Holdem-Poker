@@ -76,7 +76,9 @@ public class GameClient extends Thread{
                     controller.setOtherPlayersInterfaces(Integer.valueOf(partedMessage[3]));
                     controller.setPlayerInformations(Integer.valueOf(partedMessage[3]), partedMessage);
                     break;
-                case "playerInformations":
+                case "amountOfMoney":
+                    //"amountOfMoney-0-playerName-"+playerName+"-"
+                    controller.changeAmountOfMoney(partedMessage[1], partedMessage[3]);
                     break;
                 case "newPlayer":
                     break;
