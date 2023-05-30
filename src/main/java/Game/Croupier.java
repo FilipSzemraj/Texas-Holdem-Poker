@@ -65,6 +65,8 @@ public class Croupier{
     public void addMoneyToThePot(int x)
     {
         pot+=x;
+        StringBuffer sb = new StringBuffer("changePot-"+pot+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
     public void subMoneyFromThePot(int x)
     {
@@ -73,10 +75,14 @@ public class Croupier{
     public void zeroOutPot()
     {
         pot=0;
+        StringBuffer sb = new StringBuffer("changePot-"+pot+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
     public void setFirstPlayerInCycle(int x)
     {
         firstPlayerInCycle=x;
+        //StringBuffer sb = new StringBuffer("setFirst-"+x+"-playerName-"+playersHand[activePlayer].playerName+"-");
+        //GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
     public void setMaxBet(int x)
     {
@@ -85,6 +91,9 @@ public class Croupier{
     public void setActivePlayer(int x)
     {
         activePlayer=x;
+        StringBuffer sb = new StringBuffer("setActivePlayer-playerName-"+playersHand[x].playerName+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+
     }
 
     //###########################################################################################################
@@ -306,6 +315,8 @@ public class Croupier{
             playersHand[smallBlindPosition].addActualBet(smallBlind);
             playersHand[smallBlindPosition].subMoney(smallBlind);
         }
+        StringBuffer sb = new StringBuffer("bigBlindPosition-"+bigBlindPosition+"-bigBlind-"+bigBlind+"-smallBlindPosition-"+smallBlindPosition+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         bigBlindPosition=(bigBlindPosition+1)%numberOfPlayers;
         setActivePlayer(bigBlindPosition);
     }
@@ -511,6 +522,9 @@ public class Croupier{
     private void fold()
     {
         playersHand[activePlayer].setIsInCurrentRound(false);
+        StringBuffer sb = new StringBuffer("fold-playerName-"+playersHand[activePlayer].playerName+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+
     }
     private void raise(int diff)
     {
@@ -522,6 +536,8 @@ public class Croupier{
         playersHand[activePlayer].subMoney(raiseAmount);
         addMoneyToThePot(raiseAmount);
         setMaxBet(maxBet+(raiseAmount-diff));
+        StringBuffer sb = new StringBuffer("setMaxBet-"+maxBet+"-playerName-"+playersHand[activePlayer].playerName+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         playersHand[activePlayer].addActualBet(raiseAmount);
         if(playersHand[activePlayer].amountOfMoney<=0)
         {
@@ -541,6 +557,8 @@ public class Croupier{
             addMoneyToThePot(playersHand[activePlayer].amountOfMoney);
             playersHand[activePlayer].addActualBet(playersHand[activePlayer].amountOfMoney);
             setMaxBet((maxBet-diff)+playersHand[activePlayer].amountOfMoney);
+            StringBuffer sb = new StringBuffer("setMaxBet-"+maxBet+"-playerName-"+playersHand[activePlayer].playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
             playersHand[activePlayer].zeroOutMoney();
         }
         playersHand[activePlayer].setIsAllIn(true);
@@ -560,8 +578,13 @@ public class Croupier{
         System.out.println("Odpadlo: "+countNonPlayablePlayers+", graczy");
         if(countNonPlayablePlayers>0) {
             Arrays.sort(playersHand);
+            for (int i = 0; i < countNonPlayablePlayers; i++) {
+                StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playersHand[i].playerName+"-");
+                GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+            }
             playersHand = Arrays.copyOfRange(playersHand, countNonPlayablePlayers-1, numberOfPlayers-1);
             numberOfPlayers=numberOfPlayers-countNonPlayablePlayers;
+
         }
     }
     private void checkForAllHands()
@@ -593,7 +616,7 @@ public class Croupier{
     {
         System.out.println("Wygralo: " + winnersCount + " graczy");
         for (int i = numberOfPlayers - 1; i >= numberOfPlayers - winnersCount; i--) {
-            System.out.println("Wygrala reka " + playersHand[i].playerId + " z reka: " + playersHand[i].toString() + playersHand[i].rankOfHand);
+            System.out.println("Wygrala reka " + playersHand[i].playerId + " z reka: " + playersHand[i].playerName +", z ukladem: " + playersHand[i].rankOfHand);
         }
     }
     private void extractTheWinner()
@@ -902,18 +925,25 @@ public class Croupier{
         public void addActualBet(int x)
         {
             actualBet+=x;
+            StringBuffer sb = new StringBuffer("actualBet-"+actualBet+"-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void subActualBet(int x)
         {
             actualBet-=x;
+            StringBuffer sb = new StringBuffer("actualBet-"+actualBet+"-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void zeroOutActualBet()
         {
             actualBet=0;
+            StringBuffer sb = new StringBuffer("actualBet-0-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void exitFromGame() throws InterruptedException {
                 isInCurrentGame = false;
-
+            StringBuffer sb = new StringBuffer("allIn-playerName-"+playerName+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void setIsInCurrentRound(boolean value)
         {
@@ -940,6 +970,8 @@ public class Croupier{
                 return;
             else{
                 isAllIn=value;
+                StringBuffer sb = new StringBuffer("allIn-playerName-"+playerName+"-");
+                GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
             }
         }
         public void addMoney(int x)

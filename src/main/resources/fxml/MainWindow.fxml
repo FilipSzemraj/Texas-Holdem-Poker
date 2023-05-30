@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
@@ -26,7 +27,12 @@
                   <HBox alignment="TOP_CENTER" prefHeight="44.0" prefWidth="210.0">
                      <children>
                         <Label fx:id="actualBet_Player1" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
-                        <Circle fx:id="player1Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Pane prefHeight="18.0" prefWidth="18.0">
+                           <children>
+                              <Circle fx:id="player1BigBlind" accessibleRole="TEXT" fill="#666666" layoutX="6.0" layoutY="19.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                              <Circle fx:id="player1SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="6.0" layoutY="18.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                           </children>
+                        </Pane>
                         <ImageView fx:id="firstCardInHand1" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
                         <ImageView fx:id="secondCardInHand1" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
@@ -89,7 +95,12 @@
                            </children>
                         </HBox>
                         <Label fx:id="actualBet_Player2" prefHeight="17.0" prefWidth="70.0" text="actualBet" />
-                        <Circle fx:id="player2Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Pane prefHeight="70.0" prefWidth="40.0">
+                           <children>
+                              <Circle fx:id="player2BigBlind" accessibleRole="TEXT" fill="#666666" layoutX="21.0" layoutY="7.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                              <Circle fx:id="player2SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="19.0" layoutY="6.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                           </children>
+                        </Pane>
                         <Label fx:id="player2Action" prefHeight="23.0" prefWidth="70.0" text="Akcja gracza" />
                      </children>
                   </VBox>
@@ -113,10 +124,12 @@
                            <VBox.margin>
                               <Insets left="6.0" />
                            </VBox.margin></Label>
-                        <Circle fx:id="player3Blind" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE">
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin></Circle>
+                        <Pane prefHeight="70.0" prefWidth="40.0">
+                           <children>
+                              <Circle fx:id="player3BigBlind" accessibleRole="TEXT" fill="#666666" layoutX="21.0" layoutY="7.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                              <Circle fx:id="player3SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="19.0" layoutY="6.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                           </children>
+                        </Pane>
                         <Label fx:id="player3Action" prefHeight="23.0" prefWidth="70.0" text="Akcja gracza" />
                      </children>
                   </VBox>
@@ -148,7 +161,12 @@
                   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label fx:id="actualBet_Player4" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
-                        <Circle fx:id="player4Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Pane prefHeight="70.0" prefWidth="40.0">
+                           <children>
+                              <Circle fx:id="player4BigBlind" accessibleRole="TEXT" fill="#666666" layoutX="21.0" layoutY="7.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                              <Circle fx:id="player4SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="19.0" layoutY="6.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                           </children>
+                        </Pane>
                      </children>
                   </HBox>
                </children>
@@ -172,7 +190,12 @@
                   <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label fx:id="actualBet_Player5" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
-                        <Circle fx:id="player5Blind" accessibleRole="TEXT" fill="DODGERBLUE" nodeOrientation="RIGHT_TO_LEFT" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Pane prefHeight="70.0" prefWidth="40.0">
+                           <children>
+                              <Circle fx:id="player5BigBlind" accessibleRole="TEXT" fill="#666666" layoutX="31.0" layoutY="16.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                              <Circle fx:id="player5SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="25.0" layoutY="15.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                           </children>
+                        </Pane>
                      </children>
                   </HBox>
                </children>
@@ -182,10 +205,10 @@
       <VBox fx:id="interfaceCroupier" alignment="CENTER" layoutX="333.0" layoutY="22.0" prefHeight="91.0" prefWidth="48.0">
          <children>
             <Circle fx:id="croupierIcon" accessibleRole="IMAGE_VIEW" fill="DODGERBLUE" radius="24.0" stroke="BLACK" strokeType="INSIDE" />
-            <Label fx:id="messageToTable" alignment="BASELINE_CENTER" prefHeight="44.0" prefWidth="51.0" text="Label" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
+            <Label fx:id="messageToTable" alignment="BASELINE_CENTER" prefHeight="44.0" prefWidth="51.0" text="Message to table" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
          </children>
       </VBox>
-      <Label fx:id="messageToPlayer" layoutX="16.0" layoutY="401.0" prefHeight="17.0" prefWidth="123.0" text="Label" />
+      <Label fx:id="messageToPlayer" layoutX="16.0" layoutY="401.0" prefHeight="17.0" prefWidth="123.0" text="Message to player" />
       <VBox fx:id="centerOfTable" layoutX="297.0" layoutY="182.0" prefHeight="72.0" prefWidth="130.0">
          <children>
             <HBox prefHeight="52.0" prefWidth="130.0">
@@ -199,7 +222,7 @@
             </HBox>
             <HBox alignment="TOP_RIGHT" prefHeight="21.0" prefWidth="130.0">
                <children>
-                  <Label fx:id="pot" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="112.0" text="Label" />
+                  <Label fx:id="pot" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="112.0" text="pot" />
                   <Circle fx:id="potIcon" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
                </children>
             </HBox>

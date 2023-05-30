@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.Reflection;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -24,6 +25,7 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 
 public class SceneController{
+    private boolean[] whichInterfaceIsTaken = {true, false, false, false ,false};
     private int numberOfPlayers=0;
     public Label[] actualBet;
     public TextField raiseAmount;
@@ -34,7 +36,8 @@ public class SceneController{
     public AnchorPane wholeScene;
     public AnchorPane InterfaceOne;
     public Label actualBet_Player1;
-    public Circle player1Blind;
+    public Circle player1BigBlind;
+    public Circle player1SmallBlind;
     public ImageView firstCardInHand1;
     public ImageView secondCardInHand1;
     public Label playerName_Player1;
@@ -52,13 +55,15 @@ public class SceneController{
     public ImageView secondCardInHand2;
     public ImageView firstCardInHand2;
     public Label actualBet_Player2;
-    public Circle player2Blind;
+    public Circle player2BigBlind;
+    public Circle player2SmallBlind;
     public Label player2Action;
     public AnchorPane InterfaceThree;
     public ImageView secondCardInHand3;
     public ImageView firstCardInHand3;
     public Label actualBet_Player3;
-    public Circle player3Blind;
+    public Circle player3BigBlind;
+    public Circle player3SmallBlind;
     public Label player3Action;
     public Label playerName_Player3;
     public Button profileIcon_Player3;
@@ -70,7 +75,8 @@ public class SceneController{
     public Label player4Action;
     public ImageView firstCardInHand4;
     public ImageView secondCardInHand4;
-    public Circle player4Blind;
+    public Circle player4BigBlind;
+    public Circle player4SmallBlind;
     public AnchorPane InterfaceFive;
     public Label playerName_Player5;
     public Button profileIcon_Player5;
@@ -78,7 +84,8 @@ public class SceneController{
     public Label player5Action;
     public ImageView firstCardInHand5;
     public ImageView secondCardInHand5;
-    public Circle player5Blind;
+    public Circle player5BigBlind;
+    public Circle player5SmallBlind;
     public VBox interfaceCroupier;
     public Circle croupierIcon;
     public Label messageToTable;
@@ -91,9 +98,14 @@ public class SceneController{
     public ImageView fifthCardOnTable;
     public Label pot;
     public Circle potIcon;
+    Reflection reflection = new Reflection();
+
 
     public void initialize(URL location, ResourceBundle resources, String name, int Id, int amountOfMoney)
     {
+        reflection.setFraction(0.75);
+        reflection.setTopOpacity(0.5);
+
         playerName_Player1.setText(name);
         playerId=Id;
         this.amountOfMoney=amountOfMoney;
@@ -281,6 +293,262 @@ public class SceneController{
 
             }
             this.*/
+    public void playerExitFromGame(String name)
+    {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                InterfaceOne.setDisable(true);
+            });
+            whichInterfaceIsTaken[0]=false;
+            numberOfPlayers--;
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                player2Action.setText("Exit the game");
+                InterfaceTwo.setVisible(false);
+            });
+            whichInterfaceIsTaken[1]=false;
+            numberOfPlayers--;
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                player3Action.setText("Exit the game");
+                InterfaceThree.setVisible(false);
+            });
+            whichInterfaceIsTaken[2]=false;
+            numberOfPlayers--;
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                player4Action.setText("Exit the game");
+                InterfaceFour.setVisible(false);
+            });
+            whichInterfaceIsTaken[3]=false;
+            numberOfPlayers--;
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                player5Action.setText("Exit the game");
+                InterfaceTwo.setVisible(false);
+            });
+            whichInterfaceIsTaken[4]=false;
+            numberOfPlayers--;
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+    }
+    public void changeIsFold(String name)
+    {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                Fold_button.setStyle("-fx-background-color: yellow;");
+            });
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                player2Action.setText("Folds");
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                player3Action.setText("Folds");
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                player4Action.setText("Folds");
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                player5Action.setText("Folds");
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+    }
+    public void changeIsAllIn(String name)
+    {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                AllIn_button.setStyle("-fx-background-color: yellow;");
+            });
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                player2Action.setText("All In");
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                player3Action.setText("All In");
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                player4Action.setText("All In");
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                player5Action.setText("All In");
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+    }
+    public void changeActualBet(String name, String actualBetAsParameter)
+    {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                actualBet_Player1.setText(actualBetAsParameter);
+            });
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                actualBet_Player2.setText(actualBetAsParameter);
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                actualBet_Player3.setText(actualBetAsParameter);
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                actualBet_Player4.setText(actualBetAsParameter);
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                actualBet_Player5.setText(actualBetAsParameter);
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+    }
+
+    public void setActivePlayer(String name)
+    {
+        if(name.equals(playerName_Player1.getText())){
+            Platform.runLater(() -> {
+                ProfileIcon_Player1.setEffect(reflection);
+                profileIcon_Player2.setEffect(null);
+                profileIcon_Player3.setEffect(null);
+                profileIcon_Player4.setEffect(null);
+                profileIcon_Player5.setEffect(null);
+            });
+        } else if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                ProfileIcon_Player1.setEffect(null);
+                profileIcon_Player2.setEffect(reflection);
+                profileIcon_Player3.setEffect(null);
+                profileIcon_Player4.setEffect(null);
+                profileIcon_Player5.setEffect(null);
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                ProfileIcon_Player1.setEffect(null);
+                profileIcon_Player2.setEffect(null);
+                profileIcon_Player3.setEffect(reflection);
+                profileIcon_Player4.setEffect(null);
+                profileIcon_Player5.setEffect(null);
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                ProfileIcon_Player1.setEffect(null);
+                profileIcon_Player2.setEffect(null);
+                profileIcon_Player3.setEffect(null);
+                profileIcon_Player4.setEffect(reflection);
+                profileIcon_Player5.setEffect(null);
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                ProfileIcon_Player1.setEffect(null);
+                profileIcon_Player2.setEffect(null);
+                profileIcon_Player3.setEffect(null);
+                profileIcon_Player4.setEffect(null);
+                profileIcon_Player5.setEffect(reflection);
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
+    }
+    public void setMaxBet(String maxBet, String name)
+    {
+            Platform.runLater(() -> {
+                messageToTable.setText("Maksymalny zaklad wniosl gracz: "+name+", i wynosi on: "+maxBet);
+            });
+    }
+    public void changePot(String money)
+    {
+        Platform.runLater(() -> {
+        pot.setText(money);
+        });
+    }
+    public void setBlindPosition(int bigBlindPosition, String bigBlind, int smallBlindPosition)
+    {
+        setBlinds(bigBlindPosition, player1BigBlind, player2BigBlind, player3BigBlind, player4BigBlind, player5BigBlind);
+        setBlinds(smallBlindPosition, player1SmallBlind, player2SmallBlind, player3SmallBlind, player4SmallBlind, player5SmallBlind);
+
+    }
+
+    private void setBlinds(int bigBlindPosition, Circle player1Blind, Circle player2Blind, Circle player3Blind, Circle player4Blind, Circle player5Blind) {
+        switch(bigBlindPosition)
+        {
+            case 0:
+                Platform.runLater(() -> {
+                player1Blind.setVisible(true);
+                player2Blind.setVisible(false);
+                player3Blind.setVisible(false);
+                player4Blind.setVisible(false);
+                player5Blind.setVisible(false);
+
+                });
+                break;
+            case 1:
+                Platform.runLater(() -> {
+                    player1Blind.setVisible(false);
+                    player2Blind.setVisible(true);
+                    player3Blind.setVisible(false);
+                    player4Blind.setVisible(false);
+                    player5Blind.setVisible(false);
+                });
+                break;
+            case 2:
+                Platform.runLater(() -> {
+                    player1Blind.setVisible(false);
+                    player2Blind.setVisible(false);
+                    player3Blind.setVisible(true);
+                    player4Blind.setVisible(false);
+                    player5Blind.setVisible(false);
+                });
+                break;
+            case 3:
+                Platform.runLater(() -> {
+                    player1Blind.setVisible(false);
+                    player2Blind.setVisible(false);
+                    player3Blind.setVisible(false);
+                    player4Blind.setVisible(true);
+                    player5Blind.setVisible(false);
+                });
+                break;
+            case 4:
+                Platform.runLater(() -> {
+                    player1Blind.setVisible(false);
+                    player2Blind.setVisible(false);
+                    player3Blind.setVisible(false);
+                    player4Blind.setVisible(false);
+                    player5Blind.setVisible(true);
+                });
+                break;
+        }
+    }
+
     public void changeAmountOfMoney(String amountOfMoney, String name) {
         if(name.equals(playerName_Player1.getText())){
             Platform.runLater(() -> {
@@ -353,6 +621,7 @@ public class SceneController{
                     playerName_Player2.setText(partedMessage[7]);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                 });
+                whichInterfaceIsTaken[1]=true;
                 numberOfPlayers=2;
                 break;
             case 3:
@@ -362,6 +631,8 @@ public class SceneController{
                     playerName_Player3.setText(partedMessage[13]);
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                 });
+                whichInterfaceIsTaken[1]=true;
+                whichInterfaceIsTaken[2]=true;
                 numberOfPlayers=3;
                 break;
             case 4:
@@ -373,6 +644,9 @@ public class SceneController{
                     playerName_Player4.setText(partedMessage[19]);
                     AmountOfMoney_Player4.setText(partedMessage[21]);
                 });
+                whichInterfaceIsTaken[1]=true;
+                whichInterfaceIsTaken[2]=true;
+                whichInterfaceIsTaken[3]=true;
                 numberOfPlayers=4;
                 break;
             case 5:
@@ -386,6 +660,10 @@ public class SceneController{
                     playerName_Player5.setText(partedMessage[27]);
                     AmountOfMoney_Player5.setText(partedMessage[29]);
                 });
+                whichInterfaceIsTaken[1]=true;
+                whichInterfaceIsTaken[2]=true;
+                whichInterfaceIsTaken[3]=true;
+                whichInterfaceIsTaken[4]=true;
                 numberOfPlayers=5;
             default:
                 System.out.println("Za duza ilosc graczy.");
