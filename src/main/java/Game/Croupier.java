@@ -24,8 +24,6 @@ public class Croupier{
     public final Object waitFor2Players = new Object();
     public final Object waitForMessage = new Object();
     private Semaphore waitForEndOfRound = new Semaphore(1);
-    private GameClient socketClient;
-    private GameServer socketServer;
     private static Croupier instance;
     public volatile int numberOfPlayers;
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
@@ -64,6 +62,31 @@ public class Croupier{
         }
         return instance;
     }
+    public void addMoneyToThePot(int x)
+    {
+        pot+=x;
+    }
+    public void subMoneyFromThePot(int x)
+    {
+        pot-=x;
+    }
+    public void zeroOutPot()
+    {
+        pot=0;
+    }
+    public void setFirstPlayerInCycle(int x)
+    {
+        firstPlayerInCycle=x;
+    }
+    public void setMaxBet(int x)
+    {
+        maxBet=x;
+    }
+    public void setActivePlayer(int x)
+    {
+        activePlayer=x;
+    }
+
     //###########################################################################################################
     //METODY DO KOMUNIKACJI Z SERWEREM
     //###########################################################################################################
@@ -210,7 +233,7 @@ public class Croupier{
     {
         if(!playersHand[firstPlayerInCycle].isInCurrentRound) {
             do {
-                firstPlayerInCycle=firstPlayerInCycle+1%numberOfPlayers;
+                setFirstPlayerInCycle(firstPlayerInCycle+1%numberOfPlayers);
             } while (!playersHand[firstPlayerInCycle].isInCurrentRound);
         }
     }
@@ -221,15 +244,15 @@ public class Croupier{
             dealCardsToTable();
             showCardsOnTable();
             checkIfFirstPlayerInCycleHasChanged();
-            activePlayer=firstPlayerInCycle;
+            setActivePlayer(firstPlayerInCycle);
             do {
                 int tempMaxBet=maxBet;
                 int tempPot=pot;
                 playerActionMultiplayer();
                 if((tempPot+maxBet)>(pot+tempMaxBet)) {
-                    firstPlayerInCycle = activePlayer;
+                    setFirstPlayerInCycle(activePlayer);
                 }
-                activePlayer=(activePlayer+1)%numberOfPlayers;
+                setActivePlayer((activePlayer+1)%numberOfPlayers);
             } while (activePlayer != firstPlayerInCycle);
         }
         else {
@@ -252,43 +275,43 @@ public class Croupier{
     {
         playersHand[idOfPlayer].addMoney(pot);
         playersHand[idOfPlayer].zeroOutActualBet();
-        pot=0;
+        this.zeroOutPot();
     }
     private void getBlinds()
     {
         if(playersHand[bigBlindPosition].amountOfMoney<bigBlind)
         {
-            pot+=playersHand[bigBlindPosition].amountOfMoney;
+            addMoneyToThePot(playersHand[bigBlindPosition].amountOfMoney);
             playersHand[bigBlindPosition].addActualBet(playersHand[bigBlindPosition].amountOfMoney);
             playersHand[bigBlindPosition].zeroOutMoney();
             playersHand[bigBlindPosition].setIsAllIn(true);
         }
         else
         {
-            pot+=bigBlind;
+            addMoneyToThePot(bigBlind);
             playersHand[bigBlindPosition].addActualBet(bigBlind);
             playersHand[bigBlindPosition].subMoney(bigBlind);
         }
         int smallBlindPosition=(bigBlindPosition-1+numberOfPlayers)%numberOfPlayers;
         if(playersHand[smallBlindPosition].amountOfMoney<smallBlind)
         {
-            pot+=playersHand[smallBlindPosition].amountOfMoney;
+            addMoneyToThePot(playersHand[smallBlindPosition].amountOfMoney);
             playersHand[smallBlindPosition].addActualBet(playersHand[smallBlindPosition].amountOfMoney);
             playersHand[smallBlindPosition].zeroOutMoney();
             playersHand[smallBlindPosition].setIsAllIn(true);
         }
         else
         {
-            pot+=smallBlind;
+            addMoneyToThePot(smallBlind);
             playersHand[smallBlindPosition].addActualBet(smallBlind);
             playersHand[smallBlindPosition].subMoney(smallBlind);
         }
         bigBlindPosition=(bigBlindPosition+1)%numberOfPlayers;
-        activePlayer=bigBlindPosition;
+        setActivePlayer(bigBlindPosition);
     }
     private void preFlop()
     {
-        firstPlayerInCycle=bigBlindPosition;
+        setFirstPlayerInCycle(bigBlindPosition);
         int firstPlayerInCycleNamedPreFlop=firstPlayerInCycle;
         getBlinds();
         do
@@ -300,7 +323,7 @@ public class Croupier{
             {
                 firstPlayerInCycleNamedPreFlop=activePlayer;
             }
-            activePlayer=(activePlayer+1)%numberOfPlayers;
+            setActivePlayer((activePlayer+1)%numberOfPlayers);
         }while(activePlayer!=firstPlayerInCycleNamedPreFlop);
     }
     private void playerActionMultiplayer()
@@ -479,7 +502,7 @@ public class Croupier{
     {
         playersHand[activePlayer].addActualBet(diff);
         playersHand[activePlayer].subMoney(diff);
-        pot+=diff;
+        addMoneyToThePot(diff);
         if(playersHand[activePlayer].amountOfMoney<=0)
         {
             playersHand[activePlayer].setIsAllIn(true);
@@ -497,8 +520,8 @@ public class Croupier{
             raiseAmount=sc.nextInt();
         }while(raiseAmount>playersHand[activePlayer].amountOfMoney || raiseAmount<diff);
         playersHand[activePlayer].subMoney(raiseAmount);
-        pot+=raiseAmount;
-        maxBet+=(raiseAmount-diff);
+        addMoneyToThePot(raiseAmount);
+        setMaxBet(maxBet+(raiseAmount-diff));
         playersHand[activePlayer].addActualBet(raiseAmount);
         if(playersHand[activePlayer].amountOfMoney<=0)
         {
@@ -509,15 +532,15 @@ public class Croupier{
     {
         if(playersHand[activePlayer].amountOfMoney<maxBet)
         {
-            pot+=playersHand[activePlayer].amountOfMoney;
+            addMoneyToThePot(playersHand[activePlayer].amountOfMoney);
             playersHand[activePlayer].addActualBet(playersHand[activePlayer].amountOfMoney);
             playersHand[activePlayer].zeroOutMoney();
         }
         else
         {
-            pot+=playersHand[activePlayer].amountOfMoney;
+            addMoneyToThePot(playersHand[activePlayer].amountOfMoney);
             playersHand[activePlayer].addActualBet(playersHand[activePlayer].amountOfMoney);
-            maxBet=(maxBet-diff)+playersHand[activePlayer].amountOfMoney;
+            setMaxBet((maxBet-diff)+playersHand[activePlayer].amountOfMoney);
             playersHand[activePlayer].zeroOutMoney();
         }
         playersHand[activePlayer].setIsAllIn(true);
@@ -604,10 +627,10 @@ public class Croupier{
                                 playersHand[i].subActualBet(playersHand[numberOfPlayers - 1].actualBet);
                             }
                         }
-                        pot -= tempAward;
+                        subMoneyFromThePot(tempAward);
                         playersHand[numberOfPlayers - 1].addMoney(tempAward);
                         playersHand[numberOfPlayers - 1].setIsInCurrentRound(false);
-                        maxBet -= playersHand[numberOfPlayers - 1].actualBet;
+                        setMaxBet(maxBet-playersHand[numberOfPlayers - 1].actualBet);
                         playersHand[numberOfPlayers - 1].zeroOutActualBet();
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
@@ -632,9 +655,9 @@ public class Croupier{
                         tempMoney+=playersHand[numberOfPlayers-1].actualBet;
                         playersHand[numberOfPlayers-1].addMoney(tempMoney);
                         playersHand[numberOfPlayers-1].zeroOutActualBet();
-                        pot-=tempMoney;
+                        subMoneyFromThePot(tempMoney);
                         playersHand[numberOfPlayers-2].addMoney(pot);
-                        pot=0;
+                        zeroOutPot();
                     }
                 }
                 else//jesli remis //x
@@ -657,7 +680,7 @@ public class Croupier{
                         for (int i = 0; i <= winnersCount - 1; i++) {
                             playersHand[numberOfPlayers - i - 1].addMoney(tempSplitAward);
                         }
-                        pot = 0;
+                        zeroOutPot();
                     }
                     else // niektorzy z wygranych nie maja maksymalnej stawki //x
                     {
@@ -675,7 +698,7 @@ public class Croupier{
                                 playersHand[i].setIsInCurrentRound(false);
                             }
                         }
-                        pot-=tempSplitAward;
+                        subMoneyFromThePot(tempSplitAward);
                         tempSplitAward=tempSplitAward/winnersCount;
                         for (int j = numberOfPlayers-1; j > numberOfPlayers-1-winnersCount; j--) //rozdanie tymczasowej wygranej, oraz usuniecie graczy ktorzy mieli najmniejszy zaklad sposrod wygranych //x
                         {
@@ -688,10 +711,10 @@ public class Croupier{
                             else
                             {
                                 playersHand[j].addMoney(smallerBet);
-                                playersHand[j].subMoney(smallerBet);
+                                playersHand[j].subActualBet(smallerBet);
                             }
                         }
-                        maxBet-=smallerBet;
+                        setMaxBet(maxBet-smallerBet);
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
                         extractTheWinner(); // wywolanie funkcji ponownie, z mniejsza iloscia graczy, o tych ktorzy juz zebrali swoja wygrana, az do momentu wyzerowania pot'a
