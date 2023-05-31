@@ -29,8 +29,9 @@ public class Croupier{
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
             , "Jupki", "Damy", "Krole", "Asy"};
     public static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
-    Map<Integer, Card> deck = new TreeMap<>();
-    public Map<Integer, Card> table = new LinkedHashMap<>();
+
+    Map<Integer, Card> deck = new TreeMap<Integer, Card>();
+    public Map<Integer, Card> table = new LinkedHashMap<>(52);
     public volatile int bigBlind=50;
     public volatile int smallBlind=25;
     public volatile int bigBlindPosition=0;
