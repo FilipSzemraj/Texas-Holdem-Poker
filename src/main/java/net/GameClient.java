@@ -111,6 +111,9 @@ public class GameClient extends Thread{
                     //"bigBlindPosition-"+bigBlindPosition+"-bigBlind-"+bigBlind+"-smallBlindPosition-"+smallBlindPosition+"-"
                     controller.setBlindPosition(Integer.valueOf(partedMessage[1]), partedMessage[3], Integer.valueOf(partedMessage[5]));
                     break;
+                case "endOfRound":
+                    controller.resetButtonsAndMessages();
+                    break;
                 case "newPlayer":
                     break;
             }

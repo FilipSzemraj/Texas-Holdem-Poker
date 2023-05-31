@@ -134,12 +134,23 @@ public class GameServer extends Thread{
                             }
                             System.out.println("logowanie");
                             break;
-                        case "call":
-                            //"playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-"
+                        case "bet":
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                Croupier.playerActionMessage="call";
-                                Croupier.getInstance().waitForMessage.notifyAll();
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "bet";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
+                            }
+                            break;
+                        case "call":
+                            //"playerAction-call-" + playerId + "-" + playerName_Player1.getText() + "-"
+                            synchronized (Croupier.getInstance().waitForMessage)
+                            {
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "call";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
                             }
                             //game.
                             break;
@@ -147,32 +158,40 @@ public class GameServer extends Thread{
                             //"playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                Croupier.playerActionMessage="check";
-                                Croupier.getInstance().waitForMessage.notifyAll();
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "check";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
                             }
                             break;
                         case "raise":
                             //"playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                Croupier.playerActionMessage="raise";
-                                Croupier.getInstance().waitForMessage.notifyAll();
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "raise";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
                             }
                             break;
                         case "allIn":
                             //"playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                Croupier.playerActionMessage="allIn";
-                                Croupier.getInstance().waitForMessage.notifyAll();
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "allIn";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
                             }
                             break;
                         case "fold":
                             //"playerAction-fold-"+playerId+"-"+playerName_Player1.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                Croupier.playerActionMessage="fold";
-                                Croupier.getInstance().waitForMessage.notifyAll();
+                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.playerActionMessage = "fold";
+                                    Croupier.getInstance().waitForMessage.notifyAll();
+                                }
                             }
                             break;
                         case "logout":

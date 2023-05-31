@@ -202,10 +202,16 @@
             </VBox>
          </children>
       </AnchorPane>
-      <VBox fx:id="interfaceCroupier" alignment="CENTER" layoutX="333.0" layoutY="22.0" prefHeight="91.0" prefWidth="48.0">
+      <VBox fx:id="interfaceCroupier" alignment="CENTER" layoutX="319.0" layoutY="14.0" prefHeight="130.0" prefWidth="90.0">
          <children>
-            <Circle fx:id="croupierIcon" accessibleRole="IMAGE_VIEW" fill="DODGERBLUE" radius="24.0" stroke="BLACK" strokeType="INSIDE" />
-            <Label fx:id="messageToTable" alignment="BASELINE_CENTER" prefHeight="44.0" prefWidth="51.0" text="Message to table" textAlignment="CENTER" textOverrun="CLIP" wrapText="true" />
+            <Circle fx:id="croupierIcon" accessibleRole="IMAGE_VIEW" fill="DODGERBLUE" radius="24.0" stroke="BLACK" strokeType="INSIDE">
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin></Circle>
+            <Label fx:id="messageToTable" alignment="BASELINE_CENTER" prefHeight="99.0" prefWidth="90.0" text="Message to table" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin></Label>
          </children>
       </VBox>
       <Label fx:id="messageToPlayer" layoutX="16.0" layoutY="401.0" prefHeight="17.0" prefWidth="123.0" text="Message to player" />
