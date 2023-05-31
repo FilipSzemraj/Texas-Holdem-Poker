@@ -30,7 +30,7 @@ public class Croupier{
             , "Jupki", "Damy", "Krole", "Asy"};
     public static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
     Map<Integer, Card> deck = new TreeMap<Integer, Card>();
-    public Map<Integer, Card> table = new LinkedHashMap<>();
+    public Map<Integer, Card> table = new LinkedHashMap<>(52);
     public volatile int bigBlind=50;
     public volatile int smallBlind=25;
     public volatile int bigBlindPosition=0;
@@ -658,6 +658,7 @@ public class Croupier{
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
                         extractTheWinner();
+                        return;
                     } else //jesli wygrany nie wyrownal do max zakladu, a graczy w partii jest dwoch. //x
                     {
                         int tempMoney=0;
@@ -741,9 +742,12 @@ public class Croupier{
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
                         extractTheWinner(); // wywolanie funkcji ponownie, z mniejsza iloscia graczy, o tych ktorzy juz zebrali swoja wygrana, az do momentu wyzerowania pot'a
+                        return;
                     }
                 }
             }
+            StringBuffer sb = new StringBuffer("endOfRound-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
     }
 

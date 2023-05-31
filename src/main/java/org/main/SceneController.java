@@ -193,6 +193,12 @@ public class SceneController{
         }
 
     }
+    public void resetButtonsAndMessages()
+    {
+        Platform.runLater(() -> {
+            Fold_button.setStyle("-fx-background-color: yellow;");
+        });
+    }
     private int checkMaxBet()
     {
         int maxBet=0;
