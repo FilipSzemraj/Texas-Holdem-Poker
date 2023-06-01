@@ -114,6 +114,34 @@ public class GameClient extends Thread{
                 case "endOfRound":
                     controller.resetButtonsAndMessages();
                     break;
+                case "winners":
+                    //"winners-"+winnersCount-playerName-
+                    controller.setMessageAboutWinners(Integer.valueOf(partedMessage[1]), partedMessage);
+                    break;
+                case "card":
+                    //"card-"+i+"-forPlayerName-"+playersHand[j].playerName+"-numberOfCard-"+random+"-"
+                    System.out.println(message);
+                    if(partedMessage[3].equals(playerNick))
+                    {
+                        controller.setCard(Integer.valueOf(partedMessage[1]), partedMessage[3], partedMessage[5]);
+                    }
+                    else {
+                        controller.setCard(Integer.valueOf(partedMessage[1]), partedMessage[3]);
+                    }
+                    break;
+                case "rankOfHandFor":
+                    //"rankOfHandFor-"+playerId+"-Is-"+CheckHand.ranksOfHand[x-1]+"-"
+                    if(Integer.valueOf(partedMessage[1])==playerId){
+                        controller.setMessageAboutRankOfHand(partedMessage[3]);
+                    }
+                    break;
+                case "CardsOnTable":
+                    //"CardsOnTable-"+table.size()
+                    controller.setCardsOnTable(Integer.valueOf(partedMessage[1]), partedMessage);
+                    break;
+                case "endOfGame":
+                    System.out.println("koniec gry");
+                    break;
                 case "newPlayer":
                     break;
             }
