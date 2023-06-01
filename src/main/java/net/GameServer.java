@@ -6,14 +6,17 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class ClientInfo{
+    private String name;
     private InetAddress ipAddress;
     private int port;
     private int playerId;
-    public ClientInfo(InetAddress ipAddress, int port, int playerId)
+    public ClientInfo(InetAddress ipAddress, int port, int playerId, String name)
     {
+        this.name=name;
         this.ipAddress=ipAddress;
         this.port=port;
         this.playerId=playerId;
@@ -29,6 +32,10 @@ class ClientInfo{
     public int getPlayerId()
     {
         return playerId;
+    }
+    public String getName()
+    {
+        return name;
     }
 }
 
@@ -130,7 +137,7 @@ public class GameServer extends Thread{
                                 throw new RuntimeException(e);
                             }
                             if (!clientExists) {
-                                connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2])));
+                                connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2]), partedMessage[3]));
                             }
                             System.out.println("logowanie");
                             break;
@@ -197,7 +204,12 @@ public class GameServer extends Thread{
                         case "logout":
                             //handleClientDisconnection();
                             try {
-                                game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
+                                if(game.isRunning) {
+                                    game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
+                                }
+                                else{
+                                    game.removePlayerFromWaitingQueue(Integer.valueOf(partedMessage[3]));
+                                }
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -272,6 +284,26 @@ public void prepareAndSendDataFromCroupierToOnePlayer(String message)
     }
 
 }
+public void prepareAndSendDataAboutCardFromCroupierToAllPlayers(String message){
+    //"card-"+i+"-forPlayerName-"+playersHand[j].playerName+"-numberOfCard-"+random+"-"
+    String[] partedMessage = message.split("-");
+    String trimMessage = String.join("-", Arrays.copyOfRange(partedMessage, 0,4));
+
+    InetAddress ipAddress = null;
+    int port = 0;
+
+    for(ClientInfo client: connectedClients)
+    {
+        if(client.getName().equals(partedMessage[3]))
+        {
+            sendData(message.getBytes(), client.getIpAddress(), client.getPort());
+        }
+        else
+        {
+            sendData(trimMessage.getBytes(), client.getIpAddress(), client.getPort());
+        }
+    }
+}
 public void prepareAndSendDataFromCroupierToAllPlayers(String message)
 {
     byte[] data = message.getBytes();
@@ -285,6 +317,17 @@ public void prepareAndSendDataFromCroupierToAllPlayers(String message)
             throw new RuntimeException(e);
         }
     }
+}
+public int checkIfPlayerIsConnected(String name)
+{
+    for(ClientInfo client : connectedClients)
+    {
+        if(client.getName().equals(name))
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
     public void sendData(byte[] data, InetAddress ipAddress, int port)
     {

@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Reflection;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -19,6 +20,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.GameClient;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
@@ -93,7 +95,7 @@ public class SceneController{
     public VBox centerOfTable;
     public ImageView firstCardOnTable;
     public ImageView secondCardOnTable;
-    public ImageView ThirdCardOnTable;
+    public ImageView thirdCardOnTable;
     public ImageView fourthCardOnTable;
     public ImageView fifthCardOnTable;
     public Label pot;
@@ -193,10 +195,63 @@ public class SceneController{
         }
 
     }
+    public void setMessageAboutRankOfHand(String x)
+    {
+        Platform.runLater(() -> {
+            messageToPlayer.setText("Masz: "+x);
+        });
+    }
+    public void setCardsOnTable(int cardsCounter, String[] partedMessage)
+    {
+        switch (cardsCounter)
+        {
+            case 3:
+                String imagePath1 = "image/deck/"+partedMessage[2]+".png";
+                String imagePath2 = "image/deck/"+partedMessage[3]+".png";
+                String imagePath3 = "image/deck/"+partedMessage[4]+".png";
+                Image card1 = new Image(imagePath1);
+                Image card2 = new Image(imagePath2);
+                Image card3 = new Image(imagePath3);
+                Platform.runLater(() -> {
+                    firstCardOnTable.setImage(card1);
+                    secondCardOnTable.setImage(card2);
+                    thirdCardOnTable.setImage(card3);
+                });
+                break;
+            case 4:
+                String imagePath4 = "image/deck/"+partedMessage[5]+".png";
+                Image card4 = new Image(imagePath4);
+                Platform.runLater(() -> {
+                    fourthCardOnTable.setImage(card4);
+                });
+                break;
+            case 5:
+                String imagePath5 = "image/deck/"+partedMessage[6]+".png";
+                Image card5 = new Image(imagePath5);
+                Platform.runLater(() -> {
+                    fifthCardOnTable.setImage(card5);
+                });
+                break;
+        }
+    }
     public void resetButtonsAndMessages()
     {
         Platform.runLater(() -> {
-            Fold_button.setStyle("-fx-background-color: yellow;");
+            Fold_button.setStyle("-fx-background-color: none");
+            player2Action.setText("");
+            player3Action.setText("");
+            player4Action.setText("");
+            player5Action.setText("");
+        });
+    }
+    public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
+    {
+        StringBuffer sb = new StringBuffer("Runda została wygrana przez: ");
+        for (int i = 0; i < winnersCounter; i++) {
+            sb.append(partedMessage[i+2]);
+        }
+        Platform.runLater(() -> {
+        messageToTable.setText(sb.toString());
         });
     }
     private int checkMaxBet()
@@ -208,6 +263,77 @@ public class SceneController{
                 maxBet=tempBet;
         }
         return maxBet;
+    }
+    public void setCard(int whichCard, String name, String idOfCard)
+    {
+        if(name.equals(playerName_Player1.getText()))
+        {
+            String imagePath = "image/deck/"+idOfCard+".png";
+            Image card;
+            switch(whichCard)
+            {
+                case 0:
+                    card = new Image(imagePath);
+                    Platform.runLater(() -> {
+                        firstCardInHand1.setImage(card);
+                    });
+                    break;
+                case 1:
+                    card = new Image(imagePath);
+                    Platform.runLater(() -> {
+                        secondCardInHand1.setImage(card);
+                    });
+                    break;
+            }
+        }
+    }
+    public void setCard(int whichCard, String name)
+    {
+        String imagePath = "image/deck/53.png";
+        Image card = new Image(imagePath);
+        if(name.equals(playerName_Player2.getText()))
+        {
+            Platform.runLater(() -> {
+                if(whichCard==0) {
+                    firstCardInHand2.setImage(card);
+                }else if(whichCard==1)
+                {
+                    secondCardInHand2.setImage(card);
+                }
+            });
+        }else if(name.equals(playerName_Player3.getText()))
+        {
+            Platform.runLater(() -> {
+                if(whichCard==0) {
+                    firstCardInHand3.setImage(card);
+                }else if(whichCard==1)
+                {
+                    secondCardInHand3.setImage(card);
+                }
+            });
+        }else if(name.equals(playerName_Player4.getText()))
+        {
+            Platform.runLater(() -> {
+                if(whichCard==0) {
+                    firstCardInHand4.setImage(card);
+                }else if(whichCard==1)
+                {
+                    secondCardInHand4.setImage(card);
+                }
+            });
+        }else if(name.equals(playerName_Player5.getText()))
+        {
+            Platform.runLater(() -> {
+                if(whichCard==0) {
+                    firstCardInHand5.setImage(card);
+                }else if(whichCard==1)
+                {
+                    secondCardInHand5.setImage(card);
+                }
+            });
+        }else{
+            System.out.println("Nie poprawny nick");
+        }
     }
     public void disableButtonEventHandling()
     {

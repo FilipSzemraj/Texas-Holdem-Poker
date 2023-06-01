@@ -18,6 +18,7 @@ public class CheckHand {
     public static final int THREE_OF_A_KIND=3;
     public static final int TWO_PAIR=2;
     public static final int PAIR=1;
+    public static final String[] ranksOfHand = {"Najwyzsza karta", "Para", "Dwie pary", "Trzy karty jednego rodzaju", "Strit", "Kolor", "Full House", "Cztery karty jednego rodzaju", "Strit w kolorze", "Poker"};
     public void showCards() // dla testow
     {
         for (int i = 0; i < allCards.length; i++) {

@@ -29,8 +29,8 @@ public class Croupier{
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
             , "Jupki", "Damy", "Krole", "Asy"};
     public static String[] colors = {"Pik", "Kier", "Trefl", "Karo"};
-    Map<Integer, Card> deck = new TreeMap<Integer, Card>();
-    public Map<Integer, Card> table = new LinkedHashMap<>(52);
+    Map<Integer, Card> deck = new TreeMap<>();
+    public Map<Integer, Card> table = new LinkedHashMap<>();
     public volatile int bigBlind=50;
     public volatile int smallBlind=25;
     public volatile int bigBlindPosition=0;
@@ -169,6 +169,21 @@ public class Croupier{
         waitForEndOfRound.release();
     }
 
+    public void removePlayerFromWaitingQueue(int playerId)
+    {
+        for(Hand player: waitingPlayers)
+        {
+            if(player.playerId==playerId)
+            {
+                //player.rankOfHand
+                break;
+            }
+        }
+    }
+    public void removeFromWaitingQueue()
+    {
+
+    }
     //###########################################################################################################
     //KONIEC METOD DO KOMUNIKACJI Z SERWEREM
     //###########################################################################################################
@@ -180,6 +195,9 @@ public class Croupier{
     public void firstStepInCroupier(int x){
         numberOfPlayers=x;
         makeDeck();
+        System.out.println("\n\n");
+        showDeck();
+        System.out.println("\n\n");
         makeHands();
     }
     public void initializeCroupier() throws InterruptedException {
@@ -235,6 +253,8 @@ public class Croupier{
             waitForEndOfRound.release();
         }while(numberOfPlayers>1);
         waitForEndOfRound.release();
+        StringBuffer sb = new StringBuffer("endOfGame-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         System.out.println("KONIEC GRY!");
     }
 
@@ -522,8 +542,10 @@ public class Croupier{
     private void fold()
     {
         playersHand[activePlayer].setIsInCurrentRound(false);
-        StringBuffer sb = new StringBuffer("fold-playerName-"+playersHand[activePlayer].playerName+"-");
-        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        if(GameServer.getInstance().checkIfPlayerIsConnected(playersHand[activePlayer].playerName)==1) {
+            StringBuffer sb = new StringBuffer("fold-playerName-" + playersHand[activePlayer].playerName + "-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        }
 
     }
     private void raise(int diff)
@@ -595,7 +617,9 @@ public class Croupier{
                 System.out.println("REKA GRACZA " + (i + 1));
                 checker.getIdOfCardsFromHand(playersHand[i].hand);
                 checker.combineAndSort();
-                playersHand[i].rankOfHand = checker.checkAll();
+                int x=checker.checkAll();
+                playersHand[i].setRankOfHand(x);
+
             }
         }
         Arrays.sort(playersHand);
@@ -615,9 +639,14 @@ public class Croupier{
     private void showTheWinners(int winnersCount)
     {
         System.out.println("Wygralo: " + winnersCount + " graczy");
+        StringBuffer sb = new StringBuffer("winners-"+winnersCount);
         for (int i = numberOfPlayers - 1; i >= numberOfPlayers - winnersCount; i--) {
             System.out.println("Wygrala reka " + playersHand[i].playerId + " z reka: " + playersHand[i].playerName +", z ukladem: " + playersHand[i].rankOfHand);
+            sb.append("-"+playersHand[i].playerName);
+
         }
+        sb.append("-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
     private void extractTheWinner()
     {
@@ -806,6 +835,8 @@ public class Croupier{
                         deck.remove(random);
                         //playersHand[j].setIsInCurrentRound(true);
                         check = false;
+                        StringBuffer sb = new StringBuffer("card-"+i+"-forPlayerName-"+playersHand[j].playerName+"-numberOfCard-"+random+"-");
+                        GameServer.getInstance().prepareAndSendDataAboutCardFromCroupierToAllPlayers(sb.toString());
                     }
                 }
             }
@@ -894,6 +925,13 @@ public class Croupier{
     private void showCardsOnTable()
     {
         String WhatIsOnTable = convertWithStream(table);
+        StringBuilder sb = new StringBuilder("CardsOnTable-"+table.size());
+        for(int key : table.keySet())
+        {
+            sb.append("-"+key);
+        }
+        sb.append("-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         System.out.println(WhatIsOnTable);
     }
     //###########################################################################################################
@@ -926,6 +964,12 @@ public class Croupier{
         boolean isAllIn=false;
         boolean isInCurrentRound;
         boolean isInCurrentGame=true;
+        public void setRankOfHand(int x)
+        {
+            rankOfHand=x;
+            StringBuffer sb = new StringBuffer("rankOfHandFor-"+playerId+"-Is-"+CheckHand.ranksOfHand[x]+"-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer(sb.toString());
+        }
         public void addActualBet(int x)
         {
             actualBet+=x;
@@ -945,9 +989,9 @@ public class Croupier{
             GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void exitFromGame() throws InterruptedException {
-                isInCurrentGame = false;
-            StringBuffer sb = new StringBuffer("allIn-playerName-"+playerName+"-");
-            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+            isInCurrentGame = false;
+            //StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playerName+"-");
+            //GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void setIsInCurrentRound(boolean value)
         {
