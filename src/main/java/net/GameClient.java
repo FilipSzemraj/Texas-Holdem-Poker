@@ -112,7 +112,11 @@ public class GameClient extends Thread{
                     controller.setBlindPosition(Integer.valueOf(partedMessage[1]), partedMessage[3], Integer.valueOf(partedMessage[5]));
                     break;
                 case "endOfRound":
-                    controller.resetButtonsAndMessages();
+                    try {
+                        controller.resetButtonsAndMessages();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "winners":
                     //"winners-"+winnersCount-playerName-

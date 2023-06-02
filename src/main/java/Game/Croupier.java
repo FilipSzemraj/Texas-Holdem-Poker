@@ -20,9 +20,11 @@ class GenerateRandom{
 
 public class Croupier{
     public static volatile String playerActionMessage="fold";
+    public static volatile int raiseAmount = 0;
     public static volatile boolean isRunning=false;
     public final Object waitFor2Players = new Object();
     public final Object waitForMessage = new Object();
+    public final Object waitForEndOfDelay = new Object();
     private Semaphore waitForEndOfRound = new Semaphore(1);
     private static Croupier instance;
     public volatile int numberOfPlayers;
@@ -100,6 +102,10 @@ public class Croupier{
     //METODY DO KOMUNIKACJI Z SERWEREM
     //###########################################################################################################
 
+    public int returnActivePlayerId()
+    {
+        return playersHand[activePlayer].playerId;
+    }
     public void waitForAtLeast2Players() throws InterruptedException {
         while(playersHand == null )
         {
@@ -251,6 +257,9 @@ public class Croupier{
             }
             prepareForNextRound();
             waitForEndOfRound.release();
+            synchronized (waitForEndOfDelay) {
+                waitForEndOfDelay.wait(2500);
+            }
         }while(numberOfPlayers>1);
         waitForEndOfRound.release();
         StringBuffer sb = new StringBuffer("endOfGame-");
@@ -421,7 +430,8 @@ public class Croupier{
                                 goodChoice=true;
                                 break;
                             case "raise":
-                                raise(diff);
+                                raiseMultiplayer(diff, raiseAmount); // DODAJ RAISE AMOUNT
+                                raiseAmount=0;
                                 goodChoice=true;
                                 break;
                             case "allIn":
@@ -547,6 +557,19 @@ public class Croupier{
             GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
 
+    }
+    private void raiseMultiplayer(int diff, int raiseAmount)
+    {
+        playersHand[activePlayer].subMoney(raiseAmount);
+        addMoneyToThePot(raiseAmount);
+        setMaxBet(maxBet+(raiseAmount-diff));
+        StringBuffer sb = new StringBuffer("setMaxBet-"+maxBet+"-playerName-"+playersHand[activePlayer].playerName+"-");
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        playersHand[activePlayer].addActualBet(raiseAmount);
+        if(playersHand[activePlayer].amountOfMoney<=0)
+        {
+            playersHand[activePlayer].setIsAllIn(true);
+        }
     }
     private void raise(int diff)
     {

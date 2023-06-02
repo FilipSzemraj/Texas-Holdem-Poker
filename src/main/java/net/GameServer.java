@@ -175,7 +175,8 @@ public class GameServer extends Thread{
                             //"playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
+                                    Croupier.raiseAmount = Integer.valueOf(partedMessage[4]);
                                     Croupier.playerActionMessage = "raise";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -226,6 +227,12 @@ public class GameServer extends Thread{
                                 //handleClientDisconnection(InetAddress.getByName(partedMessage[7]), Integer.valueOf(partedMessage[9])); //niech wyszukuje port z ClientInfo
                             } catch (UnknownHostException e) {
                                 throw new RuntimeException(e);
+                            }
+                            break;
+                        case "endOfDelay":
+                            synchronized (Croupier.getInstance().waitForEndOfDelay)
+                            {
+                                    Croupier.getInstance().waitForEndOfDelay.notifyAll();
                             }
                             break;
                         default:
