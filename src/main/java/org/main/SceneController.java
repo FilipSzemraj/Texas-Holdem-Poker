@@ -234,15 +234,27 @@ public class SceneController{
                 break;
         }
     }
-    public void resetButtonsAndMessages()
-    {
+    public void resetButtonsAndMessages() throws InterruptedException {
+        Thread.sleep(2000);
         Platform.runLater(() -> {
             Fold_button.setStyle("-fx-background-color: none");
             player2Action.setText("");
             player3Action.setText("");
             player4Action.setText("");
             player5Action.setText("");
+            firstCardOnTable.setImage(null);
+            secondCardOnTable.setImage(null);
+            thirdCardOnTable.setImage(null);
+            fourthCardOnTable.setImage(null);
+            fifthCardOnTable.setImage(null);
+            messageToTable.setText("Nowa runda...");
+            actualBet_Player1.setText("");
+            actualBet_Player2.setText("");
+            actualBet_Player3.setText("");
+            actualBet_Player4.setText("");
+            actualBet_Player5.setText("");
         });
+        LoginController.Players.get(playerId).sendData(("endOfDelay-").getBytes());
     }
     public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
     {
