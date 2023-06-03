@@ -6,6 +6,7 @@ import sql.DatabaseConnection;
 import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -149,12 +150,13 @@ public class GameServer extends Thread{
                             if (!clientExists) {
                                 connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2]), partedMessage[3]));
                             }
-                            System.out.println("logowanie");
+                            //System.out.println("logowanie");
                             break;
                         case "bet":
+                            //"playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
                                     Croupier.playerActionMessage = "bet";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -164,7 +166,7 @@ public class GameServer extends Thread{
                             //"playerAction-call-" + playerId + "-" + playerName_Player1.getText() + "-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
                                     Croupier.playerActionMessage = "call";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -175,7 +177,7 @@ public class GameServer extends Thread{
                             //"playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
                                     Croupier.playerActionMessage = "check";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -196,7 +198,7 @@ public class GameServer extends Thread{
                             //"playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
                                     Croupier.playerActionMessage = "allIn";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -206,7 +208,7 @@ public class GameServer extends Thread{
                             //"playerAction-fold-"+playerId+"-"+playerName_Player1.getText()+"-"
                             synchronized (Croupier.getInstance().waitForMessage)
                             {
-                                if(Croupier.getInstance().activePlayer==Integer.valueOf(partedMessage[2])) {
+                                if(Croupier.getInstance().returnActivePlayerId()==Integer.valueOf(partedMessage[2])) {
                                     Croupier.playerActionMessage = "fold";
                                     Croupier.getInstance().waitForMessage.notifyAll();
                                 }
@@ -241,15 +243,8 @@ public class GameServer extends Thread{
                                 throw new RuntimeException(e);
                             }
                             break;
-                        case "endOfDelay":
-                            synchronized (Croupier.getInstance().waitForEndOfDelay)
-                            {
-                                    Croupier.getInstance().waitForEndOfDelay.notifyAll();
-                            }
-                            break;
                         default:
-                            System.out.println(message);
-                            System.out.println("Zly format wiadomosci.");
+                            System.out.println("Zly format wiadomosci." + message);
                             break;
                     }
                     break;
@@ -262,7 +257,7 @@ public class GameServer extends Thread{
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
-                                System.out.println(tempMessage);
+                                System.out.println("Temp message: "+tempMessage);
                                 sendData(tempMessage.getBytes(), clientIP, clientPort);
                                 break;
                             case "getOtherPlayersInformation":
@@ -272,14 +267,25 @@ public class GameServer extends Thread{
                             case "getCroupierInformation":
                                 break;
                             default:
-                                System.out.println(message);
-                                System.out.println("Zly format wiadomosci.");
+                                System.out.println("Zly format wiadomosci. " +message);
                                 break;
                         }
                         break;
+                    case "serverAction":
+                        switch(partedMessage[1])
+                        {
+                            case "endOfDelay":
+                                synchronized (Croupier.getInstance().waitForEndOfDelay)
+                                {
+                                    Croupier.getInstance().waitForEndOfDelay.notifyAll();
+                                }
+                                break;
+                            default:
+                                System.out.println("serverAction zly format wiadomosci. "+message);
+                        }
+                        break;
                     default:
-                        System.out.println(message);
-                        System.out.println("Zly format wiadomosci.");
+                        System.out.println("Ogolnie zly format wiadomosci. "+message);
                         break;
                 }
 
@@ -299,6 +305,7 @@ public void saveDataAboutPlayer(int amountOfMoney, int accountId) throws SQLExce
 }
 public void prepareAndSendDataFromCroupierToOnePlayer(String message)
 {
+    System.out.println(message);
     boolean clientExists = false;
     InetAddress ipAddress = null;
     int port = 0;
@@ -325,6 +332,8 @@ public void prepareAndSendDataAboutCardFromCroupierToAllPlayers(String message){
     //"card-"+i+"-forPlayerName-"+playersHand[j].playerName+"-numberOfCard-"+random+"-"
     String[] partedMessage = message.split("-");
     String trimMessage = String.join("-", Arrays.copyOfRange(partedMessage, 0,4));
+    trimMessage=trimMessage+"-";
+    System.out.println(message);
 
     InetAddress ipAddress = null;
     int port = 0;
@@ -344,6 +353,7 @@ public void prepareAndSendDataAboutCardFromCroupierToAllPlayers(String message){
 public void prepareAndSendDataFromCroupierToAllPlayers(String message)
 {
     byte[] data = message.getBytes();
+    System.out.println(message);
     for (ClientInfo client : connectedClients) {
         InetAddress ipAddress=client.getIpAddress();
         int port=client.getPort();
@@ -370,7 +380,8 @@ public int checkIfPlayerIsConnected(String name)
     {
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
         try {
-            System.out.println(data.toString());
+            String text = new String(data, StandardCharsets.UTF_8);
+            System.out.println(text);
             this.socket.send(packet);
         } catch (IOException e) {
             throw new RuntimeException(e);

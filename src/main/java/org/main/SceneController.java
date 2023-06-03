@@ -115,7 +115,7 @@ public class SceneController{
         AmountOfMoney_Player1.setText(String.valueOf(amountOfMoney));
         actualBet = new Label[]{actualBet_Player1, actualBet_Player2, actualBet_Player3, actualBet_Player4, actualBet_Player5};
 
-        login();
+        //login();
         Stage stage = (Stage) wholeScene.getScene().getWindow();
         stage.setOnCloseRequest((WindowEvent event) ->{
             Iterator<GameClient> iterator = LoginController.Players.iterator();
@@ -138,10 +138,10 @@ public class SceneController{
     }
 
 
-    private void login()
-    {
-        LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+amountOfMoney+"-").getBytes());
-    }
+    //private void login()
+    //{
+
+    //}
     @FXML
     void btnAllInOnClick(ActionEvent event) {
         synchronized (LoginController.Players.get(playerId).waitForMessage) {
@@ -157,7 +157,8 @@ public class SceneController{
         if (!actualBetText.isEmpty() && actualBetText.matches("\\d+")) {
             int actualBetValue = Integer.parseInt(actualBetText);
 
-            if (checkMaxBet() - actualBetValue < amountOfMoney) {
+            int maxBet=checkMaxBet();
+            if (maxBet - actualBetValue < amountOfMoney) {
                 synchronized (LoginController.Players.get(playerId).waitForMessage) {
                     LoginController.Players.get(playerId).waitForMessage.notifyAll();
                 }
@@ -205,7 +206,7 @@ public class SceneController{
     }
     @FXML
     void btnRaiseOnClick(ActionEvent event) {
-        if(!raiseAmount.getText().isBlank() && Integer.valueOf(raiseAmount.getText())>checkMaxBet()) {
+        if(!raiseAmount.getText().isBlank() && (Integer.valueOf(raiseAmount.getText())+Integer.valueOf(actualBet_Player1.getText()))>checkMaxBet()) {
             synchronized (LoginController.Players.get(playerId).waitForMessage) {
                 LoginController.Players.get(playerId).waitForMessage.notifyAll();
             }
@@ -277,7 +278,7 @@ public class SceneController{
             actualBet_Player4.setText("");
             actualBet_Player5.setText("");
         });
-        LoginController.Players.get(playerId).sendData(("endOfDelay-task-").getBytes());
+        LoginController.Players.get(playerId).sendData(("serverAction-endOfDelay-").getBytes());
     }
     public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
     {
@@ -367,7 +368,7 @@ public class SceneController{
                 }
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Set card - Nie poprawny nick "+name);
         }
     }
     public void disableButtonEventHandling()
@@ -501,7 +502,7 @@ public class SceneController{
             whichInterfaceIsTaken[4]=false;
             numberOfPlayers--;
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Player exit from game - Nie poprawny nick");
         }
     }
     public void changeIsFold(String name)
@@ -531,7 +532,7 @@ public class SceneController{
                 player5Action.setText("Folds");
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Change is fold - Nie poprawny nick");
         }
     }
     public void changeIsAllIn(String name)
@@ -561,7 +562,7 @@ public class SceneController{
                 player5Action.setText("All In");
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Change is all in - Nie poprawny nick");
         }
     }
     public void changeActualBet(String name, String actualBetAsParameter)
@@ -591,7 +592,7 @@ public class SceneController{
                 actualBet_Player5.setText(actualBetAsParameter);
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Change actual bet - Nie poprawny nick");
         }
     }
 
@@ -642,7 +643,7 @@ public class SceneController{
                 profileIcon_Player5.setEffect(reflection);
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Set active player - Nie poprawny nick");
         }
     }
     public void setMaxBet(String maxBet, String name)
@@ -742,7 +743,7 @@ public class SceneController{
                 AmountOfMoney_Player5.setText(amountOfMoney);
             });
         }else{
-            System.out.println("Nie poprawny nick");
+            System.out.println("Change amount of money - Nie poprawny nick");
         }
         /*for(Node node : wholeScene.getChildren()){
             if(node instanceof AnchorPane){

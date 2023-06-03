@@ -20,11 +20,11 @@
       <Insets />
    </opaqueInsets>
    <children>
-      <AnchorPane fx:id="InterfaceOne" layoutX="259.0" layoutY="300.0" prefHeight="140.0" prefWidth="210.0">
+      <AnchorPane fx:id="InterfaceOne" layoutX="259.0" layoutY="283.0" prefHeight="157.0" prefWidth="210.0">
          <children>
-            <VBox alignment="TOP_CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="140.0" prefWidth="210.0">
+            <VBox alignment="TOP_CENTER" layoutY="-14.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="157.0" prefWidth="210.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <HBox alignment="TOP_CENTER" prefHeight="60.0" prefWidth="210.0">
+                  <HBox alignment="TOP_CENTER" prefHeight="65.0" prefWidth="210.0">
                      <children>
                         <Label fx:id="actualBet_Player1" prefHeight="24.0" prefWidth="52.0" text="actualBet" />
                         <Pane prefHeight="60.0" prefWidth="18.0">
@@ -33,8 +33,8 @@
                               <Circle fx:id="player1SmallBlind" accessibleRole="TEXT" fill="#b28888" layoutX="6.0" layoutY="18.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" visible="false" />
                            </children>
                         </Pane>
-                        <ImageView fx:id="firstCardInHand1" fitHeight="55.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
-                        <ImageView fx:id="secondCardInHand1" fitHeight="55.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="firstCardInHand1" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="secondCardInHand1" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </HBox>
                   <HBox prefHeight="90.0" prefWidth="210.0" spacing="24.0">
@@ -215,18 +215,18 @@
          </children>
       </VBox>
       <Label fx:id="messageToPlayer" layoutX="16.0" layoutY="401.0" prefHeight="17.0" prefWidth="123.0" text="Message to player" />
-      <VBox fx:id="centerOfTable" layoutX="297.0" layoutY="182.0" prefHeight="72.0" prefWidth="130.0">
+      <VBox fx:id="centerOfTable" layoutX="239.0" layoutY="179.0" prefHeight="72.0" prefWidth="130.0">
          <children>
             <HBox prefHeight="52.0" prefWidth="130.0">
                <children>
-                  <ImageView fx:id="firstCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
-                  <ImageView fx:id="secondCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
-                  <ImageView fx:id="thirdCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
-                  <ImageView fx:id="fourthCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
-                  <ImageView fx:id="fifthCardOnTable" fitHeight="41.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="firstCardOnTable" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="secondCardOnTable" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="thirdCardOnTable" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="fourthCardOnTable" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="fifthCardOnTable" fitHeight="65.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
                </children>
             </HBox>
-            <HBox alignment="TOP_RIGHT" prefHeight="21.0" prefWidth="130.0">
+            <HBox alignment="CENTER" prefHeight="21.0" prefWidth="130.0">
                <children>
                   <Label fx:id="pot" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="112.0" text="pot" />
                   <Circle fx:id="potIcon" accessibleRole="TEXT" fill="DODGERBLUE" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
