@@ -86,6 +86,7 @@ public class Croupier{
     public void setFirstPlayerInCycle(int x)
     {
         firstPlayerInCycle=x;
+        System.out.println("Pierwszy gracz w cyklu to: "+playersHand[x].playerName);
         //StringBuffer sb = new StringBuffer("setFirst-"+x+"-playerName-"+playersHand[activePlayer].playerName+"-");
         //GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
@@ -330,16 +331,20 @@ public class Croupier{
             setActivePlayer(firstPlayerInCycle);
             do {
                 int tempMaxBet=maxBet;
+                int tempActualBet=playersHand[activePlayer].actualBet;
                 int tempPot=pot;
                 playerActionMultiplayer();
-                if((tempPot+maxBet)>(pot+tempMaxBet)) {
+                if((pot)>(tempPot+(tempMaxBet-tempActualBet))){
                     setFirstPlayerInCycle(activePlayer);
                 }
                 setActivePlayer((activePlayer+1)%numberOfPlayers);
             } while (activePlayer != firstPlayerInCycle);
         }
         else {
+            Arrays.sort(playersHand);
             distributePot(numberOfPlayers-1);
+            StringBuffer sb = new StringBuffer("endOfRound-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
     }
     private int checkCurrentPlayingPlayers()
@@ -362,6 +367,7 @@ public class Croupier{
     }
     private void getBlinds()
     {
+        setMaxBet(bigBlind);
         if(playersHand[bigBlindPosition].amountOfMoney<bigBlind)
         {
             addMoneyToThePot(playersHand[bigBlindPosition].amountOfMoney);
@@ -396,15 +402,17 @@ public class Croupier{
     }
     private void preFlop()
     {
+
+        getBlinds();
         setFirstPlayerInCycle(bigBlindPosition);
         int firstPlayerInCycleNamedPreFlop=firstPlayerInCycle;
-        getBlinds();
         do
         {
             int tempMaxBet=maxBet;
+            int tempActualBet=playersHand[activePlayer].actualBet;
             int tempPot=pot;
             playerActionMultiplayer();
-            if((pot)>(tempPot+tempMaxBet))
+            if((pot)>(tempPot+(tempMaxBet-tempActualBet)))
             {
                 firstPlayerInCycleNamedPreFlop=activePlayer;
             }
@@ -433,9 +441,9 @@ public class Croupier{
                 }
                 GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("playerAction-"+playersHand[activePlayer].playerId+"-");
                 do {
-                    System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
-                    System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
-                    System.out.println("Masz do wplacenia zaklad o wysokosci: " + diff + "\nTwoje pozostale pieniadze: " + playersHand[activePlayer].amountOfMoney);
+                    //System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
+                    //System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
+                    //System.out.println("Masz do wplacenia zaklad o wysokosci: " + diff + "\nTwoje pozostale pieniadze: " + playersHand[activePlayer].amountOfMoney);
 
                     synchronized (waitForMessage)
                     {
@@ -665,7 +673,7 @@ public class Croupier{
                 playersHand[i].rankOfHand=-1;
             }
         }
-        System.out.println("Odpadlo: "+countNonPlayablePlayers+", graczy");
+        //System.out.println("Odpadlo: "+countNonPlayablePlayers+", graczy");
         if(countNonPlayablePlayers>0) {
             Arrays.sort(playersHand);
             for (int i = 0; i < countNonPlayablePlayers; i++) {
@@ -856,7 +864,6 @@ public class Croupier{
             playersHand[i].setIsAllIn(false);;
             playersHand[i].rankOfHand=0;
         }
-
     }
     private void makeDeck()
     {

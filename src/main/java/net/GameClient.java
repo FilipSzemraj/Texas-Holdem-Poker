@@ -5,11 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.main.LoginController;
 import org.main.SceneController;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 public class GameClient extends Thread{
     public final Object waitForMessage = new Object();
@@ -19,6 +21,7 @@ public class GameClient extends Thread{
     SceneController controller;
     public int playerId;
     public String playerNick;
+    private int amountOfMoney=0;
     private boolean runningFlag=true;
 
     public GameClient(String ipAddress)
@@ -35,6 +38,7 @@ public class GameClient extends Thread{
 
     public void run()
     {
+        sendData(("playerAction-login-"+playerId+"-"+playerNick+"-"+amountOfMoney+"-").getBytes());
         System.out.println("RUN GAMECLIENT:"+Thread.currentThread().getName());
         while(runningFlag)
         {
@@ -104,6 +108,7 @@ public class GameClient extends Thread{
                 case "setMaxBet":
                     //"setMaxBet-"+x+"-playerName-"+playersHand[activePlayer].playerName+"-"
                     controller.setMaxBet(partedMessage[1], partedMessage[3]);
+                    break;
                 case "changePot":
                     //"changePot-"+pot+"-"
                     controller.changePot(partedMessage[1]);
@@ -125,7 +130,7 @@ public class GameClient extends Thread{
                     break;
                 case "card":
                     //"card-"+i+"-forPlayerName-"+playersHand[j].playerName+"-numberOfCard-"+random+"-"
-                    System.out.println(message);
+                    //System.out.println(message);
                     if(partedMessage[3].equals(playerNick))
                     {
                         controller.setCard(Integer.valueOf(partedMessage[1]), partedMessage[3], partedMessage[5]);
@@ -149,7 +154,7 @@ public class GameClient extends Thread{
                     break;
                 case "waitingRoomReceive":
                     //"waitingRoomReceive-"+playerId+"-playersInGame-0-waitingPlayers-0-"
-                    System.out.println(message);
+                    //System.out.println(message);
                     //controller.setWaitingRoom(partedMessage);
                     break;
                 case "newPlayer":
@@ -159,7 +164,8 @@ public class GameClient extends Thread{
     }
     public void sendData(byte[] data)
     {
-        System.out.println(data.toString());
+        String text = new String(data, StandardCharsets.UTF_8);
+        System.out.println("Wyslana wiadomosc przez klienta: "+text);
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1331);
         try {
             socket.send(packet);
@@ -181,6 +187,7 @@ public class GameClient extends Thread{
         System.out.println("initialize window, dla:"+name+" "+Thread.currentThread().getName());
         playerId=Id;
         playerNick=name;
+        this.amountOfMoney=amountOfMoney;
         URL url_fxml = new File("src/main/resources/fxml/MainWindow.fxml").toURI().toURL();
         FXMLLoader loader = new FXMLLoader(url_fxml);
         Parent root = loader.load();
