@@ -1,15 +1,15 @@
 package org.main;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,6 +34,7 @@ public class SceneController{
     public Label actualBet_Player4;
     public Label actualBet_Player5;
     private int playerId;
+    private String mainPlayerName;
     private int amountOfMoney;
     public AnchorPane wholeScene;
     public AnchorPane InterfaceOne;
@@ -101,10 +102,10 @@ public class SceneController{
     public Label pot;
     public Circle potIcon;
     Reflection reflection = new Reflection();
+    private boolean isRunning=false;
 
 
-    public void initialize(URL location, ResourceBundle resources, String name, int Id, int amountOfMoney)
-    {
+    public void initialize(URL location, ResourceBundle resources, String name, int Id, int amountOfMoney) throws InterruptedException {
         reflection.setFraction(0.75);
         reflection.setTopOpacity(0.5);
 
@@ -119,7 +120,7 @@ public class SceneController{
         stage.setOnCloseRequest((WindowEvent event) ->{
             Iterator<GameClient> iterator = LoginController.Players.iterator();
             while(iterator.hasNext()) {
-            GameClient player = iterator.next();
+                GameClient player = iterator.next();
                 if(player.getPlayerId() == playerId)
                 {
                     player.closeRunningFlag();
@@ -135,12 +136,17 @@ public class SceneController{
             stage.close();
         });
     }
+
+
     private void login()
     {
         LoginController.Players.get(playerId).sendData(("playerAction-login-"+playerId+"-"+playerName_Player1.getText()+"-"+amountOfMoney+"-").getBytes());
     }
     @FXML
     void btnAllInOnClick(ActionEvent event) {
+        synchronized (LoginController.Players.get(playerId).waitForMessage) {
+            LoginController.Players.get(playerId).waitForMessage.notifyAll();
+        }
         LoginController.Players.get(playerId).sendData(("playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
         System.out.println("allin");
     }
@@ -152,6 +158,9 @@ public class SceneController{
             int actualBetValue = Integer.parseInt(actualBetText);
 
             if (checkMaxBet() - actualBetValue < amountOfMoney) {
+                synchronized (LoginController.Players.get(playerId).waitForMessage) {
+                    LoginController.Players.get(playerId).waitForMessage.notifyAll();
+                }
                 LoginController.Players.get(playerId).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
                 System.out.println("bet");
             } else {
@@ -169,6 +178,9 @@ public class SceneController{
             int actualBetValue = Integer.parseInt(actualBetText);
 
             if (checkMaxBet() == actualBetValue) {
+                synchronized (LoginController.Players.get(playerId).waitForMessage) {
+                    LoginController.Players.get(playerId).waitForMessage.notifyAll();
+                }
                 LoginController.Players.get(playerId).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
                 System.out.println("check");
             } else {
@@ -180,12 +192,23 @@ public class SceneController{
     }
     @FXML
     void btnFoldOnClick(ActionEvent event) {
-        LoginController.Players.get(playerId).sendData(("playerAction-fold-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
-        System.out.println("fold");
+        int maxBet=checkMaxBet();
+        if(maxBet>Integer.valueOf(actualBet_Player1.getText())) {
+            synchronized (LoginController.Players.get(playerId).waitForMessage) {
+                LoginController.Players.get(playerId).waitForMessage.notifyAll();
+            }
+            LoginController.Players.get(playerId).sendData(("playerAction-fold-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+            System.out.println("fold");
+        }else{
+            messageToPlayer.setText("Masz najwyzszy zaklad na stole, nie mozesz zrzucic kart.");
+        }
     }
     @FXML
     void btnRaiseOnClick(ActionEvent event) {
         if(!raiseAmount.getText().isBlank() && Integer.valueOf(raiseAmount.getText())>checkMaxBet()) {
+            synchronized (LoginController.Players.get(playerId).waitForMessage) {
+                LoginController.Players.get(playerId).waitForMessage.notifyAll();
+            }
             LoginController.Players.get(playerId).sendData(("playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-").getBytes());
             System.out.println("raise" + playerName_Player1.getText());
         }
@@ -254,7 +277,7 @@ public class SceneController{
             actualBet_Player4.setText("");
             actualBet_Player5.setText("");
         });
-        LoginController.Players.get(playerId).sendData(("endOfDelay-").getBytes());
+        LoginController.Players.get(playerId).sendData(("endOfDelay-task-").getBytes());
     }
     public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
     {

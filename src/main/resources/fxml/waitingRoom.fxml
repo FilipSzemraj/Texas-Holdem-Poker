@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="441.0" prefWidth="714.0" styleClass="waitingRoom" stylesheets="@../css/MainPage.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.main.waitingRoomController">
+   <children>
+      <TableView fx:id="tableWithAllPlayers" layoutX="473.0" layoutY="14.0" prefHeight="340.0" prefWidth="227.0">
+        <columns>
+          <TableColumn fx:id="playerId_column" prefWidth="97.0" text="player name" />
+          <TableColumn fx:id="waiting_column" prefWidth="60.0" text="waiting" />
+            <TableColumn fx:id="inGame_column" prefWidth="68.0" text="in game" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>
