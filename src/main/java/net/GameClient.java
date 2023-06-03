@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.*;
 
 public class GameClient extends Thread{
+    public final Object waitForMessage = new Object();
 
     private InetAddress ipAddress;
     private DatagramSocket socket;
@@ -55,10 +56,10 @@ public class GameClient extends Thread{
                     {
                         controller.enableButtonEventHandling();
                         Runnable disableButtonsTask = () -> {
-                            synchronized (Croupier.getInstance().waitForMessage)
+                            synchronized (waitForMessage)
                             {
                                 try {
-                                    Croupier.getInstance().waitForMessage.wait(30000);
+                                    waitForMessage.wait();
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -146,6 +147,11 @@ public class GameClient extends Thread{
                 case "endOfGame":
                     System.out.println("koniec gry");
                     break;
+                case "waitingRoomReceive":
+                    //"waitingRoomReceive-"+playerId+"-playersInGame-0-waitingPlayers-0-"
+                    System.out.println(message);
+                    //controller.setWaitingRoom(partedMessage);
+                    break;
                 case "newPlayer":
                     break;
             }
@@ -171,7 +177,7 @@ public class GameClient extends Thread{
         socket.close();
     }
 
-    public void initializeWindow(String name, int Id, int amountOfMoney) throws IOException {
+    public void initializeWindow(String name, int Id, int amountOfMoney) throws IOException, InterruptedException {
         System.out.println("initialize window, dla:"+name+" "+Thread.currentThread().getName());
         playerId=Id;
         playerNick=name;
@@ -182,7 +188,7 @@ public class GameClient extends Thread{
         Scene scene = new Scene(root, 714, 441);
         scene.getStylesheets().add(getClass().getResource("/css/MainPage.css").toExternalForm());
         Stage primaryStage = new Stage();
-        primaryStage.setTitle("Texas holdem");
+        primaryStage.setTitle("Texas holdem - poczekalnia");
         primaryStage.setScene(scene);
         primaryStage.show();
         controller.initialize(loader.getLocation(), loader.getResources(), name, Id, amountOfMoney);

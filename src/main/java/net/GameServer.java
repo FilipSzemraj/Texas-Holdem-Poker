@@ -1,10 +1,15 @@
 package net;
 
 import Game.*;
+import sql.DatabaseConnection;
 
 import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +51,8 @@ public class GameServer extends Thread{
     private Croupier game;
     private List<ClientInfo> connectedClients = new ArrayList<>();
     private volatile static boolean runningFlag=true;
+    private static DatabaseConnection connectNow;
+    private static Connection connectDB;
 
     private GameServer()
     {
@@ -56,6 +63,8 @@ public class GameServer extends Thread{
         {
             instance = new GameServer();
             instance.game = Croupier.getInstance();
+            connectNow = new DatabaseConnection();
+            connectDB = connectNow.getConnection();
             try {
                 instance.socket = new DatagramSocket(1331);
             } catch (SocketException e) {
@@ -102,7 +111,8 @@ public class GameServer extends Thread{
                 int clientPort = 0;
                 try {
                     socket.receive(packet);
-                    message = new String(packet.getData()).trim();
+                    message = new String(packet.getData(), packet.getOffset(), packet.getLength()).trim();
+                    //message = new String(packet.getData()).trim();
                     partedMessage = message.split("-");
                     System.out.println("Wiadomosc odebrana przez serwer > "+message);
                     //throw new IOException("Błąd wejścia-wyjścia");
@@ -203,7 +213,7 @@ public class GameServer extends Thread{
                             }
                             break;
                         case "logout":
-                            //handleClientDisconnection();
+                            //"playerAction-logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress.getHostAddress()+"-"
                             try {
                                 if(game.isRunning) {
                                     game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
@@ -212,6 +222,8 @@ public class GameServer extends Thread{
                                     game.removePlayerFromWaitingQueue(Integer.valueOf(partedMessage[3]));
                                 }
                             } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            } catch (SQLException e) {
                                 throw new RuntimeException(e);
                             }
                             try {
@@ -243,6 +255,16 @@ public class GameServer extends Thread{
                     break;
                     case "playerReceive":
                         switch(partedMessage[1]) {
+                            case "waitingRoom":
+                                String tempMessage="";
+                                try {
+                                    tempMessage = game.returnPlayers();
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println(tempMessage);
+                                sendData(tempMessage.getBytes(), clientIP, clientPort);
+                                break;
                             case "getOtherPlayersInformation":
                                 break;
                             case "getPlayerAction":
@@ -266,7 +288,15 @@ public class GameServer extends Thread{
 
             }
     }
-
+public void saveDataAboutPlayer(int amountOfMoney, int accountId) throws SQLException {
+    String saveCurrentAmountOfMoney = "UPDATE user_account SET amountOfMoney = "+amountOfMoney+" WHERE account_ID= "+accountId+";";
+    Statement statement = connectDB.createStatement();
+    int ifWorksFine = statement.executeUpdate(saveCurrentAmountOfMoney);
+    if(ifWorksFine==1)
+    {
+        System.out.println("Pomyslnie zapisano dane gracza");
+    }
+}
 public void prepareAndSendDataFromCroupierToOnePlayer(String message)
 {
     boolean clientExists = false;

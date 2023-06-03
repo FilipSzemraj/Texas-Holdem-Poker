@@ -41,8 +41,6 @@ public class LoginController {
     public static List<GameClient> Players;
     public static List<Thread> ThreadsOfPlayers;
 
-    private volatile boolean serverRunning = true;
-
     public LoginController(){
 
     try {
@@ -53,14 +51,14 @@ public class LoginController {
         e.printStackTrace();
         messageLabel.setText("Bład połączenia z baza danych!");
     }
-        gameServer = GameServer.getInstance();
-        serverThread = new Thread(gameServer);
-        serverThread.start();
+        //gameServer = GameServer.getInstance();
+        //serverThread = new Thread(gameServer);
+        //serverThread.start();
         Players = new ArrayList<>();
         ThreadsOfPlayers = new ArrayList<>();
     }
 
-    public void logged() throws IOException, RuntimeException, SQLException {
+    public void logged() throws IOException, RuntimeException, SQLException, InterruptedException {
 
         int amountOfMoney=0;
         String serverIp = "127.0.0.1"; // Adres IP serwera
@@ -80,6 +78,7 @@ public class LoginController {
         System.out.println("LOGGED DLA:"+Players.get(Players.size()-1)+Thread.currentThread().getName());
         Players.get(Players.size()-1).initializeWindow(loginTextField.getText(), Players.size()-1, amountOfMoney);
         ThreadsOfPlayers.get(Players.size()-1).start();
+
     }
     public static void closePlayerSocket(int id)
     {
@@ -111,10 +110,10 @@ public class LoginController {
     }
 
     public void cancelButtonOnAction(ActionEvent event) throws InterruptedException, UnknownHostException, SocketException {
-        gameServer.closeRunningFlag();
-        gameServer.closeTheSocket();
+        //gameServer.closeRunningFlag();
+        //gameServer.closeTheSocket();
         Stage stage = (Stage) cancelButton.getScene().getWindow();
-        serverThread.join();
+        //serverThread.join();
         stage.close();
     }
 
@@ -133,11 +132,11 @@ public class LoginController {
                 if(queryResult.getInt(1) == 1)
                 {
                     messageLabel.setText("Gratulacje! Zalogowano pomyślnie.");
-                    if(gameServer.checkCurrentPlayingPlayers()<5) {
+                    //if(gameServer.checkCurrentPlayingPlayers()<5) {
                         logged();
-                    }else{
-                        messageLabel.setText("Twoje dane są poprawne, jednak w grze już jest 5 osób. Musisz poczekać, aż zwolni się miejsce przy stole.");
-                    }
+                   // }else{
+                    //    messageLabel.setText("Twoje dane są poprawne, jednak w grze już jest 5 osób. Musisz poczekać, aż zwolni się miejsce przy stole.");
+                    //}
                 }else {
                     messageLabel.setText("Niepoprawne dane, spróbuj ponownie...");
                 }

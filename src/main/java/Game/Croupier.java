@@ -1,10 +1,11 @@
 package Game;
 
 
-import net.GameClient;
+
 import net.GameServer;
 
-import javax.swing.*;
+
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
@@ -13,8 +14,7 @@ class GenerateRandom{
     static final int max=52;
     public static int getRandomInt()
     {
-        int random_int = (int)Math.floor(Math.random()*(max-min+1)+min);
-        return random_int;
+        return (int)Math.floor(Math.random()*(max-min+1)+min);
     }
 }
 
@@ -25,7 +25,8 @@ public class Croupier{
     public final Object waitFor2Players = new Object();
     public final Object waitForMessage = new Object();
     public final Object waitForEndOfDelay = new Object();
-    private Semaphore waitForEndOfRound = new Semaphore(1);
+    private final Semaphore waitForEndOfRound = new Semaphore(1);
+    private final Semaphore waitForEndOfOperationsOnWaitingPlayers = new Semaphore(1);
     private static Croupier instance;
     public volatile int numberOfPlayers;
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
@@ -64,21 +65,22 @@ public class Croupier{
         }
         return instance;
     }
-    public void addMoneyToThePot(int x)
+    public synchronized void addMoneyToThePot(int x)
     {
+        //int temp = pot+x;
         pot+=x;
-        StringBuffer sb = new StringBuffer("changePot-"+pot+"-");
-        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        String sb = "changePot-"+pot+"-";
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb);
     }
-    public void subMoneyFromThePot(int x)
+    public synchronized void subMoneyFromThePot(int x)
     {
         pot-=x;
     }
     public void zeroOutPot()
     {
         pot=0;
-        StringBuffer sb = new StringBuffer("changePot-"+pot+"-");
-        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        String sb = "changePot-"+pot+"-";
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb);
     }
     public void setFirstPlayerInCycle(int x)
     {
@@ -93,8 +95,8 @@ public class Croupier{
     public void setActivePlayer(int x)
     {
         activePlayer=x;
-        StringBuffer sb = new StringBuffer("setActivePlayer-playerName-"+playersHand[x].playerName+"-");
-        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        String sb = "setActivePlayer-playerName-"+playersHand[x].playerName+"-";
+        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb);
 
     }
 
@@ -102,6 +104,40 @@ public class Croupier{
     //METODY DO KOMUNIKACJI Z SERWEREM
     //###########################################################################################################
 
+    public String returnPlayers() throws InterruptedException {
+        waitForEndOfRound.acquire();
+        StringBuffer sb = new StringBuffer("waitingRoomReceive");
+        sb.append("-playersInGame-");
+        if(playersHand!=null)
+        {
+            sb.append(playersHand.length);
+            for(Hand player : playersHand)
+            {
+                sb.append("-"+player.playerName);
+            }
+            sb.append("-");
+        }
+        else {
+            sb.append("0");
+        }
+        waitForEndOfRound.release();
+        sb.append("-waitingPlayers-");
+        waitForEndOfOperationsOnWaitingPlayers.acquire();
+        if(waitingPlayers!=null)
+        {
+            sb.append(waitingPlayers.length);
+            for(Hand player : waitingPlayers)
+            {
+                sb.append("-"+player.playerName);
+            }
+            sb.append("-");
+        }
+        else{
+            sb.append("0-");
+        }
+        waitForEndOfOperationsOnWaitingPlayers.release();
+        return sb.toString();
+    }
     public int returnActivePlayerId()
     {
         return playersHand[activePlayer].playerId;
@@ -118,34 +154,36 @@ public class Croupier{
     }
     public void addWaitingPlayersToGame() throws InterruptedException {
         waitForEndOfRound.acquire();
-        int numberOfWaitingPlayers=waitingPlayers.length;
-        if(numberOfWaitingPlayers>0)
-        {
-            if(playersHand == null)
-            {
-                playersHand = new Hand[numberOfWaitingPlayers];
-                playersHand = waitingPlayers;
-                waitingPlayers = null;
-            }
-            else if(playersHand.length<5) {
-                int numberOfCurrentPlayers=playersHand.length;
-                Hand[] temporary;
-                int temporaryLength=5-numberOfCurrentPlayers;
-                if(numberOfCurrentPlayers+numberOfWaitingPlayers<5) {
-                    temporary = new Hand[numberOfCurrentPlayers + numberOfWaitingPlayers];
+        waitForEndOfOperationsOnWaitingPlayers.acquire();
+        if(waitingPlayers!=null) {
+            int numberOfWaitingPlayers = waitingPlayers.length;
+            if (numberOfWaitingPlayers > 0) {
+                if (playersHand == null) {
+                    playersHand = new Hand[numberOfWaitingPlayers];
+                    playersHand = waitingPlayers;
+                    waitingPlayers = null;
+                } else if (playersHand.length < 5) {
+                    int numberOfCurrentPlayers = playersHand.length;
+                    Hand[] temporary;
+                    int temporaryLength = 5 - numberOfCurrentPlayers;
+                    if (numberOfCurrentPlayers + numberOfWaitingPlayers < 5) {
+                        temporary = new Hand[numberOfCurrentPlayers + numberOfWaitingPlayers];
+                    } else {
+                        temporary = new Hand[5];
+                    }
+                    System.arraycopy(playersHand, 0, temporary, 0, numberOfCurrentPlayers);
+                    System.arraycopy(waitingPlayers, 0, temporary, numberOfCurrentPlayers, temporaryLength);
+                    System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers - temporaryLength);
+                    playersHand=temporary;
                 }
-                else {
-                    temporary = new Hand[5];
-                }
-                System.arraycopy(playersHand, 0, temporary, 0, numberOfCurrentPlayers);
-                System.arraycopy(waitingPlayers, 0, temporary, numberOfCurrentPlayers, temporaryLength);
-                System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers-temporaryLength);
             }
         }
+        waitForEndOfOperationsOnWaitingPlayers.release();
         waitForEndOfRound.release();
     }
     public void addPlayerToQueue(int Id, String nick, int amountOfMoney) throws InterruptedException {
         waitForEndOfRound.acquire();
+        waitForEndOfOperationsOnWaitingPlayers.acquire();
         if(waitingPlayers == null)
         {
             waitingPlayers=new Hand[1];
@@ -172,19 +210,23 @@ public class Croupier{
         else {
             System.out.println("Za duzo graczy w kolejce");
         }
+        waitForEndOfOperationsOnWaitingPlayers.release();
         waitForEndOfRound.release();
     }
 
-    public void removePlayerFromWaitingQueue(int playerId)
-    {
-        for(Hand player: waitingPlayers)
+    public void removePlayerFromWaitingQueue(int playerId) throws InterruptedException {
+        waitForEndOfOperationsOnWaitingPlayers.acquire();
+        ArrayList<Hand> tempList = new ArrayList<>(Arrays.asList(waitingPlayers));
+        Iterator<Hand> iterator = tempList.iterator();
+        while(iterator.hasNext())
         {
-            if(player.playerId==playerId)
+            if(iterator.next().playerId==playerId)
             {
-                //player.rankOfHand
-                break;
+                iterator.remove();
             }
         }
+        waitingPlayers= tempList.toArray(new Hand[tempList.size()]);
+        waitForEndOfOperationsOnWaitingPlayers.release();
     }
     public void removeFromWaitingQueue()
     {
@@ -238,6 +280,7 @@ public class Croupier{
     public void game() throws InterruptedException {
         do {
             int whichState = 0;
+            addWaitingPlayersToGame();
             waitForEndOfRound.acquire();
             isPlayerPlayable();
             if(numberOfPlayers<2)
@@ -257,8 +300,9 @@ public class Croupier{
             }
             prepareForNextRound();
             waitForEndOfRound.release();
+
             synchronized (waitForEndOfDelay) {
-                waitForEndOfDelay.wait(2500);
+                waitForEndOfDelay.wait();
             }
         }while(numberOfPlayers>1);
         waitForEndOfRound.release();
@@ -374,19 +418,19 @@ public class Croupier{
             {
                 playerActionMessage="allIn";
             }
-            else if(playersHand[activePlayer].isInCurrentGame==false)
-            {
-                playerActionMessage="fold";
-            }
             else
             {
                 boolean goodChoice = false;
                 int diff = maxBet - playersHand[activePlayer].actualBet;
-                if(playersHand[activePlayer].actualBet==maxBet)
+                if(playersHand[activePlayer].isInCurrentGame==false)
+                {
+                    playerActionMessage="fold";
+                }
+                if(diff==0)
                 {
                     playerActionMessage="check";
                 }
-                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("playerAction-"+activePlayer+"-");
+                GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer("playerAction-"+playersHand[activePlayer].playerId+"-");
                 do {
                     System.out.println("Fold - 1, Bet - 2, Raise - 3, All in - 4, Check - 5\n");
                     System.out.println("Gracz o id " + playersHand[activePlayer].playerId);
@@ -396,7 +440,7 @@ public class Croupier{
                     {
 
                         try {
-                            waitForMessage.wait(15000);
+                            waitForMessage.wait();
                         }catch(InterruptedException e)
                         {
                             e.printStackTrace();
@@ -964,7 +1008,7 @@ public class Croupier{
     //###########################################################################################################
     //PODKLASY, ORAZ FUNKCJE NADPISANE
     //###########################################################################################################
-    public void removePlayerFromGame(int id) throws InterruptedException {
+    public void removePlayerFromGame(int id) throws InterruptedException, SQLException {
         waitForEndOfRound.acquire();
         for(Hand player: playersHand)
         {
@@ -1011,7 +1055,8 @@ public class Croupier{
             StringBuffer sb = new StringBuffer("actualBet-0-playerName-"+playerName+"-");
             GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
-        public void exitFromGame() throws InterruptedException {
+        public void exitFromGame() throws InterruptedException, SQLException {
+            //GameServer.getInstance().saveDataAboutPlayer(amountOfMoney, playerId);
             isInCurrentGame = false;
             //StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playerName+"-");
             //GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
