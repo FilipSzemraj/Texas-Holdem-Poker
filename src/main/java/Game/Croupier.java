@@ -424,6 +424,7 @@ public class Croupier{
             playerActionMessage="fold";
             if(playersHand[activePlayer].isAllIn)
             {
+                //allIn
                 playerActionMessage="allIn";
             }
             else
