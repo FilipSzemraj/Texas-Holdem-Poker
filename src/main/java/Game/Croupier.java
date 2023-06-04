@@ -250,7 +250,7 @@ public class Croupier{
         System.out.println("\n\n");
         makeHands();
     }
-    public void initializeCroupier() throws InterruptedException {
+    public void initializeCroupier() throws InterruptedException, SQLException {
 
         Thread waitingForPlayers = new Thread(() -> {
            try {
@@ -279,7 +279,7 @@ public class Croupier{
         game();
 
     }
-    public void game() throws InterruptedException {
+    public void game() throws InterruptedException, SQLException {
         do {
             int whichState = 0;
             addWaitingPlayersToGame();
@@ -661,8 +661,7 @@ public class Croupier{
         }
         playersHand[activePlayer].setIsAllIn(true);
     }
-    private void isPlayerPlayable()
-    {
+    private void isPlayerPlayable() throws SQLException {
         if(playersHand==null)
             return;
         int countNonPlayablePlayers=0;
@@ -677,6 +676,7 @@ public class Croupier{
         if(countNonPlayablePlayers>0) {
             Arrays.sort(playersHand);
             for (int i = 0; i < countNonPlayablePlayers; i++) {
+                GameServer.getInstance().saveDataAboutPlayer(playersHand[i].amountOfMoney, playersHand[i].playerId);
                 StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playersHand[i].playerName+"-");
                 GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
             }
@@ -1064,7 +1064,7 @@ public class Croupier{
             GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
         public void exitFromGame() throws InterruptedException, SQLException {
-            //GameServer.getInstance().saveDataAboutPlayer(amountOfMoney, playerId);
+            //
             isInCurrentGame = false;
             //StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playerName+"-");
             //GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
@@ -1332,7 +1332,7 @@ public class Croupier{
         }
     }
 
-    public void isPlayerPlayable_makePublic(){
+    public void isPlayerPlayable_makePublic() throws SQLException {
         isPlayerPlayable();
     }
     //###########################################################################################################

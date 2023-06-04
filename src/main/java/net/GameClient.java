@@ -35,6 +35,16 @@ public class GameClient extends Thread{
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o instanceof GameClient)
+        {
+            if(this.playerId==((GameClient) o).playerId)
+                return true;
+        }
+        return false;
+    }
 
     public void run()
     {

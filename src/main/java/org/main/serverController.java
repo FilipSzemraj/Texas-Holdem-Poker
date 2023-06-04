@@ -3,11 +3,17 @@ package org.main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import net.GameClient;
 import net.GameServer;
+
+import java.util.Iterator;
 
 public class serverController {
 
+    public AnchorPane wholeScene;
     GameServer gameServer;
     Thread serverThread;
     public Button stopServerButton;
@@ -18,6 +24,26 @@ public class serverController {
         gameServer = GameServer.getInstance();
         serverThread = new Thread(gameServer);
     }
+    /*public void initialize()
+    {
+        Stage stage = (Stage) wholeScene.getScene().getWindow();
+        stage.setOnCloseRequest((WindowEvent event) ->{
+            Iterator<GameClient> iterator = LoginController.Players.iterator();
+            while(iterator.hasNext()) {
+                GameClient player = iterator.next();
+                if(player.getPlayerId() == playerId)
+                {
+                    player.closeRunningFlag();
+                    player.closeTheSocket();
+                    //LoginController.closePlayerSocket(player.getPlayerId());
+                    iterator.remove();
+                    break;
+                }
+            }
+
+            stage.close();
+        });
+    }*/
 
     @FXML
     void runServer(ActionEvent actionEvent)

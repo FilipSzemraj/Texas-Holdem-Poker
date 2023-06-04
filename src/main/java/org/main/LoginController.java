@@ -36,62 +36,76 @@ public class LoginController {
     TextField loginTextField, passwordTextField;
     DatabaseConnection connectNow;
     Connection connectDB;
-    GameServer gameServer;
-    Thread serverThread;
+    private InetAddress serverAddress;
+    private DatagramSocket socket;
+    private int serverPort;
     public static List<GameClient> Players;
     public static List<Thread> ThreadsOfPlayers;
 
-    public LoginController(){
-
-    try {
+    public LoginController() throws SocketException, UnknownHostException {
+    /*try {
         connectNow = new DatabaseConnection();
         connectDB = connectNow.getConnection();
     }catch(Exception e)
     {
         e.printStackTrace();
         messageLabel.setText("Bład połączenia z baza danych!");
-    }
-        //gameServer = GameServer.getInstance();
-        //serverThread = new Thread(gameServer);
-        //serverThread.start();
+    }*/
+        socket = new DatagramSocket();
+        serverAddress = InetAddress.getByName("127.0.0.1");
+        serverPort = 1331;
         Players = new ArrayList<>();
         ThreadsOfPlayers = new ArrayList<>();
     }
 
-    public void logged() throws IOException, RuntimeException, SQLException, InterruptedException {
+    public void sendRequest(String message) throws Exception {
+        byte[] sendData = message.getBytes();
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, serverPort);
+        socket.send(sendPacket);
+    }
 
-        int amountOfMoney=0;
+    public String receiveResponse() throws Exception {
+        byte[] receiveData = new byte[1024];
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        socket.receive(receivePacket);
+        String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+        return response;
+    }
+
+    public int returnIndexOfPlayerById(int value) {
+        int i = 0;
+        for (GameClient client : Players) {
+            if (client.playerId == value) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    public void logged(String money, int Id) throws IOException, RuntimeException, SQLException, InterruptedException {
+
+        int amountOfMoney = Integer.valueOf(money);
         String serverIp = "127.0.0.1"; // Adres IP serwera
         Players.add(new GameClient(serverIp));
-        ThreadsOfPlayers.add(new Thread(Players.get(Players.size()-1)));
+        ThreadsOfPlayers.add(new Thread(Players.get(Players.size() - 1)));
 
 
-        String checkAmountOfMoney = "SELECT amountOfMoney FROM user_account WHERE login='"+loginTextField.getText()+"';";
-        Statement statement = connectDB.createStatement();
-        ResultSet queryResult = statement.executeQuery(checkAmountOfMoney);
-        if(queryResult.next())
-        {
-            amountOfMoney = queryResult.getInt("amountOfMoney");
-            System.out.println(amountOfMoney);
-        }
-
-        System.out.println("LOGGED DLA:"+Players.get(Players.size()-1)+Thread.currentThread().getName());
-        Players.get(Players.size()-1).initializeWindow(loginTextField.getText(), Players.size()-1, amountOfMoney);
-        ThreadsOfPlayers.get(Players.size()-1).start();
+        System.out.println("LOGGED DLA:" + Players.get(Players.size() - 1) + Thread.currentThread().getName());
+        Players.get(Players.size() - 1).initializeWindow(loginTextField.getText(), Id, amountOfMoney);
+        ThreadsOfPlayers.get(Players.size() - 1).start();
 
     }
-    public static void closePlayerSocket(int id)
-    {
+
+    public static void closePlayerSocket(int id) {
         Players.get(id).closeTheSocket();
     }
-    public static void deletePlayer(int id)
-    {
+
+    public static void deletePlayer(int id) {
         Iterator<GameClient> iterator = Players.iterator();
-        while(iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             GameClient player = iterator.next();
-            if(player.playerId == id)
-            {
+            if (player.playerId == id) {
                 iterator.remove();
                 break;
             }
@@ -100,52 +114,31 @@ public class LoginController {
     }
 
 
-    public void loginButtonOnAction()
-    {
-        if(loginTextField.getText().isBlank() == false && passwordTextField.getText().isBlank() == false)
-        {
+    public void loginButtonOnAction() throws Exception {
+        if (loginTextField.getText().isBlank() == false && passwordTextField.getText().isBlank() == false) {
             validateLogin();
         } else
-        messageLabel.setText("Oba pola muszą być uzupełnione");
+            messageLabel.setText("Oba pola muszą być uzupełnione");
     }
 
     public void cancelButtonOnAction(ActionEvent event) throws InterruptedException, UnknownHostException, SocketException {
         //gameServer.closeRunningFlag();
         //gameServer.closeTheSocket();
+        socket.close();
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         //serverThread.join();
         stage.close();
     }
 
-    public void validateLogin()
-    {
+    public void validateLogin() throws Exception {
 
-
-        String verifyLogin="SELECT Count(1) FROM user_account WHERE login = '"+loginTextField.getText()+"' AND password = '"+passwordTextField.getText()+"';";
-
-        try{
-            Statement statement = connectDB.createStatement();
-            ResultSet queryResult = statement.executeQuery(verifyLogin);
-
-            while(queryResult.next())
-            {
-                if(queryResult.getInt(1) == 1)
-                {
-                    messageLabel.setText("Gratulacje! Zalogowano pomyślnie.");
-                    //if(gameServer.checkCurrentPlayingPlayers()<5) {
-                        logged();
-                   // }else{
-                    //    messageLabel.setText("Twoje dane są poprawne, jednak w grze już jest 5 osób. Musisz poczekać, aż zwolni się miejsce przy stole.");
-                    //}
-                }else {
-                    messageLabel.setText("Niepoprawne dane, spróbuj ponownie...");
-                }
-            }
-
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-            e.getCause();
+        String messageToServer = "serverAction-validateLogin-user-" + loginTextField.getText() + "-password-" + passwordTextField.getText() + "-";
+        sendRequest(messageToServer);
+        String response = receiveResponse();
+        String[] partedResponse = response.split("-");
+        if (partedResponse[0].equals("correctData")) {
+            //"correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-"
+            logged(partedResponse[2], Integer.valueOf(partedResponse[4]));
         }
     }
 }
