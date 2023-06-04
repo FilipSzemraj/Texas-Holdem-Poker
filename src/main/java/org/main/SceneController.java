@@ -121,6 +121,7 @@ public class SceneController{
             Iterator<GameClient> iterator = LoginController.Players.iterator();
             while(iterator.hasNext()) {
                 GameClient player = iterator.next();
+                //player.wa
                 if(player.getPlayerId() == playerId)
                 {
                     player.closeRunningFlag();
@@ -278,6 +279,8 @@ public class SceneController{
             actualBet_Player4.setText("");
             actualBet_Player5.setText("");
         });
+        //int index = LoginController.getInstance().returnIndexOfPlayerById(playerId);
+        //LoginController.Players.get(index).sendData(("serverAction-endOfDelay-").getBytes());
         LoginController.Players.get(playerId).sendData(("serverAction-endOfDelay-").getBytes());
     }
     public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
@@ -502,7 +505,7 @@ public class SceneController{
             whichInterfaceIsTaken[4]=false;
             numberOfPlayers--;
         }else{
-            System.out.println("Player exit from game - Nie poprawny nick");
+            System.out.println("Player exit from game - Nie poprawny nick: "+name);
         }
     }
     public void changeIsFold(String name)
@@ -532,7 +535,7 @@ public class SceneController{
                 player5Action.setText("Folds");
             });
         }else{
-            System.out.println("Change is fold - Nie poprawny nick");
+            System.out.println("Change is fold - Nie poprawny nick: "+name);
         }
     }
     public void changeIsAllIn(String name)
@@ -562,7 +565,7 @@ public class SceneController{
                 player5Action.setText("All In");
             });
         }else{
-            System.out.println("Change is all in - Nie poprawny nick");
+            System.out.println("Change is all in - Nie poprawny nick: "+name);
         }
     }
     public void changeActualBet(String name, String actualBetAsParameter)
@@ -592,7 +595,7 @@ public class SceneController{
                 actualBet_Player5.setText(actualBetAsParameter);
             });
         }else{
-            System.out.println("Change actual bet - Nie poprawny nick");
+            System.out.println("Change actual bet - Nie poprawny nick: "+name);
         }
     }
 
@@ -643,7 +646,7 @@ public class SceneController{
                 profileIcon_Player5.setEffect(reflection);
             });
         }else{
-            System.out.println("Set active player - Nie poprawny nick");
+            System.out.println("Set active player - Nie poprawny nick: "+name);
         }
     }
     public void setMaxBet(String maxBet, String name)
@@ -743,7 +746,7 @@ public class SceneController{
                 AmountOfMoney_Player5.setText(amountOfMoney);
             });
         }else{
-            System.out.println("Change amount of money - Nie poprawny nick");
+            System.out.println("Change amount of money - Nie poprawny nick: "+name);
         }
         /*for(Node node : wholeScene.getChildren()){
             if(node instanceof AnchorPane){
