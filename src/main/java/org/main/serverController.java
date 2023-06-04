@@ -9,6 +9,7 @@ import javafx.stage.WindowEvent;
 import net.GameClient;
 import net.GameServer;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 
 public class serverController {
@@ -59,7 +60,7 @@ public class serverController {
         }
     }
 
-    public void stopServer(ActionEvent actionEvent) throws InterruptedException {
+    public void stopServer(ActionEvent actionEvent) throws InterruptedException, SQLException {
         if(isRunning) {
             gameServer.closeRunningFlag();
             gameServer.closeTheSocket();

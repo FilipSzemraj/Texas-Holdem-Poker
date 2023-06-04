@@ -1,6 +1,7 @@
 package sql;
 
 import org.main.Main;
+import org.sqlite.SQLiteErrorCode;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -30,6 +31,18 @@ public class DatabaseConnection {
 
         return databaseLink;
 
+    }
+    public void closeConnection()
+    {
+        if(databaseLink != null)
+        {
+            try {
+                databaseLink.close();
+            }catch(SQLException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
 

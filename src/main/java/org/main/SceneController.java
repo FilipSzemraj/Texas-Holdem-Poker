@@ -145,10 +145,11 @@ public class SceneController{
     //}
     @FXML
     void btnAllInOnClick(ActionEvent event) {
-        synchronized (LoginController.Players.get(playerId).waitForMessage) {
-            LoginController.Players.get(playerId).waitForMessage.notifyAll();
+        int index = LoginController.returnIndexOfPlayerById(playerId);
+        synchronized (LoginController.Players.get(index).waitForMessage) {
+            LoginController.Players.get(index).waitForMessage.notifyAll();
         }
-        LoginController.Players.get(playerId).sendData(("playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
+        LoginController.Players.get(index).sendData(("playerAction-allIn-"+playerId+"-"+playerName_Player1.getText()+"-").getBytes());
         System.out.println("allin");
     }
     @FXML
@@ -160,10 +161,11 @@ public class SceneController{
 
             int maxBet=checkMaxBet();
             if (maxBet - actualBetValue < amountOfMoney) {
-                synchronized (LoginController.Players.get(playerId).waitForMessage) {
-                    LoginController.Players.get(playerId).waitForMessage.notifyAll();
+                int index = LoginController.returnIndexOfPlayerById(playerId);
+                synchronized (LoginController.Players.get(index).waitForMessage) {
+                    LoginController.Players.get(index).waitForMessage.notifyAll();
                 }
-                LoginController.Players.get(playerId).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+                LoginController.Players.get(index).sendData(("playerAction-bet-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
                 System.out.println("bet");
             } else {
                 messageToPlayer.setText("Możesz zagrać tylko 'All In'. Masz nie wystarczajaco srodkow na koncie.");
@@ -180,10 +182,11 @@ public class SceneController{
             int actualBetValue = Integer.parseInt(actualBetText);
 
             if (checkMaxBet() == actualBetValue) {
-                synchronized (LoginController.Players.get(playerId).waitForMessage) {
-                    LoginController.Players.get(playerId).waitForMessage.notifyAll();
+                int index = LoginController.returnIndexOfPlayerById(playerId);
+                synchronized (LoginController.Players.get(index).waitForMessage) {
+                    LoginController.Players.get(index).waitForMessage.notifyAll();
                 }
-                LoginController.Players.get(playerId).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+                LoginController.Players.get(index).sendData(("playerAction-check-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
                 System.out.println("check");
             } else {
                 messageToPlayer.setText("Nie mozesz czekac, poniewaz nie masz maksymalnego zakladu na stole.");
@@ -196,10 +199,11 @@ public class SceneController{
     void btnFoldOnClick(ActionEvent event) {
         int maxBet=checkMaxBet();
         if(maxBet>Integer.valueOf(actualBet_Player1.getText())) {
-            synchronized (LoginController.Players.get(playerId).waitForMessage) {
-                LoginController.Players.get(playerId).waitForMessage.notifyAll();
+            int index = LoginController.returnIndexOfPlayerById(playerId);
+            synchronized (LoginController.Players.get(index).waitForMessage) {
+                LoginController.Players.get(index).waitForMessage.notifyAll();
             }
-            LoginController.Players.get(playerId).sendData(("playerAction-fold-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
+            LoginController.Players.get(index).sendData(("playerAction-fold-" + playerId + "-" + playerName_Player1.getText() + "-").getBytes());
             System.out.println("fold");
         }else{
             messageToPlayer.setText("Masz najwyzszy zaklad na stole, nie mozesz zrzucic kart.");
@@ -208,10 +212,11 @@ public class SceneController{
     @FXML
     void btnRaiseOnClick(ActionEvent event) {
         if(!raiseAmount.getText().isBlank() && (Integer.valueOf(raiseAmount.getText())+Integer.valueOf(actualBet_Player1.getText()))>checkMaxBet()) {
-            synchronized (LoginController.Players.get(playerId).waitForMessage) {
-                LoginController.Players.get(playerId).waitForMessage.notifyAll();
+            int index = LoginController.returnIndexOfPlayerById(playerId);
+            synchronized (LoginController.Players.get(index).waitForMessage) {
+                LoginController.Players.get(index).waitForMessage.notifyAll();
             }
-            LoginController.Players.get(playerId).sendData(("playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-").getBytes());
+            LoginController.Players.get(index).sendData(("playerAction-raise-" + playerId + "-" + playerName_Player1.getText()+"-"+raiseAmount.getText()+"-").getBytes());
             System.out.println("raise" + playerName_Player1.getText());
         }
         else
@@ -281,7 +286,8 @@ public class SceneController{
         });
         //int index = LoginController.getInstance().returnIndexOfPlayerById(playerId);
         //LoginController.Players.get(index).sendData(("serverAction-endOfDelay-").getBytes());
-        LoginController.Players.get(playerId).sendData(("serverAction-endOfDelay-").getBytes());
+        int index = LoginController.returnIndexOfPlayerById(playerId);
+        LoginController.Players.get(index).sendData(("serverAction-endOfDelay-").getBytes());
     }
     public void setMessageAboutWinners(int winnersCounter, String[] partedMessage)
     {

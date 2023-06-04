@@ -79,8 +79,10 @@ public class GameServer extends Thread {
         runningFlag = false;
     }
 
-    public void closeTheSocket() {
+    public void closeTheSocket() throws SQLException {
         socket.close();
+        connectDB.close();
+        connectNow.closeConnection();
     }
 
     public int checkCurrentPlayingPlayers() {
@@ -272,18 +274,14 @@ public class GameServer extends Thread {
                             break;
                         case "validateLogin":
                             //"serverAction-validateLogin-user-"+loginTextField.getText()+"-password-"+passwordTextField.getText()+"-"
-                            String response = null;
+                            String response = "wrongData";
                             try {
                                 response = validateLogin(partedMessage[3], partedMessage[5]);
                             } catch (SQLException e) {
                                 throw new RuntimeException(e);
                             }
                             //"correctData-amountOfMoney-"+amountOfMoney+"-"
-                            String[] partedResponse = response.split("-");
-                            if(partedResponse[0].equals("correctData"));
-                                {
-                                    sendData(response.getBytes(), clientIP, clientPort);
-                                }
+                            sendData(response.getBytes(), clientIP, clientPort);
                             break;
                         case "registerNewUser":
                             //"serverAction-registerNewUser-"+nameField.getText()+"-"+surnameField.getText()+"-"+loginField.getText()+"-"+passwordField.getText()+"-"
@@ -302,6 +300,7 @@ public class GameServer extends Thread {
                                     responseToRegister = "error-inRegister-";
                                 }
                                 sendData(responseToRegister.getBytes(), clientIP, clientPort);
+                                statement.close();
                             } catch(SQLException e)
                             {
                                 e.printStackTrace();
@@ -343,7 +342,8 @@ public class GameServer extends Thread {
                     return "incorrect-data";
                 }
             }
-
+            queryResult.close();
+            statement.close();
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -359,6 +359,8 @@ public class GameServer extends Thread {
             {
                 amountOfMoney = queryResult.getInt("amountOfMoney");
             }
+            queryResult.close();
+            statement.close();
         }
         return "correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-";
 
@@ -372,6 +374,7 @@ public void saveDataAboutPlayer(int amountOfMoney, int accountId) throws SQLExce
     {
         System.out.println("Pomyslnie zapisano dane gracza");
     }
+    statement.close();
 }
 public void prepareAndSendDataFromCroupierToOnePlayer(String message)
 {
