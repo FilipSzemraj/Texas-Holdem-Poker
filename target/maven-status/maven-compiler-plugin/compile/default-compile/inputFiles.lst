@@ -1,6 +1,8 @@
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\serverMain.java
+C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\newClientMain.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\Game\Card.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\net\GameClient.java
+C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\newServerMain.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\Game\Croupier.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\Game\CheckHand.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\net\GameServer.java
@@ -8,6 +10,6 @@ C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\LoginCo
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\SceneController.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\serverController.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\waitingRoomController.java
-C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\newMain.java
+C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\registerController.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\org\main\Main.java
 C:\Users\Filip\Documents\GitHub\Texas-Holdem-Java\src\main\java\sql\DatabaseConnection.java

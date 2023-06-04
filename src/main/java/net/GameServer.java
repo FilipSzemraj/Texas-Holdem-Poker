@@ -7,10 +7,7 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -287,6 +284,30 @@ public class GameServer extends Thread {
                                 {
                                     sendData(response.getBytes(), clientIP, clientPort);
                                 }
+                            break;
+                        case "registerNewUser":
+                            //"serverAction-registerNewUser-"+nameField.getText()+"-"+surnameField.getText()+"-"+loginField.getText()+"-"+passwordField.getText()+"-"
+                            String query = "INSERT INTO user_account (firstname, lastname, login, password, amountOfMoney) VALUES (?, ?, ?, ?, 1000)";
+                            try {
+                                PreparedStatement statement = connectDB.prepareStatement(query);
+                                statement.setString(1, partedMessage[2]);
+                                statement.setString(2, partedMessage[3]);
+                                statement.setString(3, partedMessage[4]);
+                                statement.setString(4, partedMessage[5]);
+                                int rowsAffected = statement.executeUpdate();
+                                String responseToRegister = null;
+                                if (rowsAffected > 0) {
+                                    responseToRegister = "new-user-registered-";
+                                } else {
+                                    responseToRegister = "error-inRegister-";
+                                }
+                                sendData(responseToRegister.getBytes(), clientIP, clientPort);
+                            } catch(SQLException e)
+                            {
+                                e.printStackTrace();
+                            }
+
+
                             break;
                         default:
                             System.out.println("serverAction zly format wiadomosci. " + message);

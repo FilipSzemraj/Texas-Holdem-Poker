@@ -1,11 +1,12 @@
+org\main\serverMain.class
+org\main\LoginController.class
+org\main\registerController.class
+org\main\SceneController.class
 org\main\serverController.class
 Game\Croupier.class
 Game\CheckHand.class
-org\main\serverMain.class
 net\GameServer.class
 net\ClientInfo.class
-org\main\LoginController.class
 net\GameClient.class
 Game\GenerateRandom.class
 Game\Croupier$Hand.class
-org\main\SceneController.class
