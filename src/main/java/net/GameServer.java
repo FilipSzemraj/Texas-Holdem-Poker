@@ -258,6 +258,7 @@ public class GameServer extends Thread {
                         case "getPlayerAction":
                             break;
                         case "getCroupierInformation":
+                            //getCroupierInformation
                             break;
                         default:
                             System.out.println("Zly format wiadomosci. " + message);
