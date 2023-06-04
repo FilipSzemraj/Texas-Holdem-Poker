@@ -143,8 +143,12 @@ public class Croupier{
     {
         return playersHand[activePlayer].playerId;
     }
+    public void makePlayersHandNotNull()
+    {
+        playersHand=new Hand[1];
+    }
     public void waitForAtLeast2Players() throws InterruptedException {
-        while(playersHand == null )
+        while(playersHand == null)
         {
             synchronized (waitFor2Players) {
                 waitFor2Players.wait();
@@ -261,6 +265,10 @@ public class Croupier{
         waitingForPlayers.start();
         waitingForPlayers.join();
         makeDeck();
+        if(playersHand==null) //dodac wyjscie z serwera w tym momencie wazna petla while playersHand == null w waitForAtLeast2Players()
+        {
+            return;
+        }
         numberOfPlayers=playersHand.length;
         for (int i = 0; i < numberOfPlayers; i++) {
             StringBuffer sb = new StringBuffer("initializeInformations-"+playersHand[i].playerId+"-numberOfPlayers-"+numberOfPlayers);

@@ -11,6 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 class ClientInfo{
     private String name;
@@ -75,11 +76,13 @@ public class GameServer extends Thread {
         connectedClients.removeIf(client -> client.getIpAddress().equals(ipAddress) && client.getPort() == port);
     }
 
-    public void closeRunningFlag() {
+    public static synchronized void closeRunningFlag() {
+        System.out.println("zamykanie flagi");
         runningFlag = false;
     }
 
     public void closeTheSocket() throws SQLException {
+        System.out.println("Zamykanie soketa");
         socket.close();
         connectDB.close();
         connectNow.closeConnection();
@@ -321,6 +324,11 @@ public class GameServer extends Thread {
 
 
         }
+        game.makePlayersHandNotNull();
+        synchronized (game.waitFor2Players) {
+            game.waitFor2Players.notifyAll();
+        }
+        //startGame.interrupt();
     }
 
     public String validateLogin(String login, String password) throws SQLException {
@@ -335,12 +343,7 @@ public class GameServer extends Thread {
             while(queryResult.next())
             {
                 playerId=queryResult.getInt("account_ID");
-                if(!queryResult.next())
-                {
-                    isLogged=true;
-                }else {
-                    return "incorrect-data";
-                }
+                isLogged=true;
             }
             queryResult.close();
             statement.close();

@@ -62,8 +62,8 @@ public class serverController {
 
     public void stopServer(ActionEvent actionEvent) throws InterruptedException, SQLException {
         if(isRunning) {
-            gameServer.closeRunningFlag();
             gameServer.closeTheSocket();
+            gameServer.closeRunningFlag();
             Stage stage = (Stage) stopServerButton.getScene().getWindow();
             serverThread.join();
             stage.close();
