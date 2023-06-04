@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.main.registerController">
+   <children>
+      <BorderPane layoutX="81.0" layoutY="-7.0" prefHeight="200.0" prefWidth="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Imie:" />
+                  <TextField fx:id="nameField" />
+                  <Label text="Nazwisko:" />
+                  <TextField fx:id="surnameField" />
+                  <Label text="Login:" />
+                  <TextField fx:id="loginField" />
+                  <Label text="Haslo:" />
+                  <TextField fx:id="passwordField" />
+               </children>
+            </VBox>
+         </center>
+         <bottom>
+            <HBox prefHeight="32.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label fx:id="messageToUser" prefHeight="32.0" prefWidth="305.0" />
+                  <Button fx:id="registerButton" mnemonicParsing="false" onAction="#registerButtonOnClick" prefHeight="32.0" prefWidth="153.0" text="Zarejestruj konto." />
+               </children>
+            </HBox>
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>

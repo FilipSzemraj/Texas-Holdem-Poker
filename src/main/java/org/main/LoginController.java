@@ -74,7 +74,7 @@ public class LoginController {
         return response;
     }
 
-    public int returnIndexOfPlayerById(int value) {
+    public static int returnIndexOfPlayerById(int value) {
         int i = 0;
         for (GameClient client : Players) {
             if (client.playerId == value) {
@@ -136,11 +136,17 @@ public class LoginController {
 
         String messageToServer = "serverAction-validateLogin-user-" + loginTextField.getText() + "-password-" + passwordTextField.getText() + "-";
         sendRequest(messageToServer);
-        String response = receiveResponse();
+        String response="";
+        do{
+        response = receiveResponse();
+        }while(response.equals(""));
         String[] partedResponse = response.split("-");
         if (partedResponse[0].equals("correctData")) {
             //"correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-"
             logged(partedResponse[2], Integer.valueOf(partedResponse[4]));
+        }
+        else if(partedResponse[0].equals("wrongData")) {
+            messageLabel.setText("Nie poprawne dane.");
         }
     }
 

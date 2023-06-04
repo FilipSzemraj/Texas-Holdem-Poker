@@ -310,6 +310,7 @@ public class Croupier{
         waitForEndOfRound.release();
         StringBuffer sb = new StringBuffer("endOfGame-");
         GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+        endOfGame();
         System.out.println("KONIEC GRY!");
     }
 
@@ -661,6 +662,15 @@ public class Croupier{
             playersHand[activePlayer].zeroOutMoney();
         }
         playersHand[activePlayer].setIsAllIn(true);
+    }
+    private void endOfGame() throws SQLException, InterruptedException {
+        waitForEndOfRound.acquire();
+        for (Hand player : playersHand)
+        {
+            player.exitFromGame();
+        }
+        isPlayerPlayable();
+        waitForEndOfRound.release();
     }
     private void isPlayerPlayable() throws SQLException {
         if(playersHand==null)
