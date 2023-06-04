@@ -231,6 +231,7 @@ public class GameServer extends Thread {
                                     }
                                 }
                                 handleClientDisconnection(clientIP, clientPort);
+                                //
                                 //handleClientDisconnection(InetAddress.getByName(partedMessage[7]), Integer.valueOf(partedMessage[9])); //niech wyszukuje port z ClientInfo
                             } catch (UnknownHostException e) {
                                 throw new RuntimeException(e);
