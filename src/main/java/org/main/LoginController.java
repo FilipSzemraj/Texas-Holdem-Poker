@@ -1,6 +1,7 @@
 package org.main;
 
 import Game.Croupier;
+import javafx.stage.Modality;
 import net.GameClient;
 import net.GameServer;
 import sql.DatabaseConnection;
@@ -28,6 +29,7 @@ import java.util.List;
 
 public class LoginController {
 
+    public Button registerButton;
     @FXML
     private Button loginButton, cancelButton;
     @FXML
@@ -140,5 +142,31 @@ public class LoginController {
             //"correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-"
             logged(partedResponse[2], Integer.valueOf(partedResponse[4]));
         }
+    }
+
+    public void registerButtonOnAction(ActionEvent actionEvent) throws IOException {
+        Stage registerStage = new Stage();
+        registerStage.setTitle("Rejestracja");
+
+        // Utworzenie FXMLLoadera i załadowanie widoku dla nowego okna
+        URL url_fxml = new File("src/main/resources/fxml/registerWindow.fxml").toURI().toURL();
+        FXMLLoader fxmlLoader = new FXMLLoader(url_fxml);
+        Parent root = fxmlLoader.load();
+        registerController registerController = fxmlLoader.getController();
+        registerController.setLoginController(this);
+
+        // Ustawienie właściciela (okna-rodzica) dla nowego okna
+        Stage primaryStage = (Stage) registerButton.getScene().getWindow();
+        registerStage.initOwner(primaryStage);
+
+        // Ustawienie wyłączenia interakcji z oknem rodzica
+        registerStage.initModality(Modality.APPLICATION_MODAL);
+
+        // Utworzenie sceny dla nowego okna i ustawienie jej widoku
+        Scene scene = new Scene(root);
+        registerStage.setScene(scene);
+
+        // Wyświetlenie nowego okna
+        registerStage.show();
     }
 }

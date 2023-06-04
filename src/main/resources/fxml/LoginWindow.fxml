@@ -59,7 +59,7 @@
                   <DropShadow height="7.0" radius="3.0" width="7.0" />
                </effect>
             </Button>
-            <Label fx:id="messageLabel" layoutX="36.0" layoutY="325.0" prefHeight="76.0" prefWidth="208.0" style="-fx-background-color: #ECECE7;" wrapText="true">
+            <Label fx:id="messageLabel" layoutX="36.0" layoutY="325.0" prefHeight="35.0" prefWidth="208.0" style="-fx-background-color: #ECECE7;" wrapText="true">
                <font>
                   <Font size="13.0" />
                </font>
@@ -71,6 +71,14 @@
                <effect>
                   <DropShadow height="7.0" radius="3.0" width="7.0" />
                </effect>
+            </Button>
+            <Button fx:id="registerButton" layoutX="167.0" layoutY="365.0" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="10.0" prefWidth="80.0" style="-fx-background-color: #ECECE9;" text="Zarejestruj się.">
+               <effect>
+                  <DropShadow height="7.0" radius="3.0" width="7.0" />
+               </effect>
+               <font>
+                  <Font size="10.0" />
+               </font>
             </Button>
          </children>
       </AnchorPane>
