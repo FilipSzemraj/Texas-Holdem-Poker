@@ -113,6 +113,9 @@ public class SceneController{
         playerId=Id;
         this.amountOfMoney=amountOfMoney;
         AmountOfMoney_Player1.setText(String.valueOf(amountOfMoney));
+        String url = "-fx-image: url('/image/"+(playerId%6)+"')";
+        ProfileIcon_Player1.setStyle("-fx-background-size: cover");
+        ProfileIcon_Player1.setGraphic(new ImageView(new Image("/image/1.png")));
         actualBet = new Label[]{actualBet_Player1, actualBet_Player2, actualBet_Player3, actualBet_Player4, actualBet_Player5};
 
         //login();
@@ -794,18 +797,24 @@ public class SceneController{
         //                        playersHand[y].amountOfMoney
         switch(numberOfPlayers) {
             case 2:
+                String url2case2 = "-fx-background-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
+                    profileIcon_Player2.setStyle(url2case2);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                 });
                 whichInterfaceIsTaken[1]=true;
                 numberOfPlayers=2;
                 break;
             case 3:
+                String url2case3 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
+                String url3case3 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
+                    profileIcon_Player2.setStyle(url2case3);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
+                    profileIcon_Player3.setStyle(url3case3);
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                 });
                 whichInterfaceIsTaken[1]=true;
@@ -813,12 +822,18 @@ public class SceneController{
                 numberOfPlayers=3;
                 break;
             case 4:
+                String url2case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
+                String url3case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
+                String url4case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[17])%6)+"')";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
+                    profileIcon_Player2.setStyle(url2case4);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
+                    profileIcon_Player3.setStyle(url3case4);
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                     playerName_Player4.setText(partedMessage[19]);
+                    profileIcon_Player4.setStyle(url4case4);
                     AmountOfMoney_Player4.setText(partedMessage[21]);
                 });
                 whichInterfaceIsTaken[1]=true;
@@ -827,14 +842,22 @@ public class SceneController{
                 numberOfPlayers=4;
                 break;
             case 5:
+                String url2case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
+                String url3case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
+                String url4case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[17])%6)+"')";
+                String url5case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[25])%6)+"')";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
+                    profileIcon_Player2.setStyle(url2case5);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
+                    profileIcon_Player3.setStyle(url3case5);
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                     playerName_Player4.setText(partedMessage[19]);
+                    profileIcon_Player4.setStyle(url4case5);
                     AmountOfMoney_Player4.setText(partedMessage[21]);
                     playerName_Player5.setText(partedMessage[27]);
+                    profileIcon_Player5.setStyle(url5case5);
                     AmountOfMoney_Player5.setText(partedMessage[29]);
                 });
                 whichInterfaceIsTaken[1]=true;
