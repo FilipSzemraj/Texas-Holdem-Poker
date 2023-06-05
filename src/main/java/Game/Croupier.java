@@ -22,6 +22,7 @@ public class Croupier{
     public static volatile String playerActionMessage="fold";
     public static volatile int raiseAmount = 0;
     public static volatile boolean isRunning=false;
+    public static volatile boolean shouldWait=true;
     public final Object waitFor2Players = new Object();
     public final Object waitForMessage = new Object();
     public final Object waitForEndOfDelay = new Object();
@@ -83,8 +84,7 @@ public class Croupier{
         String sb = "changePot-"+pot+"-";
         GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb);
     }
-    public void setFirstPlayerInCycle(int x)
-    {
+    public void setFirstPlayerInCycle(int x) {
         firstPlayerInCycle=x;
         System.out.println("Pierwszy gracz w cyklu to: "+playersHand[x].playerName);
         //StringBuffer sb = new StringBuffer("setFirst-"+x+"-playerName-"+playersHand[activePlayer].playerName+"-");
@@ -94,8 +94,7 @@ public class Croupier{
     {
         maxBet=x;
     }
-    public void setActivePlayer(int x)
-    {
+    public void setActivePlayer(int x) {
         activePlayer=x;
         String sb = "setActivePlayer-playerName-"+playersHand[x].playerName+"-";
         GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb);
@@ -140,16 +139,17 @@ public class Croupier{
         waitForEndOfOperationsOnWaitingPlayers.release();
         return sb.toString();
     }
-    public int returnActivePlayerId()
-    {
-        return playersHand[activePlayer].playerId;
+    public int returnActivePlayerId() {
+        int id=playersHand[activePlayer].playerId;
+        return id;
+
     }
-    public void makePlayersHandNotNull()
+    public void stopWaitingFor2Players()
     {
-        playersHand=new Hand[1];
+        shouldWait=false;
     }
     public void waitForAtLeast2Players() throws InterruptedException {
-        while(playersHand == null)
+        while(playersHand == null && shouldWait)
         {
             synchronized (waitFor2Players) {
                 waitFor2Players.wait();
@@ -266,7 +266,7 @@ public class Croupier{
         waitingForPlayers.start();
         waitingForPlayers.join();
         makeDeck();
-        if(playersHand==null) //dodac wyjscie z serwera w tym momencie wazna petla while playersHand == null w waitForAtLeast2Players()
+        if(playersHand==null) //Koniec klasy Croupier, jesli wątek waitingForPlayers nie wykonal prawidlowo swojego zadania, tzn. brak uzytkownikow.
         {
             return;
         }
@@ -305,8 +305,7 @@ public class Croupier{
                 whichState++;
             } while (currentPlayingPlayers > 1 && whichState < 3);
             if(currentPlayingPlayers>1) {
-                checkForAllHands();
-                extractTheWinner();
+                extractTheWinner(checkForAllHands());
             }
             prepareForNextRound();
             waitForEndOfRound.release();
@@ -350,8 +349,9 @@ public class Croupier{
             } while (activePlayer != firstPlayerInCycle);
         }
         else {
-            Arrays.sort(playersHand);
-            distributePot(numberOfPlayers-1);
+            Hand[] temp = playersHand;
+            Arrays.sort(temp);
+            distributePot(temp[numberOfPlayers-1]);
             StringBuffer sb = new StringBuffer("endOfRound-");
             GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
@@ -368,10 +368,10 @@ public class Croupier{
         }
         return tempPosition;
     }
-    private void distributePot(int idOfPlayer)
+    private void distributePot(Hand player)
     {
-        playersHand[idOfPlayer].addMoney(pot);
-        playersHand[idOfPlayer].zeroOutActualBet();
+        player.addMoney(pot);
+        player.zeroOutActualBet();
         this.zeroOutPot();
     }
     private void getBlinds()
@@ -683,28 +683,49 @@ public class Croupier{
     private void isPlayerPlayable() throws SQLException {
         if(playersHand==null)
             return;
-        int countNonPlayablePlayers=0;
+        int playersToRemove=0;
+            for (int i = 0; i < playersHand.length-1; i++) {
+                    if(playersHand[i].amountOfMoney<=0 || playersHand[i].isInCurrentGame==false){
+
+                        GameServer.getInstance().saveDataAboutPlayer(playersHand[i].amountOfMoney, playersHand[i].playerId);
+                        StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playersHand[i].playerName+"-");
+                        GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
+
+                        playersToRemove++;
+                        for (int j = i; j < playersHand.length-1; j++) {
+                            playersHand[j]=playersHand[j+1];
+                        }
+                        i--;
+                    }
+            }
+
+            Hand[] temp = new Hand[playersHand.length-playersToRemove];
+            System.arraycopy(playersHand, 0, temp, 0, temp.length);
+
+        playersHand = temp;
+        numberOfPlayers=numberOfPlayers-playersToRemove;
+
+        /*int countNonPlayablePlayers=0;
         for (int i = 0; i < numberOfPlayers; i++) {
             if(playersHand[i].amountOfMoney<=0 || playersHand[i].isInCurrentGame==false)
             {
                 countNonPlayablePlayers++;
                 playersHand[i].rankOfHand=-1;
             }
-        }
+        }*/
         //System.out.println("Odpadlo: "+countNonPlayablePlayers+", graczy");
-        if(countNonPlayablePlayers>0) {
-            Arrays.sort(playersHand);
-            for (int i = 0; i < countNonPlayablePlayers; i++) {
+        //if(countNonPlayablePlayers>0) {
+        //Arrays.sort(playersHand);
+        /*for (int i = 0; i < countNonPlayablePlayers; i++) {
                 GameServer.getInstance().saveDataAboutPlayer(playersHand[i].amountOfMoney, playersHand[i].playerId);
                 StringBuffer sb = new StringBuffer("exitFromGame-playerName-"+playersHand[i].playerName+"-");
                 GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
-            }
-            playersHand = Arrays.copyOfRange(playersHand, countNonPlayablePlayers-1, numberOfPlayers-1);
-            numberOfPlayers=numberOfPlayers-countNonPlayablePlayers;
-
-        }
+            }*/
+        //playersHand = Arrays.copyOfRange(playersHand, countNonPlayablePlayers-1, numberOfPlayers-1);
+        //numberOfPlayers=numberOfPlayers-countNonPlayablePlayers;
+        //}
     }
-    private void checkForAllHands()
+    private Hand[] checkForAllHands()
     {
         checker.getIdOfCardsOnTable(table);
         for (int i = 0; i < numberOfPlayers; i++) {
@@ -717,7 +738,9 @@ public class Croupier{
 
             }
         }
-        Arrays.sort(playersHand);
+        Hand[] temp = playersHand;
+        Arrays.sort(temp);
+        return temp;
     }
     private int countTheWinners()
     {
@@ -743,13 +766,13 @@ public class Croupier{
         sb.append("-");
         GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
     }
-    private void extractTheWinner()
+    private void extractTheWinner(Hand[] playersHand)
     {
         if(pot>0)
         {
             if(currentPlayingPlayers==1){ //x
                 showTheWinners(1);
-                distributePot(numberOfPlayers-1);
+                distributePot(playersHand[numberOfPlayers-1]);
             }
             else
             {
@@ -760,7 +783,7 @@ public class Croupier{
                 {
                     if (playersHand[numberOfPlayers - 1].actualBet == maxBet) //x
                     {
-                        distributePot(numberOfPlayers - 1);
+                        distributePot(playersHand[numberOfPlayers-1]);
                     } else if (currentPlayingPlayers > 2) //jesli wygrany nie wyrownal do najwyzszego zakladu //x
                     {
                         int tempAward = playersHand[numberOfPlayers - 1].actualBet; //x
@@ -781,7 +804,7 @@ public class Croupier{
                         playersHand[numberOfPlayers - 1].zeroOutActualBet();
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
-                        extractTheWinner();
+                        extractTheWinner(playersHand);
                         return;
                     } else //jesli wygrany nie wyrownal do max zakladu, a graczy w partii jest dwoch. //x
                     {
@@ -865,7 +888,7 @@ public class Croupier{
                         setMaxBet(maxBet-smallerBet);
                         Arrays.sort(playersHand);
                         checkCurrentPlayingPlayers();
-                        extractTheWinner(); // wywolanie funkcji ponownie, z mniejsza iloscia graczy, o tych ktorzy juz zebrali swoja wygrana, az do momentu wyzerowania pot'a
+                        extractTheWinner(playersHand); // wywolanie funkcji ponownie, z mniejsza iloscia graczy, o tych ktorzy juz zebrali swoja wygrana, az do momentu wyzerowania pot'a
                         return;
                     }
                 }
@@ -1278,7 +1301,7 @@ public class Croupier{
     }
     public int extractTheWinner_makePublic()
     {
-        extractTheWinner();
+        extractTheWinner(playersHand);
         for (int i = 0; i < numberOfPlayers; i++) {
             System.out.println("Gracz nr "+playersHand[i].playerId+", posiada: "+playersHand[i].amountOfMoney);
         }

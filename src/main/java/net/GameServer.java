@@ -324,9 +324,14 @@ public class GameServer extends Thread {
 
 
         }
-        game.makePlayersHandNotNull();
+        game.stopWaitingFor2Players();
         synchronized (game.waitFor2Players) {
             game.waitFor2Players.notifyAll();
+        }
+        try {
+            startGame.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         //startGame.interrupt();
     }
@@ -340,7 +345,7 @@ public class GameServer extends Thread {
             Statement statement = connectDB.createStatement();
             ResultSet queryResult = statement.executeQuery(verifyLogin);
 
-            while(queryResult.next())
+            if(queryResult.next())
             {
                 playerId=queryResult.getInt("account_ID");
                 isLogged=true;
@@ -364,8 +369,9 @@ public class GameServer extends Thread {
             }
             queryResult.close();
             statement.close();
+            return "correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-";
         }
-        return "correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-";
+        return "wrongData";
 
     }
 public void saveDataAboutPlayer(int amountOfMoney, int accountId) throws SQLException {
