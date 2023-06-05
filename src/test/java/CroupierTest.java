@@ -1,5 +1,8 @@
 import Game.Croupier;
 import org.junit.Test;
+
+import java.sql.SQLException;
+
 import static org.junit.Assert.*;
 
 public class CroupierTest {
@@ -66,8 +69,7 @@ public class CroupierTest {
         assertEquals(125, winnersAmountOfMoney);
     }
     @Test
-    public void checkForAllHandsAndTestIsPlayerPlayable_DrawTwoWinnersOneWithoutMaxBetWithOnePlayerAllIn_true()
-    {
+    public void checkForAllHandsAndTestIsPlayerPlayable_DrawTwoWinnersOneWithoutMaxBetWithOnePlayerAllIn_true() throws SQLException {
         //given
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
 
@@ -79,6 +81,7 @@ public class CroupierTest {
         krupier.isPlayerPlayable_makePublic();
         int length=krupier.numberOfPlayers;
         boolean check=false;
+        System.out.println("Zostalo: "+length+", graczy");
         if(length==4 && winnersAmountOfMoney==125)
             check=true;
 
@@ -86,8 +89,7 @@ public class CroupierTest {
         assertTrue(check);
     }
     @Test
-    public void checkForAllHands_OnlyOneCurrentPlayerPlayingRestFolds_true()
-    {
+    public void checkForAllHands_OnlyOneCurrentPlayerPlayingRestFolds_true() throws SQLException {
         //given
         krupier.dealCardsWithAssumptions_checkWhenTwoPlayersHaveDraw();
 
@@ -106,8 +108,7 @@ public class CroupierTest {
         assertTrue(check);
     }
     @Test
-    public void checkForAllHands_OnlyTwoCurrentPlayingPlayersButWinnerDoesntHaveMaxBet_true()
-    {
+    public void checkForAllHands_OnlyTwoCurrentPlayingPlayersButWinnerDoesntHaveMaxBet_true() throws SQLException {
         //given
         krupier.dealCardsWithAssumptions_checkWhenWinningCardsOnTableAndMattersTheHighestCard();
 
