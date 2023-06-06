@@ -209,6 +209,8 @@ public class GameClient extends Thread{
         primaryStage.setScene(scene);
         primaryStage.show();
         controller.initialize(loader.getLocation(), loader.getResources(), name, Id, amountOfMoney);
+
+
     }
     public int getPlayerId()
     {

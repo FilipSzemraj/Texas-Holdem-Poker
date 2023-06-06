@@ -314,14 +314,19 @@ public class Croupier{
             cleanTable();
             dealCards();
             showHands();
-            preFlop(); //dodac usuwanie w odpowiednim miejscu
+            preFlop();
             do {
                 dealCommunityCardsAndInitiateBetting(); //flop, turn, river
-                //showCardsOnTable();
                 whichState++;
             } while (currentPlayingPlayers > 1 && whichState < 3);
             if(currentPlayingPlayers>1) {
                 extractTheWinner(checkForAllHands());
+            }
+            else if(currentPlayingPlayers==1)
+            {
+                Hand[] temp = playersHand;
+                Arrays.sort(temp);
+                distributePot(temp[numberOfPlayers-1]);
             }
             prepareForNextRound();
             waitForEndOfRound.release();
