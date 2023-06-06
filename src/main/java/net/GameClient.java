@@ -73,7 +73,7 @@ public class GameClient extends Thread{
                             synchronized (waitForMessage)
                             {
                                 try {
-                                    waitForMessage.wait();
+                                    waitForMessage.wait(15000);
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }

@@ -82,7 +82,7 @@
                   <VBox prefHeight="79.0" prefWidth="100.0">
                      <children>
                         <Label fx:id="playerName_Player2" text="Nazwa" />
-                        <Button fx:id="profileIcon_Player2" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                        <Button fx:id="profileIcon_Player2" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" />
                         <Label fx:id="AmountOfMoney_Player2" text="Pieniadze" />
                      </children>
                   </VBox>
@@ -136,7 +136,7 @@
                   <VBox prefHeight="79.0" prefWidth="100.0">
                      <children>
                         <Label fx:id="playerName_Player3" text="Nazwa" />
-                        <Button fx:id="profileIcon_Player3" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                        <Button fx:id="profileIcon_Player3" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" />
                         <Label fx:id="AmountOfMoney_Player3" text="Pieniadze" />
                      </children>
                   </VBox>
@@ -149,7 +149,7 @@
             <VBox prefHeight="129.0" prefWidth="102.0">
                <children>
                   <Label fx:id="playerName_Player4" text="Nazwa" />
-                  <Button fx:id="profileIcon_Player4" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                  <Button fx:id="profileIcon_Player4" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" />
                   <Label fx:id="AmountOfMoney_Player4" prefHeight="17.0" prefWidth="51.0" text="Pieniadze" />
                   <HBox prefHeight="35.0" prefWidth="82.0">
                      <children>
@@ -178,7 +178,7 @@
             <VBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="129.0" prefWidth="113.0">
                <children>
                   <Label fx:id="playerName_Player5" text="Nazwa" />
-                  <Button fx:id="profileIcon_Player5" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" text="Profil" />
+                  <Button fx:id="profileIcon_Player5" mnemonicParsing="false" prefHeight="48.0" prefWidth="62.0" />
                   <Label fx:id="AmountOfMoney_Player5" prefHeight="17.0" prefWidth="51.0" text="Pieniadze" />
                   <HBox prefHeight="41.0" prefWidth="95.0">
                      <children>

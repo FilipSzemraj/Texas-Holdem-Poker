@@ -113,9 +113,11 @@ public class SceneController{
         playerId=Id;
         this.amountOfMoney=amountOfMoney;
         AmountOfMoney_Player1.setText(String.valueOf(amountOfMoney));
-        String url = "-fx-image: url('/image/"+(playerId%6)+"')";
+        actualBet_Player1.setText("0");
+        String url = "/image/"+(playerId%6)+".png";
+        System.out.println(url);
         ProfileIcon_Player1.setStyle("-fx-background-size: cover");
-        ProfileIcon_Player1.setGraphic(new ImageView(new Image("/image/1.png")));
+        ProfileIcon_Player1.setGraphic(new ImageView(new Image(url)));
         actualBet = new Label[]{actualBet_Player1, actualBet_Player2, actualBet_Player3, actualBet_Player4, actualBet_Player5};
 
         //login();
@@ -271,6 +273,7 @@ public class SceneController{
         Thread.sleep(2000);
         Platform.runLater(() -> {
             Fold_button.setStyle("-fx-background-color: none");
+            AllIn_button.setStyle("-fx-background-color: none");
             player2Action.setText("");
             player3Action.setText("");
             player4Action.setText("");
@@ -281,11 +284,11 @@ public class SceneController{
             fourthCardOnTable.setImage(null);
             fifthCardOnTable.setImage(null);
             messageToTable.setText("Nowa runda...");
-            actualBet_Player1.setText("");
-            actualBet_Player2.setText("");
-            actualBet_Player3.setText("");
-            actualBet_Player4.setText("");
-            actualBet_Player5.setText("");
+            actualBet_Player1.setText("0");
+            actualBet_Player2.setText("0");
+            actualBet_Player3.setText("0");
+            actualBet_Player4.setText("0");
+            actualBet_Player5.setText("0");
         });
         //int index = LoginController.getInstance().returnIndexOfPlayerById(playerId);
         //LoginController.Players.get(index).sendData(("serverAction-endOfDelay-").getBytes());
@@ -797,23 +800,28 @@ public class SceneController{
         //                        playersHand[y].amountOfMoney
         switch(numberOfPlayers) {
             case 2:
-                String url2case2 = "-fx-background-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
+                String url2case2 = "/image/"+(Integer.valueOf(partedMessage[5])%6)+".png";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
-                    profileIcon_Player2.setStyle(url2case2);
+                    profileIcon_Player2.setStyle("-fx-background-size: cover");
+                    profileIcon_Player2.setGraphic(new ImageView(new Image(url2case2)));
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                 });
                 whichInterfaceIsTaken[1]=true;
                 numberOfPlayers=2;
                 break;
             case 3:
-                String url2case3 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
-                String url3case3 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
+                String url2case3 = "/image/"+(Integer.valueOf(partedMessage[5])%6)+".png";
+                String url3case3 = "/image/"+(Integer.valueOf(partedMessage[11])%6)+".png";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
+                    profileIcon_Player2.setStyle("-fx-background-size: cover");
+                    profileIcon_Player2.setGraphic(new ImageView(new Image(url2case3)));
                     profileIcon_Player2.setStyle(url2case3);
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
+                    profileIcon_Player3.setStyle("-fx-background-size: cover");
+                    profileIcon_Player3.setGraphic(new ImageView(new Image(url3case3)));
                     profileIcon_Player3.setStyle(url3case3);
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                 });
@@ -822,18 +830,21 @@ public class SceneController{
                 numberOfPlayers=3;
                 break;
             case 4:
-                String url2case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
-                String url3case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
-                String url4case4 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[17])%6)+"')";
+                String url2case4 = "/image/"+(Integer.valueOf(partedMessage[5])%6)+".png";
+                String url3case4 = "/image/"+(Integer.valueOf(partedMessage[11])%6)+".png";
+                String url4case4 = "/image/"+(Integer.valueOf(partedMessage[17])%6)+".png";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
-                    profileIcon_Player2.setStyle(url2case4);
+                    profileIcon_Player2.setStyle("-fx-background-size: cover");
+                    profileIcon_Player2.setGraphic(new ImageView(new Image(url2case4)));
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
-                    profileIcon_Player3.setStyle(url3case4);
+                    profileIcon_Player3.setStyle("-fx-background-size: cover");
+                    profileIcon_Player3.setGraphic(new ImageView(new Image(url3case4)));
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                     playerName_Player4.setText(partedMessage[19]);
-                    profileIcon_Player4.setStyle(url4case4);
+                    profileIcon_Player4.setStyle("-fx-background-size: cover");
+                    profileIcon_Player4.setGraphic(new ImageView(new Image(url4case4)));
                     AmountOfMoney_Player4.setText(partedMessage[21]);
                 });
                 whichInterfaceIsTaken[1]=true;
@@ -842,22 +853,26 @@ public class SceneController{
                 numberOfPlayers=4;
                 break;
             case 5:
-                String url2case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[5])%6)+"')";
-                String url3case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[11])%6)+"')";
-                String url4case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[17])%6)+"')";
-                String url5case5 = "-fx-image: url('/image/"+(Integer.valueOf(partedMessage[25])%6)+"')";
+                String url2case5 = "/image/"+(Integer.valueOf(partedMessage[5])%6)+".png";
+                String url3case5 = "/image/"+(Integer.valueOf(partedMessage[11])%6)+".png";
+                String url4case5 = "/image/"+(Integer.valueOf(partedMessage[17])%6)+".png";
+                String url5case5 = "/image/"+(Integer.valueOf(partedMessage[25])%6)+".png";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
-                    profileIcon_Player2.setStyle(url2case5);
+                    profileIcon_Player2.setStyle("-fx-background-size: cover");
+                    profileIcon_Player2.setGraphic(new ImageView(new Image(url2case5)));
                     AmountOfMoney_Player2.setText(partedMessage[9]);
                     playerName_Player3.setText(partedMessage[13]);
-                    profileIcon_Player3.setStyle(url3case5);
+                    profileIcon_Player3.setStyle("-fx-background-size: cover");
+                    profileIcon_Player3.setGraphic(new ImageView(new Image(url3case5)));
                     AmountOfMoney_Player3.setText(partedMessage[15]);
                     playerName_Player4.setText(partedMessage[19]);
-                    profileIcon_Player4.setStyle(url4case5);
+                    profileIcon_Player4.setStyle("-fx-background-size: cover");
+                    profileIcon_Player4.setGraphic(new ImageView(new Image(url4case5)));
                     AmountOfMoney_Player4.setText(partedMessage[21]);
                     playerName_Player5.setText(partedMessage[27]);
-                    profileIcon_Player5.setStyle(url5case5);
+                    profileIcon_Player5.setStyle("-fx-background-size: cover");
+                    profileIcon_Player5.setGraphic(new ImageView(new Image(url5case5)));
                     AmountOfMoney_Player5.setText(partedMessage[29]);
                 });
                 whichInterfaceIsTaken[1]=true;

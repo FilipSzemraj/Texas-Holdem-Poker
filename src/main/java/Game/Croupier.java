@@ -28,7 +28,7 @@ public class Croupier{
     public final Object waitForEndOfDelay = new Object();
     private final Semaphore waitForEndOfRound = new Semaphore(1);
     private final Semaphore waitForEndOfOperationsOnWaitingPlayers = new Semaphore(1);
-    private static Croupier instance;
+    private static volatile Croupier instance;
     public volatile int numberOfPlayers;
     public static String[] figures = {"Dwojki", "Trojki", "Czworki", "Piatki", "Szostki", "Siodemki", "Osemki", "Dziewiatki", "Dziesiatki"
             , "Jupki", "Damy", "Krole", "Asy"};
@@ -59,7 +59,7 @@ public class Croupier{
     private Croupier()
     {
     }
-    public static Croupier getInstance()
+    public static synchronized Croupier getInstance()
     {
         if(instance == null)
         {
@@ -177,10 +177,22 @@ public class Croupier{
                     } else {
                         temporary = new Hand[5];
                     }
+                    if(numberOfWaitingPlayers<temporaryLength)
+                    {
+                        temporaryLength=numberOfWaitingPlayers%temporaryLength;
+                    }
                     System.arraycopy(playersHand, 0, temporary, 0, numberOfCurrentPlayers);
                     System.arraycopy(waitingPlayers, 0, temporary, numberOfCurrentPlayers, temporaryLength);
-                    System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers - temporaryLength);
+                    if(numberOfWaitingPlayers-temporaryLength==0)
+                    {
+                        waitingPlayers=null;
+                    }
+                    else {
+                        System.arraycopy(waitingPlayers, temporaryLength, waitingPlayers, 0, numberOfWaitingPlayers - temporaryLength);
+                    }
                     playersHand=temporary;
+
+                    sendInitializeInformations();
                 }
             }
         }
@@ -188,7 +200,7 @@ public class Croupier{
         waitForEndOfRound.release();
     }
     public void addPlayerToQueue(int Id, String nick, int amountOfMoney) throws InterruptedException {
-        waitForEndOfRound.acquire();
+        //waitForEndOfRound.acquire();
         waitForEndOfOperationsOnWaitingPlayers.acquire();
         if(waitingPlayers == null)
         {
@@ -217,7 +229,7 @@ public class Croupier{
             System.out.println("Za duzo graczy w kolejce");
         }
         waitForEndOfOperationsOnWaitingPlayers.release();
-        waitForEndOfRound.release();
+        //waitForEndOfRound.release();
     }
 
     public void removePlayerFromWaitingQueue(int playerId) throws InterruptedException {
@@ -254,6 +266,23 @@ public class Croupier{
         System.out.println("\n\n");
         makeHands();
     }
+    public void sendInitializeInformations()
+    {
+        numberOfPlayers=playersHand.length;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            StringBuffer sb = new StringBuffer("initializeInformations-"+playersHand[i].playerId+"-numberOfPlayers-"+numberOfPlayers);
+            int y=(i+1)%numberOfPlayers;
+            int z=0;
+            do{
+                sb.append("-playerId-"+playersHand[y].playerId+"-playerName-"+playersHand[y].playerName+"-amountOfMoney-"+
+                        playersHand[y].amountOfMoney);
+                y=(y+1)%numberOfPlayers;
+                z++;
+            }while(z<numberOfPlayers-1);
+            sb.append("-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer(sb.toString());
+        }
+    }
     public void initializeCroupier() throws InterruptedException, SQLException {
 
         Thread waitingForPlayers = new Thread(() -> {
@@ -270,20 +299,7 @@ public class Croupier{
         {
             return;
         }
-        numberOfPlayers=playersHand.length;
-        for (int i = 0; i < numberOfPlayers; i++) {
-            StringBuffer sb = new StringBuffer("initializeInformations-"+playersHand[i].playerId+"-numberOfPlayers-"+numberOfPlayers);
-            int y=(i+1)%numberOfPlayers;
-            int z=0;
-            do{
-                sb.append("-playerId-"+playersHand[y].playerId+"-playerName-"+playersHand[y].playerName+"-amountOfMoney-"+
-                        playersHand[y].amountOfMoney);
-                y=(y+1)%numberOfPlayers;
-                z++;
-            }while(z<numberOfPlayers-1);
-            sb.append("-");
-            GameServer.getInstance().prepareAndSendDataFromCroupierToOnePlayer(sb.toString());
-        }
+        sendInitializeInformations();
         game();
 
     }
@@ -309,6 +325,9 @@ public class Croupier{
             }
             prepareForNextRound();
             waitForEndOfRound.release();
+
+            StringBuffer sb = new StringBuffer("endOfRound-");
+            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
 
             synchronized (waitForEndOfDelay) {
                 waitForEndOfDelay.wait();
@@ -352,8 +371,6 @@ public class Croupier{
             Hand[] temp = playersHand;
             Arrays.sort(temp);
             distributePot(temp[numberOfPlayers-1]);
-            StringBuffer sb = new StringBuffer("endOfRound-");
-            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
     }
     private int checkCurrentPlayingPlayers()
@@ -372,6 +389,7 @@ public class Croupier{
     {
         player.addMoney(pot);
         player.zeroOutActualBet();
+        System.out.println("ZEROWANIE POT");
         this.zeroOutPot();
     }
     private void getBlinds()
@@ -459,7 +477,7 @@ public class Croupier{
                     {
 
                         try {
-                            waitForMessage.wait();
+                            waitForMessage.wait(15000);
                         }catch(InterruptedException e)
                         {
                             e.printStackTrace();
@@ -893,8 +911,6 @@ public class Croupier{
                     }
                 }
             }
-            StringBuffer sb = new StringBuffer("endOfRound-");
-            GameServer.getInstance().prepareAndSendDataFromCroupierToAllPlayers(sb.toString());
         }
     }
 

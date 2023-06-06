@@ -45,7 +45,7 @@ class ClientInfo{
 
 public class GameServer extends Thread {
 
-    private static GameServer instance;
+    private static volatile GameServer instance;
     private DatagramSocket socket;
     private Croupier game;
     private List<ClientInfo> connectedClients = new ArrayList<>();
@@ -144,11 +144,17 @@ public class GameServer extends Thread {
                 case "playerAction":
                     switch (partedMessage[1]) {
                         case "login":
-                            try {
-                                game.addPlayerToQueue(Integer.parseInt(partedMessage[2]), partedMessage[3], Integer.parseInt(partedMessage[4]));
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
+                            int x=Integer.parseInt(partedMessage[2]);
+                            String y=partedMessage[3];
+                            int z=Integer.parseInt(partedMessage[4]);
+                                Thread addPlayer = new Thread(() -> {
+                                    try {
+                                        game.addPlayerToQueue(x, y, z);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                                addPlayer.start();
                             if (!clientExists) {
                                 connectedClients.add(new ClientInfo(clientIP, clientPort, Integer.valueOf(partedMessage[2]), partedMessage[3]));
                             }
@@ -212,16 +218,27 @@ public class GameServer extends Thread {
                             break;
                         case "logout":
                             //"playerAction-logout-playerId-"+playerId+"-playerNick-"+playerNick+"-ipAddress-"+ipAddress.getHostAddress()+"-"
-                            try {
-                                if (game.isRunning) {
-                                    game.removePlayerFromGame(Integer.valueOf(partedMessage[3]));
-                                } else {
-                                    game.removePlayerFromWaitingQueue(Integer.valueOf(partedMessage[3]));
-                                }
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
+                            int w=Integer.valueOf(partedMessage[3]);
+                            if (game.isRunning) {
+                                Thread removePlayer = new Thread(() -> {
+                                    try {
+                                        game.removePlayerFromGame(w);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                                removePlayer.start();
+                            } else {
+                                Thread removePlayer = new Thread(() -> {
+                                    try {
+                                        game.removePlayerFromWaitingQueue(w);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+                                removePlayer.start();
                             }
                             try {
                                 //clientIP = InetAddress.getByName(partedMessage[7]);
@@ -247,14 +264,19 @@ public class GameServer extends Thread {
                 case "playerReceive":
                     switch (partedMessage[1]) {
                         case "waitingRoom":
-                            String tempMessage = "";
-                            try {
-                                tempMessage = game.returnPlayers();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
+                            InetAddress tempClientIp = clientIP;
+                            int tempClientPort = clientPort;
+                            Thread returnPlayers = new Thread(() -> {
+                            String tempMessage=" ";
+                                try {
+                                    tempMessage = game.returnPlayers();
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
                             System.out.println("Temp message: " + tempMessage);
-                            sendData(tempMessage.getBytes(), clientIP, clientPort);
+                            sendData(tempMessage.getBytes(), tempClientIp, tempClientPort);
+                            });
+                            returnPlayers.start();
                             break;
                         case "getOtherPlayersInformation":
                             break;
