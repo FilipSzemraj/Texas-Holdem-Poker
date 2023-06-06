@@ -41,8 +41,7 @@ public class LoginController {
     private InetAddress serverAddress;
     private DatagramSocket socket;
     private int serverPort;
-    public static List<GameClient> Players;
-    public static List<Thread> ThreadsOfPlayers;
+    public static volatile List<GameClient> Players;
 
     public LoginController() throws SocketException, UnknownHostException {
     /*try {
@@ -57,7 +56,6 @@ public class LoginController {
         serverAddress = InetAddress.getByName("127.0.0.1");
         serverPort = 1331;
         Players = new ArrayList<>();
-        ThreadsOfPlayers = new ArrayList<>();
     }
 
     public void sendRequest(String message) throws Exception {
@@ -90,12 +88,12 @@ public class LoginController {
         int amountOfMoney = Integer.valueOf(money);
         String serverIp = "127.0.0.1"; // Adres IP serwera
         Players.add(new GameClient(serverIp));
-        ThreadsOfPlayers.add(new Thread(Players.get(Players.size() - 1)));
+        Thread newPlayer=new Thread(Players.get(Players.size()-1));
 
 
         System.out.println("LOGGED DLA:" + Players.get(Players.size() - 1) + Thread.currentThread().getName());
         Players.get(Players.size() - 1).initializeWindow(loginTextField.getText(), Id, amountOfMoney);
-        ThreadsOfPlayers.get(Players.size() - 1).start();
+        newPlayer.start();
 
     }
 

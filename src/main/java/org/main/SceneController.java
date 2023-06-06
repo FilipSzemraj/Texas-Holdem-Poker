@@ -272,8 +272,8 @@ public class SceneController{
     public void resetButtonsAndMessages() throws InterruptedException {
         Thread.sleep(2000);
         Platform.runLater(() -> {
-            Fold_button.setStyle("-fx-background-color: none");
-            AllIn_button.setStyle("-fx-background-color: none");
+            Fold_button.setStyle(".button");
+            AllIn_button.setStyle(".button");
             player2Action.setText("");
             player3Action.setText("");
             player4Action.setText("");
@@ -524,7 +524,7 @@ public class SceneController{
     {
         if(name.equals(playerName_Player1.getText())){
             Platform.runLater(() -> {
-                Fold_button.setStyle("-fx-background-color: yellow;");
+                Fold_button.setStyle("-fx-background-color: #9d4024;");
             });
         } else if(name.equals(playerName_Player2.getText()))
         {
@@ -554,7 +554,7 @@ public class SceneController{
     {
         if(name.equals(playerName_Player1.getText())){
             Platform.runLater(() -> {
-                AllIn_button.setStyle("-fx-background-color: yellow;");
+                AllIn_button.setStyle("-fx-background-color: #9d4024;");
             });
         } else if(name.equals(playerName_Player2.getText()))
         {
@@ -736,6 +736,7 @@ public class SceneController{
         if(name.equals(playerName_Player1.getText())){
             Platform.runLater(() -> {
                 AmountOfMoney_Player1.setText(amountOfMoney);
+                this.amountOfMoney=Integer.valueOf(amountOfMoney);
             });
         } else if(name.equals(playerName_Player2.getText()))
         {
