@@ -167,6 +167,9 @@ public class GameClient extends Thread{
                     //System.out.println(message);
                     //controller.setWaitingRoom(partedMessage);
                     break;
+                case "notEnoughMoney":
+                    controller.setErrorMessage("Nie posiadasz wystarczajacej ilosci pieniedzy, aby dolaczyc do stolu.\n Skontaktuj się z tworcami aplikacji.");
+                    break;
                 case "newPlayer":
                     break;
             }

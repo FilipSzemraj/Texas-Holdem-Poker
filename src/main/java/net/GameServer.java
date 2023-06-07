@@ -147,6 +147,10 @@ public class GameServer extends Thread {
                             int x=Integer.parseInt(partedMessage[2]);
                             String y=partedMessage[3];
                             int z=Integer.parseInt(partedMessage[4]);
+                            if(z<=0){
+                             sendData("notEnoughMoney-".getBytes(), clientIP, clientPort);
+                             break;
+                            }
                                 Thread addPlayer = new Thread(() -> {
                                     try {
                                         game.addPlayerToQueue(x, y, z);
