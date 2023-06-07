@@ -234,5 +234,10 @@
             </HBox>
          </children>
       </VBox>
+      <Label fx:id="errorMessage" alignment="CENTER" layoutX="174.0" layoutY="101.0" prefHeight="182.0" prefWidth="381.0" style="-fx-background-color: gray;" styleClass="button" text="Nie udalo sie zalogowac." underline="true" visible="false">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

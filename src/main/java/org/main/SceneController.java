@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 
 public class SceneController{
+    public Label errorMessage;
     private boolean[] whichInterfaceIsTaken = {true, false, false, false ,false};
     private int numberOfPlayers=0;
     public Label[] actualBet;
@@ -120,7 +121,6 @@ public class SceneController{
         ProfileIcon_Player1.setGraphic(new ImageView(new Image(url)));
         actualBet = new Label[]{actualBet_Player1, actualBet_Player2, actualBet_Player3, actualBet_Player4, actualBet_Player5};
 
-        //login();
         Stage stage = (Stage) wholeScene.getScene().getWindow();
         stage.setOnCloseRequest((WindowEvent event) ->{
             Iterator<GameClient> iterator = LoginController.Players.iterator();
@@ -131,23 +131,22 @@ public class SceneController{
                 {
                     player.closeRunningFlag();
                     player.closeTheSocket();
-                    //LoginController.closePlayerSocket(player.getPlayerId());
                     iterator.remove();
                     break;
                 }
             }
-            /*LoginController.Players.get(playerId).closeRunningFlag();
-            LoginController.closePlayerSocket(playerId);
-            LoginController.deletePlayer(playerId);*/
             stage.close();
         });
     }
+    public void setErrorMessage(String message)
+    {
+        Platform.runLater(() -> {
+            errorMessage.setDisable(false);
+            errorMessage.setVisible(true);
+            errorMessage.setText(message);
+        });
+    }
 
-
-    //private void login()
-    //{
-
-    //}
     @FXML
     void btnAllInOnClick(ActionEvent event) {
         int index = LoginController.returnIndexOfPlayerById(playerId);
