@@ -856,7 +856,7 @@ public class SceneController{
                 String url2case5 = "/image/"+(Integer.valueOf(partedMessage[5])%6)+".png";
                 String url3case5 = "/image/"+(Integer.valueOf(partedMessage[11])%6)+".png";
                 String url4case5 = "/image/"+(Integer.valueOf(partedMessage[17])%6)+".png";
-                String url5case5 = "/image/"+(Integer.valueOf(partedMessage[25])%6)+".png";
+                String url5case5 = "/image/"+(Integer.valueOf(partedMessage[23])%6)+".png";
                 Platform.runLater(() -> {
                     playerName_Player2.setText(partedMessage[7]);
                     profileIcon_Player2.setStyle("-fx-background-size: cover");

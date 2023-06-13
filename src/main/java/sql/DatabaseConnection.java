@@ -1,7 +1,5 @@
 package sql;
 
-import org.main.Main;
-import org.sqlite.SQLiteErrorCode;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -15,9 +13,9 @@ public class DatabaseConnection {
     public Connection databaseLink;
 
     public Connection getConnection(){
-        String databaseName = "db_poker";
-        String databaseUser = "Filip";
-        String databasePassword = "1234";
+        //String databaseName = "db_poker";
+        //String databaseUser = "Filip";
+        //String databasePassword = "1234";
         URL databaseLocation = getClass().getResource("/database/DB_POKER.db");
         String dbPrefix = "jdbc:sqlite:";
 
