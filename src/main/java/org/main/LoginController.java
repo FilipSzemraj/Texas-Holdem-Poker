@@ -1,10 +1,7 @@
 package org.main;
 
-import Game.Croupier;
 import javafx.stage.Modality;
 import net.GameClient;
-import net.GameServer;
-import sql.DatabaseConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,10 +15,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,27 +25,17 @@ public class LoginController {
 
     public Button registerButton;
     @FXML
-    private Button loginButton, cancelButton;
+    private Button cancelButton;
     @FXML
     Label messageLabel;
     @FXML
     TextField loginTextField, passwordTextField;
-    DatabaseConnection connectNow;
-    Connection connectDB;
     private InetAddress serverAddress;
     private DatagramSocket socket;
     private int serverPort;
     public static volatile List<GameClient> Players;
 
     public LoginController() throws SocketException, UnknownHostException {
-    /*try {
-        connectNow = new DatabaseConnection();
-        connectDB = connectNow.getConnection();
-    }catch(Exception e)
-    {
-        e.printStackTrace();
-        messageLabel.setText("Bład połączenia z baza danych!");
-    }*/
         socket = new DatagramSocket();
         serverAddress = InetAddress.getByName("127.0.0.1");
         serverPort = 1331;
@@ -134,17 +118,22 @@ public class LoginController {
 
         String messageToServer = "serverAction-validateLogin-user-" + loginTextField.getText() + "-password-" + passwordTextField.getText() + "-";
         sendRequest(messageToServer);
+        //"correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-"
         String response="";
         do{
         response = receiveResponse();
         }while(response.equals(""));
         String[] partedResponse = response.split("-");
-        if (partedResponse[0].equals("correctData")) {
+        if (partedResponse[0].equals("correctData") && Integer.valueOf(partedResponse[2])>0) {
             //"correctData-amountOfMoney-"+amountOfMoney+"-playerId-"+playerId+"-"
             logged(partedResponse[2], Integer.valueOf(partedResponse[4]));
         }
         else if(partedResponse[0].equals("wrongData")) {
             messageLabel.setText("Nie poprawne dane.");
+        }
+        else if(Integer.valueOf(partedResponse[2])<=0)
+        {
+            messageLabel.setText("Nie wystarczajaca ilosc pieniedzy na koncie");
         }
     }
 
