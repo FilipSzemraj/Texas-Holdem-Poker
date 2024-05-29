@@ -1,2 +1,2 @@
 # Texas-Holdem-Java
-Project of Texas Holdem in Java by Karol Cioć and Filip Szemraj.
+Project of Texas Holdem in Java by Filip Szemraj.
