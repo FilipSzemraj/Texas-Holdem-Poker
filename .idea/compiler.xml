@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Texas_holdem" />
         <module name="Texas-Holdem-Java" />
+        <module name="Java_Texas-Holdem-Poker" />
       </profile>
     </annotationProcessing>
   </component>
